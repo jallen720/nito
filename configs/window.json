@@ -1,0 +1,9 @@
+{
+    "title": "My window",
+    "width": 1280,
+    "height": 720,
+    "glfw-context-version": {
+        "major": 2,
+        "minor": 0
+    }
+}

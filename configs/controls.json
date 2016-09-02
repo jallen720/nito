@@ -1,0 +1,22 @@
+[
+    {
+        "key": "escape",
+        "action": "release",
+        "handler": "exit"
+    },
+    {
+        "key": "f",
+        "action": "press",
+        "handler": "print"
+    },
+    {
+        "key": "f",
+        "action": "release",
+        "handler": "print"
+    },
+    {
+        "key": "f",
+        "action": "repeat",
+        "handler": "print"
+    }
+]

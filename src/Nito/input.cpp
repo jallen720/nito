@@ -3,7 +3,6 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
-
 #include "CppUtils/MapUtils/containsKey.hpp"
 
 

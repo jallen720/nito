@@ -5,6 +5,7 @@
 
 #include "CppUtils/JSON/JSON.hpp"
 #include "CppUtils/JSON/loadJSONFile.hpp"
+#include "Nito/window.hpp"
 #include "Nito/input.hpp"
 
 
@@ -13,56 +14,37 @@ using std::vector;
 using CppUtils::JSON;
 using CppUtils::loadJSONFile;
 
+// Nito/window.hpp
+using Nito::initGLFW;
+using Nito::createWindow;
+using Nito::terminateGLFW;
+
 // Nito/input.hpp
-using Nito::keyCallback;
 using Nito::addControlBinding;
 using Nito::setControlHandler;
 
 
-static void errorCallback(int error, const char * description)
-{
-    printf("GLFW Error [%d]: %s\n", error, description);
-}
-
-
 int main()
 {
-    // Initialize GLFW
-    glfwSetErrorCallback(errorCallback);
-
-    if (!glfwInit())
-    {
-        puts("Failed to initialize GLFW!");
-        return 1;
-    }
+    initGLFW();
 
 
     // Create window
     JSON windowConfig = loadJSONFile("configs/window.json");
     const JSON & glfwContextVersion = windowConfig["glfw-context-version"];
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glfwContextVersion["major"]);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glfwContextVersion["minor"]);
 
     GLFWwindow * window =
-        glfwCreateWindow(
-            windowConfig["width"],
-            windowConfig["height"],
-            windowConfig["title"].get<string>().c_str(),
-            nullptr,
-            nullptr);
-
-    if (window == nullptr)
-    {
-        puts("Failed to create GLFW window!");
-        glfwTerminate();
-        return 1;
-    }
-
-
-    // Configure window
-    glfwSetKeyCallback(window, keyCallback);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+        createWindow(
+            {
+                windowConfig["width"],
+                windowConfig["height"],
+                windowConfig["title"],
+                windowConfig["refresh-rate"],
+                {
+                    glfwContextVersion["major"],
+                    glfwContextVersion["minor"],
+                }
+            });
 
 
     // Set control handlers
@@ -100,10 +82,6 @@ int main()
     }
 
 
-    // Cleanup
-    glfwDestroyWindow(window);
-    glfwTerminate();
-
-
+    terminateGLFW();
     return 0;
 }

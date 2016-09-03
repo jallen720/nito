@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "CppUtils/StringUtils/toString.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
+#include "CppUtils/VectorUtils/forEach.hpp"
 
 #include "Nito/input.hpp"
 
@@ -16,6 +17,7 @@ using std::vector;
 using std::runtime_error;
 using CppUtils::toString;
 using CppUtils::containsKey;
+using CppUtils::forEach;
 
 // Nito/input.hpp
 using Nito::keyCallback;
@@ -94,12 +96,7 @@ GLFWwindow * createWindow(const WindowConfig & windowConfig)
 
 void terminateGLFW()
 {
-    // TODO: Add map function to CppUtils/VectorUtils
-    for (GLFWwindow * window : windows)
-    {
-        glfwDestroyWindow(window);
-    }
-
+    forEach(windows, glfwDestroyWindow);
     glfwTerminate();
 }
 

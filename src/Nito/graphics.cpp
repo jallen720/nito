@@ -110,7 +110,7 @@ static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
 static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
 
 
-void loadGraphics(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) {
+void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) {
     // Vertex attribute specification
     static const vector<VertexAttribute> vertexAttributes {
         createVertexAttribute("float", 3, GL_FALSE), // Position

@@ -30,7 +30,7 @@ using Nito::setControlHandler;
 // Nito/graphics.hpp
 using Nito::initGLEW;
 using Nito::configureOpenGL;
-using Nito::loadGraphics;
+using Nito::loadVertexData;
 using Nito::renderGraphics;
 using Nito::destroyGraphics;
 
@@ -106,7 +106,7 @@ int main() {
         // -0.5f, -0.5f,  0.0f,
     };
 
-    loadGraphics(spriteVertexData, sizeof(spriteVertexData));
+    loadVertexData(spriteVertexData, sizeof(spriteVertexData));
 
 
     // Main loop

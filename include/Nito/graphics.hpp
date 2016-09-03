@@ -26,7 +26,7 @@ struct OpenGLConfig {
 
 void initGLEW();
 void configureOpenGL(const OpenGLConfig & openGLConfig);
-void loadGraphics(const GLvoid * vertexData, const GLsizeiptr vertexDataSize);
+void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize);
 void renderGraphics();
 void destroyGraphics();
 

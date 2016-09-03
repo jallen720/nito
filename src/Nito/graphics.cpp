@@ -33,10 +33,13 @@ void initGLEW() {
 
 
 void configureOpenGL(const OpenGLConfig & openGLConfig) {
+    // Configure viewport.
     int width, height;
     glfwGetFramebufferSize(openGLConfig.contextWindow, &width, &height);
     glViewport(0, 0, width, height);
 
+
+    // Configure clear color.
     const Color & clearColor = openGLConfig.clearColor;
 
     glClearColor(
@@ -44,6 +47,9 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
         clearColor.green,
         clearColor.blue,
         clearColor.alpha);
+
+
+    // // Configure other options.
     // glCullFace(GL_BACK);
     // glEnable(GL_CULL_FACE);
     // glEnable(GL_DEPTH_TEST);

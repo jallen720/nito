@@ -1,4 +1,4 @@
-#include "Nito/input.hpp"
+#include "Nito/Input.hpp"
 
 #include <vector>
 #include <map>

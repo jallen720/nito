@@ -5,12 +5,12 @@
 #include <vector>
 #include <cstdio>
 #include <GLFW/glfw3.h>
-
 #include "CppUtils/JSON/JSON.hpp"
 #include "CppUtils/JSON/loadJSONFile.hpp"
-#include "Nito/window.hpp"
-#include "Nito/input.hpp"
-#include "Nito/graphics.hpp"
+
+#include "Nito/Window.hpp"
+#include "Nito/Input.hpp"
+#include "Nito/Graphics.hpp"
 
 
 using std::string;
@@ -18,16 +18,16 @@ using std::vector;
 using CppUtils::JSON;
 using CppUtils::loadJSONFile;
 
-// Nito/window.hpp
+// Nito/Window.hpp
 using Nito::initGLFW;
 using Nito::createWindow;
 using Nito::terminateGLFW;
 
-// Nito/input.hpp
+// Nito/Input.hpp
 using Nito::addControlBinding;
 using Nito::setControlHandler;
 
-// Nito/graphics.hpp
+// Nito/Graphics.hpp
 using Nito::initGLEW;
 using Nito::configureOpenGL;
 using Nito::loadVertexData;

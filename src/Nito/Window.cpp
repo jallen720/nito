@@ -1,4 +1,4 @@
-#include "Nito/window.hpp"
+#include "Nito/Window.hpp"
 
 #include <map>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "CppUtils/MapUtils/containsKey.hpp"
 #include "CppUtils/VectorUtils/forEach.hpp"
 
-#include "Nito/input.hpp"
+#include "Nito/Input.hpp"
 
 
 using std::string;

@@ -1,4 +1,4 @@
-#include "Nito/graphics.hpp"
+#include "Nito/Graphics.hpp"
 
 #include <map>
 #include <vector>

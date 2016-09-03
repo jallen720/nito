@@ -22,6 +22,80 @@ using CppUtils::containsKey;
 namespace Nito {
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Data Structures
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct VertexAttribute {
+    struct Type {
+        const GLenum glType;
+        const size_t size;
+    };
+
+    using Types = const map<string, const Type>;
+
+    static Types types;
+
+    const Type & type;
+    const GLint elementCount;
+    const GLboolean isNormalized;
+    const size_t size;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Data
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+static const GLsizei VERTEX_ARRAY_COUNT  = 1;
+static const GLsizei VERTEX_BUFFER_COUNT = 1;
+static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
+static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
+
+
+VertexAttribute::Types VertexAttribute::types = {
+    {
+        "float",
+        {
+            GL_FLOAT,
+            sizeof(GLfloat),
+        },
+    },
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Utilities
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+static VertexAttribute createVertexAttribute(
+    const string & typeName,
+    const GLint elementCount,
+    const GLboolean isNormalized)
+{
+    if (!containsKey(VertexAttribute::types, typeName)) {
+        throw runtime_error("ERROR: " + typeName + " is not a valid vertex attribute type!");
+    }
+
+    const VertexAttribute::Type type = VertexAttribute::types.at(typeName);
+
+    return {
+        type,
+        elementCount,
+        isNormalized,
+        type.size * elementCount
+    };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Interface
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void initGLEW() {
     // Init GLEW in experimental mode
     glewExperimental = GL_TRUE;
@@ -54,60 +128,6 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
     // glEnable(GL_CULL_FACE);
     // glEnable(GL_DEPTH_TEST);
 }
-
-
-struct VertexAttribute {
-    struct Type {
-        const GLenum glType;
-        const size_t size;
-    };
-
-    using Types = const map<string, const Type>;
-
-    static Types types;
-
-    const Type & type;
-    const GLint elementCount;
-    const GLboolean isNormalized;
-    const size_t size;
-};
-
-
-VertexAttribute::Types VertexAttribute::types = {
-    {
-        "float",
-        {
-            GL_FLOAT,
-            sizeof(GLfloat),
-        },
-    },
-};
-
-
-static VertexAttribute createVertexAttribute(
-    const string & typeName,
-    const GLint elementCount,
-    const GLboolean isNormalized)
-{
-    if (!containsKey(VertexAttribute::types, typeName)) {
-        throw runtime_error("ERROR: " + typeName + " is not a valid vertex attribute type!");
-    }
-
-    const VertexAttribute::Type type = VertexAttribute::types.at(typeName);
-
-    return {
-        type,
-        elementCount,
-        isNormalized,
-        type.size * elementCount
-    };
-}
-
-
-static const GLsizei VERTEX_ARRAY_COUNT  = 1;
-static const GLsizei VERTEX_BUFFER_COUNT = 1;
-static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
-static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
 
 
 void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) {

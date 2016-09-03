@@ -30,6 +30,7 @@ using Nito::setControlHandler;
 // Nito/Graphics.hpp
 using Nito::initGLEW;
 using Nito::configureOpenGL;
+using Nito::loadShaders;
 using Nito::loadVertexData;
 using Nito::renderGraphics;
 using Nito::destroyGraphics;
@@ -99,13 +100,33 @@ int main() {
 
 
     // Load graphics data
+    const GLchar * vertexShaderSource =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 position;\n"
+        "out vec4 vertexColor;\n"
+        "void main()\n"
+        "{\n"
+        "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+        "vertexColor = gl_Position;\n"
+        "}\0";
+
+    const GLchar * fragmentShaderSource =
+        "#version 330 core\n"
+        "in vec4 vertexColor;\n"
+        "out vec4 color;\n"
+        "void main()\n"
+        "{\n"
+        "color = vertexColor;\n"
+        "}\n\0";
+
     GLfloat spriteVertexData[] = {
-        -0.5f,  0.5f,  0.0f,
-         0.5f,  0.5f,  0.0f,
-         0.5f, -0.5f,  0.0f,
+        -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
         // -0.5f, -0.5f,  0.0f,
     };
 
+    loadShaders(vertexShaderSource, fragmentShaderSource);
     loadVertexData(spriteVertexData, sizeof(spriteVertexData));
 
 

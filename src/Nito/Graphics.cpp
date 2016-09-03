@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include "CppUtils/Fn/accumulate.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
+#include "CppUtils/VectorUtils/forEach.hpp"
 
 
 using std::map;
@@ -17,6 +18,7 @@ using std::runtime_error;
 using std::size_t;
 using CppUtils::accumulate;
 using CppUtils::containsKey;
+using CppUtils::forEach;
 
 
 namespace Nito {
@@ -53,6 +55,7 @@ static const GLsizei VERTEX_ARRAY_COUNT  = 1;
 static const GLsizei VERTEX_BUFFER_COUNT = 1;
 static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
 static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
+static vector<GLuint> shaderPrograms;
 
 
 VertexAttribute::Types VertexAttribute::types = {
@@ -91,6 +94,43 @@ static VertexAttribute createVertexAttribute(
 }
 
 
+static void validateParameterIs(
+    const GLuint shaderEntity,
+    const GLenum parameter,
+    const GLint expectedParameterValue,
+    void (* shaderParameterGetter)(GLuint, GLenum, GLint *),
+    void (* shaderInfoLogGetter)(GLuint, GLsizei, GLsizei *, GLchar *))
+{
+    GLint parameterValue;
+    shaderParameterGetter(shaderEntity, parameter, &parameterValue);
+
+    if (parameterValue != expectedParameterValue) {
+        // Get info log and throw it.
+        GLint infoLogLength;
+        shaderParameterGetter(shaderEntity, GL_INFO_LOG_LENGTH, &infoLogLength);
+        vector<GLchar> infoLog(infoLogLength);
+        shaderInfoLogGetter(shaderEntity, infoLog.size(), nullptr, &infoLog[0]);
+        throw runtime_error("ERROR: " + string(infoLog.begin(), infoLog.end()));
+    }
+}
+
+
+static void compileShaderObject(const GLuint shaderObject, const GLchar * source) {
+    // Attach source and compile shaderObject.
+    glShaderSource(shaderObject, 1, &source, nullptr);
+    glCompileShader(shaderObject);
+
+
+    // Check for compile time errors.
+    validateParameterIs(
+        shaderObject,
+        GL_COMPILE_STATUS,
+        GL_TRUE,
+        glGetShaderiv,
+        glGetShaderInfoLog);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -121,12 +161,42 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
         clearColor.green,
         clearColor.blue,
         clearColor.alpha);
+}
 
 
-    // // Configure other options.
-    // glCullFace(GL_BACK);
-    // glEnable(GL_CULL_FACE);
-    // glEnable(GL_DEPTH_TEST);
+void loadShaders(const GLchar * vertexShaderSource, const GLchar * fragmentShaderSource) {
+    // Create and compile shader objects from sources.
+    GLuint vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+    compileShaderObject(vertexShaderObject, vertexShaderSource);
+    compileShaderObject(fragmentShaderObject, fragmentShaderSource);
+
+
+    // Create, attach shader objects to and link shader program.
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShaderObject);
+    glAttachShader(shaderProgram, fragmentShaderObject);
+    glLinkProgram(shaderProgram);
+
+
+    // Check for linking errors
+    validateParameterIs(
+        shaderProgram,
+        GL_LINK_STATUS,
+        GL_TRUE,
+        glGetProgramiv,
+        glGetProgramInfoLog);
+
+
+    // If shader program linking was successful, track shader program.
+    shaderPrograms.push_back(shaderProgram);
+
+
+    // Detach and delete shaders, as they are no longer needed by anything.
+    glDetachShader(shaderProgram, vertexShaderObject);
+    glDetachShader(shaderProgram, fragmentShaderObject);
+    glDeleteShader(vertexShaderObject);
+    glDeleteShader(fragmentShaderObject);
 }
 
 
@@ -197,17 +267,31 @@ void renderGraphics() {
     // static const GLenum   TYPE        = GL_UNSIGNED_INT;
     // static const GLvoid * FIRST       = 0;
 
+
+    // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT);
+
+
+    // Bind shader program and vertex array for rendering.
+    glUseProgram(shaderPrograms[0]);
     glBindVertexArray(vertexArrayObjects[0]);
+
+
     // glDrawElements(MODE, INDEX_COUNT, TYPE, FIRST);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+    // Unbind shader program and vertex array.
     glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 
 void destroyGraphics() {
+    // Delete all tracked graphics assets.
     glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
     glDeleteBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
+    forEach(shaderPrograms, glDeleteProgram);
 }
 
 

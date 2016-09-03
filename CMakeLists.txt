@@ -16,6 +16,8 @@ configure_project()
 # Library
 module_dependency("CppUtils")
 module_dependency("GLFW3")
+module_dependency("GLEW")
+
 add_bin()
 
 # Tests

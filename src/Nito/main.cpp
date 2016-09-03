@@ -1,3 +1,6 @@
+// Required before any other OpenGL includes
+#include <GL/glew.h>
+
 #include <string>
 #include <vector>
 #include <cstdio>
@@ -7,6 +10,7 @@
 #include "CppUtils/JSON/loadJSONFile.hpp"
 #include "Nito/window.hpp"
 #include "Nito/input.hpp"
+#include "Nito/graphics.hpp"
 
 
 using std::string;
@@ -22,6 +26,10 @@ using Nito::terminateGLFW;
 // Nito/input.hpp
 using Nito::addControlBinding;
 using Nito::setControlHandler;
+
+// Nito/graphics.hpp
+using Nito::initGLEW;
+using Nito::configureOpenGL;
 
 
 int main() {
@@ -68,6 +76,24 @@ int main() {
             controlBinding["action"],
             controlBinding["handler"]);
     }
+
+
+    // Initialize graphics engine
+    const JSON openGLConfig = loadJSONFile("configs/opengl.json");
+    const JSON clearColor = openGLConfig["clear-color"];
+
+    initGLEW();
+
+    configureOpenGL(
+        {
+            window,
+            {
+                clearColor["red"],
+                clearColor["green"],
+                clearColor["blue"],
+                clearColor["alpha"],
+            }
+        });
 
 
     // Main loop

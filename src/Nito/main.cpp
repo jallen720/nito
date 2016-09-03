@@ -30,6 +30,9 @@ using Nito::setControlHandler;
 // Nito/graphics.hpp
 using Nito::initGLEW;
 using Nito::configureOpenGL;
+using Nito::loadGraphics;
+using Nito::renderGraphics;
+using Nito::destroyGraphics;
 
 
 int main() {
@@ -81,7 +84,6 @@ int main() {
     // Initialize graphics engine
     const JSON openGLConfig = loadJSONFile("configs/opengl.json");
     const JSON clearColor = openGLConfig["clear-color"];
-
     initGLEW();
 
     configureOpenGL(
@@ -96,13 +98,26 @@ int main() {
         });
 
 
+    // Load graphics data
+    GLfloat spriteVertexData[] = {
+        -0.5f,  0.5f,  0.0f,
+         0.5f,  0.5f,  0.0f,
+         0.5f, -0.5f,  0.0f,
+        // -0.5f, -0.5f,  0.0f,
+    };
+
+    loadGraphics(spriteVertexData, sizeof(spriteVertexData));
+
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
-        glfwSwapBuffers(window);
         glfwPollEvents();
+        renderGraphics();
+        glfwSwapBuffers(window);
     }
 
 
+    destroyGraphics();
     terminateGLFW();
     return 0;
 }

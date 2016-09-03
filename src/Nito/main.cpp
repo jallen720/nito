@@ -24,8 +24,7 @@ using Nito::addControlBinding;
 using Nito::setControlHandler;
 
 
-int main()
-{
+int main() {
     initGLFW();
 
 
@@ -48,13 +47,11 @@ int main()
 
 
     // Set control handlers
-    auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
-    {
+    auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     };
 
-    auto printHandler = [](GLFWwindow * /*window*/, const int key, const int action) -> void
-    {
+    auto printHandler = [](GLFWwindow * /*window*/, const int key, const int action) -> void {
         printf("key [%d] action [%d]\n", key, action);
     };
 
@@ -65,8 +62,7 @@ int main()
     // Load control bindings
     const vector<JSON> controls = loadJSONFile("configs/controls.json");
 
-    for (const JSON & controlBinding : controls)
-    {
+    for (const JSON & controlBinding : controls) {
         addControlBinding(
             controlBinding["key"],
             controlBinding["action"],
@@ -75,8 +71,7 @@ int main()
 
 
     // Main loop
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

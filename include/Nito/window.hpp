@@ -7,19 +7,16 @@
 struct GLFWwindow;
 
 
-namespace Nito
-{
+namespace Nito {
 
 
-struct ContextVersion
-{
+struct ContextVersion {
     const int major;
     const int minor;
 };
 
 
-struct WindowConfig
-{
+struct WindowConfig {
     const int width;
     const int height;
     const std::string title;

@@ -6,8 +6,7 @@
 #include <GLFW/glfw3.h>
 
 
-namespace Nito
-{
+namespace Nito {
 
 
 using ControlHandler = std::function<void(GLFWwindow *, const int, const int)>;

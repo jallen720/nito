@@ -13,12 +13,10 @@ using std::runtime_error;
 using CppUtils::containsKey;
 
 
-namespace Nito
-{
+namespace Nito {
 
 
-static const map<string, const int> GLFW_KEY_CODE_MAP
-{
+static const map<string, const int> GLFW_KEY_CODE_MAP {
     { "space", GLFW_KEY_SPACE },
     { "apostrophe", GLFW_KEY_APOSTROPHE },
     { "comma", GLFW_KEY_COMMA },
@@ -142,16 +140,14 @@ static const map<string, const int> GLFW_KEY_CODE_MAP
 };
 
 
-static const map<string, const int> GLFW_KEY_ACTION_MAP
-{
+static const map<string, const int> GLFW_KEY_ACTION_MAP {
     { "release", GLFW_RELEASE },
     { "press", GLFW_PRESS },
     { "repeat", GLFW_REPEAT },
 };
 
 
-struct ControlBinding
-{
+struct ControlBinding {
     const int key;
     const int action;
     const ControlHandler & handler;
@@ -162,21 +158,17 @@ static vector<ControlBinding> controlBindings;
 static map<string, ControlHandler> controlHandlers;
 
 
-void addControlBinding(const string & key, const string & action, const string & handler)
-{
+void addControlBinding(const string & key, const string & action, const string & handler) {
     // Validations
-    if (!containsKey(GLFW_KEY_CODE_MAP, key))
-    {
+    if (!containsKey(GLFW_KEY_CODE_MAP, key)) {
         throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
     }
 
-    if (!containsKey(GLFW_KEY_ACTION_MAP, action))
-    {
+    if (!containsKey(GLFW_KEY_ACTION_MAP, action)) {
         throw runtime_error("ERROR: \"" + action + "\" is not a valid action!");
     }
 
-    if (!containsKey(controlHandlers, handler))
-    {
+    if (!containsKey(controlHandlers, handler)) {
         throw runtime_error("ERROR: \"" + handler + "\" is not a registered control handler!");
     }
 
@@ -190,16 +182,13 @@ void addControlBinding(const string & key, const string & action, const string &
 }
 
 
-void setControlHandler(const string & name, const ControlHandler & controlHandler)
-{
+void setControlHandler(const string & name, const ControlHandler & controlHandler) {
     controlHandlers[name] = controlHandler;
 }
 
 
-void keyCallback(GLFWwindow * window, int key, int /*scancode*/, int action, int /*mods*/)
-{
-    for (const ControlBinding & controlBinding : controlBindings)
-    {
+void keyCallback(GLFWwindow * window, int key, int /*scancode*/, int action, int /*mods*/) {
+    for (const ControlBinding & controlBinding : controlBindings) {
         if (controlBinding.key == key &&
             controlBinding.action == action)
         {

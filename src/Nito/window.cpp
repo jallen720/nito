@@ -23,40 +23,33 @@ using CppUtils::forEach;
 using Nito::keyCallback;
 
 
-namespace Nito
-{
+namespace Nito {
 
 
 static vector<GLFWwindow *> windows;
 
 
-static void errorCallback(int error, const char * description)
-{
+static void errorCallback(int error, const char * description) {
     throw runtime_error((string)"GLFW ERROR [" + toString(error) + "]: " + description + "!");
 }
 
 
-void initGLFW()
-{
+void initGLFW() {
     glfwSetErrorCallback(errorCallback);
 
-    if (!glfwInit())
-    {
+    if (!glfwInit()) {
         throw runtime_error("ERROR: Failed to initialize GLFW!");
     }
 }
 
 
-GLFWwindow * createWindow(const WindowConfig & windowConfig)
-{
-    static const map<string, const int> swapIntervals
-    {
+GLFWwindow * createWindow(const WindowConfig & windowConfig) {
+    static const map<string, const int> swapIntervals {
         { "every-update", 1 },
         { "every-other-update", 2 },
     };
 
-    if (!containsKey(swapIntervals, windowConfig.refreshRate))
-    {
+    if (!containsKey(swapIntervals, windowConfig.refreshRate)) {
         throw runtime_error(
             "ERROR: \"" + windowConfig.refreshRate + "\" is not a valid refresh rate!");
     }
@@ -76,8 +69,7 @@ GLFWwindow * createWindow(const WindowConfig & windowConfig)
             nullptr,
             nullptr);
 
-    if (window == nullptr)
-    {
+    if (window == nullptr) {
         throw runtime_error("GLFW ERROR: Failed to create GLFW window!");
     }
 
@@ -94,8 +86,7 @@ GLFWwindow * createWindow(const WindowConfig & windowConfig)
 }
 
 
-void terminateGLFW()
-{
+void terminateGLFW() {
     forEach(windows, glfwDestroyWindow);
     glfwTerminate();
 }

@@ -27,7 +27,7 @@ struct OpenGLConfig {
 };
 
 
-using ShaderPipeline = std::map<std::string, std::string>;
+using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
 
 
 void initGLEW();

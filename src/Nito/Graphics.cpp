@@ -115,9 +115,16 @@ static void validateParameterIs(
 }
 
 
-static void compileShaderObject(const GLuint shaderObject, const GLchar * source) {
-    // Attach source and compile shaderObject.
-    glShaderSource(shaderObject, 1, &source, nullptr);
+static void compileShaderObject(const GLuint shaderObject, const vector<string> sources) {
+    // Attach sources and compile shaderObject.
+    const size_t sourceCount = sources.size();
+    const GLchar * sourceCode[sourceCount];
+
+    for (size_t i = 0; i < sourceCount; i++) {
+        sourceCode[i] = sources[i].c_str();
+    }
+
+    glShaderSource(shaderObject, sourceCount, sourceCode, nullptr);
     glCompileShader(shaderObject);
 
 
@@ -195,13 +202,13 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
     // Process shader pipelines.
     for (const ShaderPipeline & shaderPipeline : shaderPipelines) {
         // Create and compile shader objects from sources.
-        forEach(shaderPipeline, [&](const string & shaderType, const string & shaderSource) -> void {
+        forEach(shaderPipeline, [&](const string & shaderType, const vector<string> & sources) -> void {
             if (!containsKey(shaderTypes, shaderType)) {
                 throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
             }
 
             GLuint shaderObject = glCreateShader(shaderTypes.at(shaderType));
-            compileShaderObject(shaderObject, shaderSource.c_str());
+            compileShaderObject(shaderObject, sources);
             shaderObjects.push_back(shaderObject);
         });
 

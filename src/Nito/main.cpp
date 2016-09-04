@@ -106,27 +106,40 @@ int main() {
         });
 
 
-    // Load graphics data.
-    const JSON shaderPipelinesData = readJSONFile("resources/data/shader-pipelines.json");
-    const JSON shadersConfig = readJSONFile("resources/configs/shaders.json");
-    const JSON shaderExtensions = shadersConfig["extensions"];
+    // Load shader pipelines.
+    const JSON shaderPipelinesData      = readJSONFile("resources/data/shader-pipelines.json");
+    const JSON shadersConfig            = readJSONFile("resources/configs/shaders.json");
+    const JSON shaderExtensions         = shadersConfig["extensions"];
+    const string versionSource          = readFile("resources/shaders/shared/version.glsl");
+    const string vertexAttributesSource = readFile("resources/shaders/shared/vertex-attributes.glsl");
 
     const vector<ShaderPipeline> shaderPipelines =
         transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) -> ShaderPipeline {
             ShaderPipeline shaderPipeline;
 
             forEach(shaderPipelineData, [&](const string & shaderType, const string & shaderSource) -> void {
-                const string shaderSourcePath =
+                // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
+                // source if this is a vertex shader, then finally the shader source itself.
+                vector<string> & shaderSources = shaderPipeline[shaderType];
+                shaderSources.push_back(versionSource);
+
+                if (shaderType == "vertex") {
+                    shaderSources.push_back(vertexAttributesSource);
+                }
+
+                shaderSources.push_back(readFile(
                     "resources/shaders/" +
                     shaderSource +
-                    shaderExtensions[shaderType].get<string>();
-
-                shaderPipeline[shaderType] = readFile(shaderSourcePath);
+                    shaderExtensions[shaderType].get<string>()));
             });
 
             return shaderPipeline;
         });
 
+    loadShaderPipelines(shaderPipelines);
+
+
+    // Load vertex data.
     GLfloat spriteVertexData[] = {
         -0.5f,  0.5f,  0.5f,
          0.5f,  0.5f,  0.5f,
@@ -134,7 +147,6 @@ int main() {
         // -0.5f, -0.5f,  0.0f,
     };
 
-    loadShaderPipelines(shaderPipelines);
     loadVertexData(spriteVertexData, sizeof(spriteVertexData));
 
 

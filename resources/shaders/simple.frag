@@ -1,6 +1,3 @@
-#version 330 core
-
-
 // The output color for this fragment.
 out vec4 color;
 

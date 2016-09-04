@@ -74,7 +74,7 @@ int main() {
 
 
     // Load control bindings
-    const vector<JSON> controls = readJSONFile("resources/configs/controls.json");
+    const vector<JSON> controls = readJSONFile("resources/data/controls.json");
 
     for (const JSON & controlBinding : controls) {
         addControlBinding(

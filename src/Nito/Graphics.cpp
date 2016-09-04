@@ -98,18 +98,19 @@ static void validateParameterIs(
     const GLuint shaderEntity,
     const GLenum parameter,
     const GLint expectedParameterValue,
-    void (* shaderParameterGetter)(GLuint, GLenum, GLint *),
-    void (* shaderInfoLogGetter)(GLuint, GLsizei, GLsizei *, GLchar *))
+    void (* getParameter)(GLuint, GLenum, GLint *),
+    void (* getInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *))
 {
     GLint parameterValue;
-    shaderParameterGetter(shaderEntity, parameter, &parameterValue);
+    getParameter(shaderEntity, parameter, &parameterValue);
 
+
+    // Throw shader entity info log if parameterValue is not as expected.
     if (parameterValue != expectedParameterValue) {
-        // Get info log and throw it.
         GLint infoLogLength;
-        shaderParameterGetter(shaderEntity, GL_INFO_LOG_LENGTH, &infoLogLength);
+        getParameter(shaderEntity, GL_INFO_LOG_LENGTH, &infoLogLength);
         vector<GLchar> infoLog(infoLogLength);
-        shaderInfoLogGetter(shaderEntity, infoLog.size(), nullptr, &infoLog[0]);
+        getInfoLog(shaderEntity, infoLog.size(), nullptr, &infoLog[0]);
         throw runtime_error("ERROR: " + string(infoLog.begin(), infoLog.end()));
     }
 }
@@ -137,9 +138,11 @@ static void compileShaderObject(const GLuint shaderObject, const GLchar * source
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void initGLEW() {
-    // Init GLEW in experimental mode
+    // Init GLEW in experimental mode.
     glewExperimental = GL_TRUE;
 
+
+    // Validate GLEW initialized properly.
     if (glewInit() != GLEW_OK) {
         throw runtime_error("GLEW ERROR: Failed to initialize GLEW!");
     }
@@ -179,7 +182,7 @@ void loadShaders(const GLchar * vertexShaderSource, const GLchar * fragmentShade
     glLinkProgram(shaderProgram);
 
 
-    // Check for linking errors
+    // Check for linking errors.
     validateParameterIs(
         shaderProgram,
         GL_LINK_STATUS,
@@ -277,6 +280,7 @@ void renderGraphics() {
     glBindVertexArray(vertexArrayObjects[0]);
 
 
+    // Draw bound vertex data.
     // glDrawElements(MODE, INDEX_COUNT, TYPE, FIRST);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 

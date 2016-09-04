@@ -200,7 +200,7 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
         glLinkProgram(shaderProgram);
 
 
-        // Check for linking errors.
+        // Track shader program if it linked successfully.
         validateParameterIs(
             shaderProgram,
             GL_LINK_STATUS,
@@ -208,8 +208,6 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
             glGetProgramiv,
             glGetProgramInfoLog);
 
-
-        // If shader program linking was successful, track shader program.
         shaderPrograms.push_back(shaderProgram);
 
 

@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cstddef>
 #include <GLFW/glfw3.h>
+#include <glm/vec4.hpp>
 #include "CppUtils/Fn/accumulate.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
 #include "CppUtils/ContainerUtils/forEach.hpp"
@@ -13,6 +14,7 @@ using std::vector;
 using std::string;
 using std::runtime_error;
 using std::size_t;
+using glm::vec4;
 using CppUtils::accumulate;
 using CppUtils::containsKey;
 using CppUtils::forEach;
@@ -126,6 +128,16 @@ static void compileShaderObject(const GLuint shaderObject, const GLchar * source
         GL_TRUE,
         glGetShaderiv,
         glGetShaderInfoLog);
+}
+
+
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & value) {
+    glUniform4f(
+        glGetUniformLocation(shaderProgram, uniformName),
+        value.x,
+        value.y,
+        value.z,
+        value.w);
 }
 
 
@@ -295,8 +307,13 @@ void renderGraphics() {
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-    // Bind shader program and vertex array for rendering.
-    glUseProgram(shaderPrograms[0]);
+    // Use shader program and set its uniforms.
+    const GLuint shaderProgram = shaderPrograms[0];
+    glUseProgram(shaderProgram);
+    setUniform(shaderProgram, "fragColor", { (sin(glfwGetTime()) / 2) + 0.5, 0.0f, 1.0f, 1.0f });
+
+
+    // Bind vertex array to be rendered.
     glBindVertexArray(vertexArrayObjects[0]);
 
 

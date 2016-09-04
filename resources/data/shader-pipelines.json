@@ -1,5 +1,9 @@
 [
     {
+        "vertex": "dev",
+        "fragment": "dev"
+    },
+    {
         "vertex": "simple",
         "fragment": "simple"
     },

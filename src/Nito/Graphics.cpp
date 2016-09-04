@@ -82,7 +82,7 @@ static VertexAttribute createVertexAttribute(
         throw runtime_error("ERROR: " + typeName + " is not a valid vertex attribute type!");
     }
 
-    const VertexAttribute::Type type = VertexAttribute::types.at(typeName);
+    const VertexAttribute::Type & type = VertexAttribute::types.at(typeName);
 
     return {
         type,

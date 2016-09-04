@@ -102,8 +102,14 @@ int main() {
 
 
     // Load graphics data
-    const string vertexShaderSource = readFile("resources/shaders/simple.vert");
-    const string fragmentShaderSource = readFile("resources/shaders/simple.frag");
+    const vector<JSON> shaders = readJSONFile("resources/data/shaders.json");
+    const JSON shaderSources = shaders[0]["sources"];
+
+    const string vertexShaderSource =
+        readFile("resources/shaders/" + shaderSources["vertex"].get<string>() + ".vert");
+
+    const string fragmentShaderSource =
+        readFile("resources/shaders/" + shaderSources["fragment"].get<string>() + ".frag");
 
     GLfloat spriteVertexData[] = {
         -0.5f,  0.5f,  0.5f,

@@ -88,7 +88,7 @@ static VertexAttribute createVertexAttribute(
         type,
         elementCount,
         isNormalized,
-        type.size * elementCount
+        type.size * elementCount,
     };
 }
 
@@ -276,12 +276,12 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     // Define pointers to vertex attributes.
     size_t previousAttributeSize = 0;
 
-    for (GLuint i = 0u; i < vertexAttributes.size(); i++) {
-        const VertexAttribute & vertexAttribute = vertexAttributes[i];
-        glEnableVertexAttribArray(i);
+    for (GLuint index = 0u; index < vertexAttributes.size(); index++) {
+        const VertexAttribute & vertexAttribute = vertexAttributes[index];
+        glEnableVertexAttribArray(index);
 
         glVertexAttribPointer(
-            i,
+            index,
             vertexAttribute.elementCount,
             vertexAttribute.type.glType,
             vertexAttribute.isNormalized,

@@ -148,6 +148,30 @@ static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, c
 }
 
 
+static void validateNoOpenGLError(const string & functionName) {
+    static const map<GLenum, const string> openGLErrorMessages {
+        { GL_INVALID_ENUM                  , "Invalid enum"                  },
+        { GL_INVALID_VALUE                 , "Invalid value"                 },
+        { GL_INVALID_OPERATION             , "Invalid operation"             },
+        { GL_INVALID_FRAMEBUFFER_OPERATION , "Invalid framebuffer operation" },
+        { GL_OUT_OF_MEMORY                 , "Out of memory"                 },
+        { GL_STACK_UNDERFLOW               , "Stack underflow"               },
+        { GL_STACK_OVERFLOW                , "Stack overflow"                },
+    };
+
+    const GLenum error = glGetError();
+
+    if (error != GL_NO_ERROR) {
+        string errorMessage =
+            containsKey(openGLErrorMessages, error)
+            ? openGLErrorMessages.at(error)
+            : "An unknown OpenGL error occurred!";
+
+        throw runtime_error("OPENGL ERROR: in " + functionName + "(): " + errorMessage);
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -180,6 +204,10 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
         clearColor.green,
         clearColor.blue,
         clearColor.alpha);
+
+
+    // Validate no OpenGL errors occurred.
+    validateNoOpenGLError("configureOpenGL");
 }
 
 
@@ -239,6 +267,10 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
         shaderObjects.clear();
         shaderProgram = 0;
     }
+
+
+    // Validate no OpenGL errors occurred.
+    validateNoOpenGLError("loadShaderPipelines");
 }
 
 
@@ -301,6 +333,10 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     // Unbind vertexArrayObjects (it's always a good thing to unbind any buffer/array to prevent
     // strange bugs).
     glBindVertexArray(0);
+
+
+    // Validate no OpenGL errors occurred.
+    validateNoOpenGLError("loadVertexData");
 }
 
 
@@ -333,6 +369,11 @@ void renderGraphics() {
     // Unbind shader program and vertex array.
     glBindVertexArray(0);
     glUseProgram(0);
+
+
+    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS THIS FUNCTION RUNS EVERY FRAME. !!!
+    // Validate no OpenGL errors occurred.
+    // validateNoOpenGLError("renderGraphics");
 }
 
 
@@ -345,6 +386,10 @@ void destroyGraphics() {
     // Delete shader pipelines.
     forEach(shaderPrograms, glDeleteProgram);
     shaderPrograms.clear();
+
+
+    // Validate no OpenGL errors occurred.
+    validateNoOpenGLError("destroyGraphics");
 }
 
 

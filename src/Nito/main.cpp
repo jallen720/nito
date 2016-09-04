@@ -97,7 +97,7 @@ int main() {
                 clearColor["green"],
                 clearColor["blue"],
                 clearColor["alpha"],
-            }
+            },
         });
 
 

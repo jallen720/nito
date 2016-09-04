@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <GLFW/glfw3.h>
 #include "CppUtils/JSON/JSON.hpp"
-#include "CppUtils/JSON/loadJSONFile.hpp"
+#include "CppUtils/JSON/readJSONFile.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
@@ -16,7 +16,7 @@
 using std::string;
 using std::vector;
 using CppUtils::JSON;
-using CppUtils::loadJSONFile;
+using CppUtils::readJSONFile;
 
 // Nito/Window.hpp
 using Nito::initGLFW;
@@ -41,7 +41,7 @@ int main() {
 
 
     // Create window
-    JSON windowConfig = loadJSONFile("configs/window.json");
+    JSON windowConfig = readJSONFile("configs/window.json");
     const JSON & glfwContextVersion = windowConfig["glfw-context-version"];
 
     GLFWwindow * window =
@@ -72,7 +72,7 @@ int main() {
 
 
     // Load control bindings
-    const vector<JSON> controls = loadJSONFile("configs/controls.json");
+    const vector<JSON> controls = readJSONFile("configs/controls.json");
 
     for (const JSON & controlBinding : controls) {
         addControlBinding(
@@ -83,7 +83,7 @@ int main() {
 
 
     // Initialize graphics engine
-    const JSON openGLConfig = loadJSONFile("configs/opengl.json");
+    const JSON openGLConfig = readJSONFile("configs/opengl.json");
     const JSON clearColor = openGLConfig["clear-color"];
     initGLEW();
 

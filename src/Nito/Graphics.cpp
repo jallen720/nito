@@ -216,7 +216,7 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
         forEach(shaderObjects, glDeleteShader);
 
 
-        // Cleanup
+        // Clear current pipeline's data.
         shaderObjects.clear();
         shaderProgram = 0;
     }
@@ -312,10 +312,14 @@ void renderGraphics() {
 
 
 void destroyGraphics() {
-    // Delete all tracked graphics assets.
+    // Delete vertex data.
     glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
     glDeleteBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
+
+
+    // Delete shader pipelines.
     forEach(shaderPrograms, glDeleteProgram);
+    shaderPrograms.clear();
 }
 
 

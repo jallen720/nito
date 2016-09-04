@@ -60,8 +60,8 @@ void initGLFW() {
 
 GLFWwindow * createWindow(const WindowConfig & windowConfig) {
     static const map<string, const int> swapIntervals {
-        { "every-update", 1 },
-        { "every-other-update", 2 },
+        { "every-update"       , 1 },
+        { "every-other-update" , 2 },
     };
 
     if (!containsKey(swapIntervals, windowConfig.refreshRate)) {
@@ -101,7 +101,11 @@ GLFWwindow * createWindow(const WindowConfig & windowConfig) {
 
 
 void terminateGLFW() {
+    // Destroy all windows.
     forEach(windows, glfwDestroyWindow);
+    windows.clear();
+
+
     glfwTerminate();
 }
 

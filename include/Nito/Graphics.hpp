@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <vector>
+#include <map>
+#include <string>
 #include <GL/glew.h>
 
 
@@ -24,9 +27,12 @@ struct OpenGLConfig {
 };
 
 
+using ShaderPipeline = std::map<std::string, std::string>;
+
+
 void initGLEW();
 void configureOpenGL(const OpenGLConfig & openGLConfig);
-void loadShaders(const GLchar * vertexShaderSource, const GLchar * fragmentShaderSource);
+void loadShaderPipelines(const std::vector<ShaderPipeline> & shaderPipelines);
 void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize);
 void renderGraphics();
 void destroyGraphics();

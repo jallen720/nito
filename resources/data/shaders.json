@@ -1,9 +1,0 @@
-[
-    {
-        "name": "simple",
-        "sources": {
-            "vertex": "simple",
-            "fragment": "simple"
-        }
-    }
-]

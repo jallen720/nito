@@ -8,6 +8,8 @@
 #include "CppUtils/JSON/JSON.hpp"
 #include "CppUtils/JSON/readJSONFile.hpp"
 #include "CppUtils/FileUtils/readFile.hpp"
+#include "CppUtils/ContainerUtils/forEach.hpp"
+#include "CppUtils/Fn/transform.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
@@ -19,6 +21,8 @@ using std::vector;
 using CppUtils::JSON;
 using CppUtils::readJSONFile;
 using CppUtils::readFile;
+using CppUtils::forEach;
+using CppUtils::transform;
 
 // Nito/Window.hpp
 using Nito::initGLFW;
@@ -32,10 +36,11 @@ using Nito::setControlHandler;
 // Nito/Graphics.hpp
 using Nito::initGLEW;
 using Nito::configureOpenGL;
-using Nito::loadShaders;
+using Nito::loadShaderPipelines;
 using Nito::loadVertexData;
 using Nito::renderGraphics;
 using Nito::destroyGraphics;
+using Nito::ShaderPipeline;
 
 
 int main() {
@@ -102,14 +107,27 @@ int main() {
 
 
     // Load graphics data
-    const vector<JSON> shaders = readJSONFile("resources/data/shaders.json");
-    const JSON shaderSources = shaders[0]["sources"];
+    const JSON shaderPipelinesData = readJSONFile("resources/data/shader-pipelines.json");
+    const JSON shadersConfig = readJSONFile("resources/configs/shaders.json");
+    const JSON shaderExtensions = shadersConfig["extensions"];
 
-    const string vertexShaderSource =
-        readFile("resources/shaders/" + shaderSources["vertex"].get<string>() + ".vert");
+    const vector<ShaderPipeline> shaderPipelines =
+        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) {
+            ShaderPipeline shaderPipeline;
 
-    const string fragmentShaderSource =
-        readFile("resources/shaders/" + shaderSources["fragment"].get<string>() + ".frag");
+            forEach(
+                shaderPipelineData,
+                [&](const string & shaderType, const string & shaderSource) -> void {
+                    const string shaderSourcePath =
+                        "resources/shaders/" +
+                        shaderSource +
+                        shaderExtensions[shaderType].get<string>();
+
+                    shaderPipeline[shaderType] = readFile(shaderSourcePath);
+                });
+
+            return shaderPipeline;
+        });
 
     GLfloat spriteVertexData[] = {
         -0.5f,  0.5f,  0.5f,
@@ -118,7 +136,7 @@ int main() {
         // -0.5f, -0.5f,  0.0f,
     };
 
-    loadShaders(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+    loadShaderPipelines(shaderPipelines);
     loadVertexData(spriteVertexData, sizeof(spriteVertexData));
 
 

@@ -1,8 +1,5 @@
 #include "Nito/Graphics.hpp"
 
-#include <map>
-#include <vector>
-#include <string>
 #include <stdexcept>
 #include <cstddef>
 #include <GLFW/glfw3.h>
@@ -167,39 +164,66 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
 }
 
 
-void loadShaders(const GLchar * vertexShaderSource, const GLchar * fragmentShaderSource) {
-    // Create and compile shader objects from sources.
-    GLuint vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
-    compileShaderObject(vertexShaderObject, vertexShaderSource);
-    compileShaderObject(fragmentShaderObject, fragmentShaderSource);
+void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
+    static const map<string, const GLenum> shaderTypes {
+        { "vertex"   , GL_VERTEX_SHADER   },
+        { "fragment" , GL_FRAGMENT_SHADER },
+    };
+
+    GLuint shaderProgram;
+    vector<GLuint> shaderObjects;
+
+    const auto processShaderObjects =
+        [&](void (* processShaderObject)(GLuint, GLuint)) -> void {
+            for (const GLuint shaderObject : shaderObjects) {
+                processShaderObject(shaderProgram, shaderObject);
+            }
+        };
 
 
-    // Create, attach shader objects to and link shader program.
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShaderObject);
-    glAttachShader(shaderProgram, fragmentShaderObject);
-    glLinkProgram(shaderProgram);
+    // Process shader pipelines.
+    for (const ShaderPipeline & shaderPipeline : shaderPipelines) {
+        // Create and compile shader objects from sources.
+        forEach(
+            shaderPipeline,
+            [&](const string & shaderType, const string & shaderSource) -> void {
+                if (!containsKey(shaderTypes, shaderType)) {
+                    throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
+                }
+
+                GLuint shaderObject = glCreateShader(shaderTypes.at(shaderType));
+                compileShaderObject(shaderObject, shaderSource.c_str());
+                shaderObjects.push_back(shaderObject);
+            });
 
 
-    // Check for linking errors.
-    validateParameterIs(
-        shaderProgram,
-        GL_LINK_STATUS,
-        GL_TRUE,
-        glGetProgramiv,
-        glGetProgramInfoLog);
+        // Create, attach shader objects to and link shader program.
+        shaderProgram = glCreateProgram();
+        processShaderObjects(glAttachShader);
+        glLinkProgram(shaderProgram);
 
 
-    // If shader program linking was successful, track shader program.
-    shaderPrograms.push_back(shaderProgram);
+        // Check for linking errors.
+        validateParameterIs(
+            shaderProgram,
+            GL_LINK_STATUS,
+            GL_TRUE,
+            glGetProgramiv,
+            glGetProgramInfoLog);
 
 
-    // Detach and delete shaders, as they are no longer needed by anything.
-    glDetachShader(shaderProgram, vertexShaderObject);
-    glDetachShader(shaderProgram, fragmentShaderObject);
-    glDeleteShader(vertexShaderObject);
-    glDeleteShader(fragmentShaderObject);
+        // If shader program linking was successful, track shader program.
+        shaderPrograms.push_back(shaderProgram);
+
+
+        // Detach and delete shaders, as they are no longer needed by anything.
+        processShaderObjects(glDetachShader);
+        forEach(shaderObjects, glDeleteShader);
+
+        // Cleanup
+        shaderObjects.clear();
+        shaderProgram = 0;
+    }
 }
 
 

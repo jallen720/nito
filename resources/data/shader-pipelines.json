@@ -1,0 +1,10 @@
+[
+    {
+        "vertex": "simple",
+        "fragment": "simple"
+    },
+    {
+        "vertex": "colorful",
+        "fragment": "colorful"
+    }
+]

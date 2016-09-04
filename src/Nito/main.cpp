@@ -47,7 +47,7 @@ int main() {
     initGLFW();
 
 
-    // Create window
+    // Create window.
     JSON windowConfig = readJSONFile("resources/configs/window.json");
     const JSON & glfwContextVersion = windowConfig["glfw-context-version"];
 
@@ -65,7 +65,7 @@ int main() {
             });
 
 
-    // Set control handlers
+    // Set control handlers.
     auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     };
@@ -78,7 +78,7 @@ int main() {
     setControlHandler("print", printHandler);
 
 
-    // Load control bindings
+    // Load control bindings.
     const vector<JSON> controls = readJSONFile("resources/data/controls.json");
 
     for (const JSON & controlBinding : controls) {
@@ -89,7 +89,7 @@ int main() {
     }
 
 
-    // Initialize graphics engine
+    // Initialize graphics engine.
     const JSON openGLConfig = readJSONFile("resources/configs/opengl.json");
     const JSON clearColor = openGLConfig["clear-color"];
     initGLEW();
@@ -106,7 +106,7 @@ int main() {
         });
 
 
-    // Load graphics data
+    // Load graphics data.
     const JSON shaderPipelinesData = readJSONFile("resources/data/shader-pipelines.json");
     const JSON shadersConfig = readJSONFile("resources/configs/shaders.json");
     const JSON shaderExtensions = shadersConfig["extensions"];

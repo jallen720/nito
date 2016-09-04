@@ -246,6 +246,7 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     // Vertex attribute specification
     static const vector<VertexAttribute> vertexAttributes {
         createVertexAttribute("float", 3, GL_FALSE), // Position
+        createVertexAttribute("float", 4, GL_FALSE), // Color
     };
 
     static const GLsizei vertexStride =
@@ -317,7 +318,7 @@ void renderGraphics() {
     // Use shader program and set its uniforms.
     const GLuint shaderProgram = shaderPrograms[0];
     glUseProgram(shaderProgram);
-    setUniform(shaderProgram, "fragColor", { (sin(glfwGetTime()) / 2) + 0.5, 0.0f, 1.0f, 1.0f });
+    setUniform(shaderProgram, "uniformColor", { (sin(glfwGetTime()) / 2) + 0.5, 0.0f, 0.0f, 1.0f });
 
 
     // Bind vertex array to be rendered.

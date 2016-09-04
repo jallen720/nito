@@ -1,7 +1,8 @@
+in vec4 fragColor;
 out vec4 color;
-uniform vec4 fragColor;
+uniform vec4 uniformColor;
 
 
 void main() {
-    color = fragColor;
+    color = mix(fragColor, uniformColor, 0.5);
 }

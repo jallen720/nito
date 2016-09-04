@@ -112,19 +112,17 @@ int main() {
     const JSON shaderExtensions = shadersConfig["extensions"];
 
     const vector<ShaderPipeline> shaderPipelines =
-        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) {
+        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) -> ShaderPipeline {
             ShaderPipeline shaderPipeline;
 
-            forEach(
-                shaderPipelineData,
-                [&](const string & shaderType, const string & shaderSource) -> void {
-                    const string shaderSourcePath =
-                        "resources/shaders/" +
-                        shaderSource +
-                        shaderExtensions[shaderType].get<string>();
+            forEach(shaderPipelineData, [&](const string & shaderType, const string & shaderSource) -> void {
+                const string shaderSourcePath =
+                    "resources/shaders/" +
+                    shaderSource +
+                    shaderExtensions[shaderType].get<string>();
 
-                    shaderPipeline[shaderType] = readFile(shaderSourcePath);
-                });
+                shaderPipeline[shaderType] = readFile(shaderSourcePath);
+            });
 
             return shaderPipeline;
         });

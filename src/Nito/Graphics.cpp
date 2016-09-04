@@ -21,11 +21,11 @@ using CppUtils::forEach;
 namespace Nito {
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data Structures
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct VertexAttribute {
     struct Type {
         const GLenum glType;
@@ -43,11 +43,11 @@ struct VertexAttribute {
 };
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const GLsizei VERTEX_ARRAY_COUNT  = 1;
 static const GLsizei VERTEX_BUFFER_COUNT = 1;
 static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
@@ -66,11 +66,11 @@ VertexAttribute::Types VertexAttribute::types = {
 };
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Utilities
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static VertexAttribute createVertexAttribute(
     const string & typeName,
     const GLint elementCount,
@@ -129,11 +129,11 @@ static void compileShaderObject(const GLuint shaderObject, const GLchar * source
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void initGLEW() {
     // Init GLEW in experimental mode.
     glewExperimental = GL_TRUE;
@@ -173,28 +173,25 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
     GLuint shaderProgram;
     vector<GLuint> shaderObjects;
 
-    const auto processShaderObjects =
-        [&](void (* processShaderObject)(GLuint, GLuint)) -> void {
-            for (const GLuint shaderObject : shaderObjects) {
-                processShaderObject(shaderProgram, shaderObject);
-            }
-        };
+    const auto processShaderObjects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void {
+        for (const GLuint shaderObject : shaderObjects) {
+            processShaderObject(shaderProgram, shaderObject);
+        }
+    };
 
 
     // Process shader pipelines.
     for (const ShaderPipeline & shaderPipeline : shaderPipelines) {
         // Create and compile shader objects from sources.
-        forEach(
-            shaderPipeline,
-            [&](const string & shaderType, const string & shaderSource) -> void {
-                if (!containsKey(shaderTypes, shaderType)) {
-                    throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
-                }
+        forEach(shaderPipeline, [&](const string & shaderType, const string & shaderSource) -> void {
+            if (!containsKey(shaderTypes, shaderType)) {
+                throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
+            }
 
-                GLuint shaderObject = glCreateShader(shaderTypes.at(shaderType));
-                compileShaderObject(shaderObject, shaderSource.c_str());
-                shaderObjects.push_back(shaderObject);
-            });
+            GLuint shaderObject = glCreateShader(shaderTypes.at(shaderType));
+            compileShaderObject(shaderObject, shaderSource.c_str());
+            shaderObjects.push_back(shaderObject);
+        });
 
 
         // Create, attach shader objects to and link shader program.
@@ -219,6 +216,7 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
         // Detach and delete shaders, as they are no longer needed by anything.
         processShaderObjects(glDetachShader);
         forEach(shaderObjects, glDeleteShader);
+
 
         // Cleanup
         shaderObjects.clear();

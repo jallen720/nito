@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include "CppUtils/JSON/JSON.hpp"
 #include "CppUtils/JSON/readJSONFile.hpp"
+#include "CppUtils/FileUtils/readFile.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
@@ -17,6 +18,7 @@ using std::string;
 using std::vector;
 using CppUtils::JSON;
 using CppUtils::readJSONFile;
+using CppUtils::readFile;
 
 // Nito/Window.hpp
 using Nito::initGLFW;
@@ -100,24 +102,8 @@ int main() {
 
 
     // Load graphics data
-    const GLchar * vertexShaderSource =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 position;\n"
-        "out vec4 vertexColor;\n"
-        "void main()\n"
-        "{\n"
-        "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-        "vertexColor = gl_Position;\n"
-        "}\0";
-
-    const GLchar * fragmentShaderSource =
-        "#version 330 core\n"
-        "in vec4 vertexColor;\n"
-        "out vec4 color;\n"
-        "void main()\n"
-        "{\n"
-        "color = vertexColor;\n"
-        "}\n\0";
+    const string vertexShaderSource = readFile("resources/shaders/simple.vert");
+    const string fragmentShaderSource = readFile("resources/shaders/simple.frag");
 
     GLfloat spriteVertexData[] = {
         -0.5f,  0.5f,  0.5f,
@@ -126,7 +112,7 @@ int main() {
         // -0.5f, -0.5f,  0.0f,
     };
 
-    loadShaders(vertexShaderSource, fragmentShaderSource);
+    loadShaders(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
     loadVertexData(spriteVertexData, sizeof(spriteVertexData));
 
 

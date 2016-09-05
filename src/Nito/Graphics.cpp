@@ -328,12 +328,12 @@ void loadVertexData(
         glEnableVertexAttribArray(index);
 
         glVertexAttribPointer(
-            index,
-            vertexAttribute.elementCount,
-            vertexAttribute.type.glType,
-            vertexAttribute.isNormalized,
-            vertexStride,
-            (GLvoid *)previousAttributeSize);
+            index,                            // Index of attribute
+            vertexAttribute.elementCount,     // Number of attribute elements
+            vertexAttribute.type.glType,      // Type of attribute elements
+            vertexAttribute.isNormalized,     // Should attribute elements be normalized?
+            vertexStride,                     // Stride between attributes
+            (GLvoid *)previousAttributeSize); // Pointer to first element of attribute
 
         previousAttributeSize = vertexAttribute.size;
     }
@@ -353,12 +353,6 @@ void loadVertexData(
 
 
 void renderGraphics() {
-    static const GLenum   MODE        = GL_TRIANGLES;
-    static const GLsizei  INDEX_COUNT = 6;
-    static const GLenum   TYPE        = GL_UNSIGNED_INT;
-    static const GLvoid * FIRST       = 0;
-
-
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -371,7 +365,12 @@ void renderGraphics() {
 
     // Bind and draw vertex array.
     glBindVertexArray(vertexArrayObjects[0]);
-    glDrawElements(MODE, INDEX_COUNT, TYPE, FIRST);
+
+    glDrawElements(
+        GL_TRIANGLES,    // Render mode
+        6,               // Index count
+        GL_UNSIGNED_INT, // Index type
+        (GLvoid *)0);    // Pointer to start of index array
 
 
     // Unbind shader program and vertex array.

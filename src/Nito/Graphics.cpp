@@ -366,7 +366,7 @@ void renderGraphics() {
     // Use shader program and set its uniforms.
     const GLuint shaderProgram = shaderPrograms[0];
     glUseProgram(shaderProgram);
-    setUniform(shaderProgram, "uniformColor", { (sin(glfwGetTime()) / 2) + 0.5, 0.0f, 0.0f, 1.0f });
+    setUniform(shaderProgram, "uniformColor", { (sin(glfwGetTime() * 3) / 2) + 0.5, 0.0f, 0.0f, 1.0f });
 
 
     // Bind and draw vertex array.

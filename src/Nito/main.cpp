@@ -140,7 +140,7 @@ int main() {
 
 
     // Load vertex data.
-    GLfloat spriteVertexData[] = {
+    GLfloat spriteVertexData[] {
         // Position
         -0.5f, -0.5f,  0.0f,
         -0.5f,  0.5f,  0.5f,
@@ -148,7 +148,7 @@ int main() {
          0.5f, -0.5f,  0.5f,
     };
 
-    GLuint spriteIndexData[] = {
+    GLuint spriteIndexData[] {
         0, 1, 2,
         0, 2, 3,
     };

@@ -1,0 +1,22 @@
+[
+    {
+        "path": "box.jpg",
+        "format": "rgb",
+        "options": {
+            "wrap-s": "repeat",
+            "wrap-t": "repeat",
+            "min-filter": "linear",
+            "mag-filter": "linear"
+        }
+    },
+    {
+        "path": "polys.jpg",
+        "format": "rgb",
+        "options": {
+            "wrap-s": "repeat",
+            "wrap-t": "repeat",
+            "min-filter": "linear",
+            "mag-filter": "linear"
+        }
+    }
+]

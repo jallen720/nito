@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
+#include <Magick++.h>
 #include "CppUtils/Fn/accumulate.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
 #include "CppUtils/ContainerUtils/forEach.hpp"
@@ -15,6 +16,8 @@ using std::string;
 using std::runtime_error;
 using std::size_t;
 using glm::vec4;
+using Magick::Blob;
+using Magick::Image;
 using CppUtils::accumulate;
 using CppUtils::containsKey;
 using CppUtils::forEach;
@@ -45,6 +48,12 @@ struct VertexAttribute {
 };
 
 
+struct TextureFormat {
+    const GLenum internal;
+    const std::string image;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data
@@ -56,6 +65,7 @@ static const GLsizei INDEX_BUFFER_COUNT  = 1;
 static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
 static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
 static GLuint indexBufferObjects[INDEX_BUFFER_COUNT];
+static vector<GLuint> textureObjects;
 static vector<GLuint> shaderPrograms;
 
 
@@ -150,6 +160,16 @@ static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, c
 }
 
 
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint value) {
+    glUniform1i(glGetUniformLocation(shaderProgram, uniformName), value);
+}
+
+
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat value) {
+    glUniform1f(glGetUniformLocation(shaderProgram, uniformName), value);
+}
+
+
 static void validateNoOpenGLError(const string & functionName) {
     static const map<GLenum, const string> openGLErrorMessages {
         { GL_INVALID_ENUM                  , "Invalid enum"                  },
@@ -171,6 +191,12 @@ static void validateNoOpenGLError(const string & functionName) {
 
         throw runtime_error("OPENGL ERROR: in " + functionName + "(): " + errorMessage);
     }
+}
+
+
+static void bindTexture(const GLuint textureObject, const GLuint textureUnit) {
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glBindTexture(GL_TEXTURE_2D, textureObject);
 }
 
 
@@ -276,6 +302,75 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
 }
 
 
+void loadTextures(const vector<Texture> & textures) {
+    static const map<string, const GLint> textureOptionKeys {
+        { "wrap-s"     , GL_TEXTURE_WRAP_S     },
+        { "wrap-t"     , GL_TEXTURE_WRAP_T     },
+        { "min-filter" , GL_TEXTURE_MIN_FILTER },
+        { "mag-filter" , GL_TEXTURE_MAG_FILTER },
+    };
+
+    static const map<string, const GLint> textureOptionValues {
+        { "repeat" , GL_REPEAT },
+        { "linear" , GL_LINEAR },
+    };
+
+    static const map<string, const TextureFormat> textureFormats {
+        { "rgba" , { GL_RGBA , "RGBA" } },
+        { "rgb"  , { GL_RGB  , "RGB"  } },
+    };
+
+
+    // Allocate memory to hold texture objects.
+    textureObjects.reserve(textures.size());
+    glGenTextures(textureObjects.capacity(), &textureObjects[0]);
+
+
+    // Load data and configure options for textures.
+    for (auto i = 0u; i < textures.size(); i++) {
+        const Texture & texture = textures[i];
+        glBindTexture(GL_TEXTURE_2D, textureObjects[i]);
+
+
+        // Configure options for the texture object.
+        forEach(texture.options, [&](const string & optionKey, const string & optionValue) -> void {
+            glTexParameteri(
+                GL_TEXTURE_2D,
+                textureOptionKeys.at(optionKey),
+                textureOptionValues.at(optionValue));
+        });
+
+
+        // Load texture data from image at path.
+        const TextureFormat textureFormat = textureFormats.at(texture.format);
+        Blob  blob;
+        Image image;
+        image.read(texture.path);
+        image.flip();
+        image.write(&blob, textureFormat.image);
+
+        glTexImage2D(
+            GL_TEXTURE_2D,          // Target
+            0,                      // Level of detail (0 is base image LOD)
+            textureFormat.internal, // Internal format
+            image.columns(),        // Image width
+            image.rows(),           // Image height
+            0,                      // Border width (must be 0 apparently?)
+            textureFormat.internal, // Texel data format (must match internal format)
+            GL_UNSIGNED_BYTE,       // Texel data type
+            blob.data());           // Pointer to image data
+
+
+        // Unbind texture now that its data has been loaded.
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+
+    // Validate no OpenGL errors occurred.
+    validateNoOpenGLError("loadTextureData");
+}
+
+
 void loadVertexData(
     const GLvoid * vertexData,
     const GLsizeiptr vertexDataSize,
@@ -285,6 +380,7 @@ void loadVertexData(
     // Vertex attribute specification
     static const vector<VertexAttribute> vertexAttributes {
         createVertexAttribute("float", 3, GL_FALSE), // Position
+        createVertexAttribute("float", 2, GL_FALSE), // UV
     };
 
     static const GLsizei vertexStride =
@@ -357,14 +453,15 @@ void renderGraphics() {
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-    // Use shader program and set its uniforms.
+    // Bind vertex array, textures and shader program, then draw data.
     const GLuint shaderProgram = shaderPrograms[0];
-    glUseProgram(shaderProgram);
-    setUniform(shaderProgram, "uniformColor", { (sin(glfwGetTime() * 3) / 2) + 0.5, 0.0f, 0.0f, 1.0f });
-
-
-    // Bind and draw vertex array.
     glBindVertexArray(vertexArrayObjects[0]);
+    bindTexture(textureObjects[0], 0u);
+    bindTexture(textureObjects[1], 1u);
+    glUseProgram(shaderProgram);
+    setUniform(shaderProgram, "texture0", 0);
+    setUniform(shaderProgram, "texture1", 1);
+    setUniform(shaderProgram, "textureMixValue", (sinf(glfwGetTime() * 3) / 2) + 0.5f);
 
     glDrawElements(
         GL_TRIANGLES,    // Render mode
@@ -373,8 +470,9 @@ void renderGraphics() {
         (GLvoid *)0);    // Pointer to start of index array
 
 
-    // Unbind shader program and vertex array.
+    // Unbind vertex array, textures and shader program.
     glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 
 

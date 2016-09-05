@@ -37,10 +37,12 @@ using Nito::setControlHandler;
 using Nito::initGLEW;
 using Nito::configureOpenGL;
 using Nito::loadShaderPipelines;
+using Nito::loadTextures;
 using Nito::loadVertexData;
 using Nito::renderGraphics;
 using Nito::destroyGraphics;
 using Nito::ShaderPipeline;
+using Nito::Texture;
 
 
 int main() {
@@ -139,13 +141,34 @@ int main() {
     loadShaderPipelines(shaderPipelines);
 
 
+    // Load texture data.
+    const JSON texturesData = readJSONFile("resources/data/textures.json");
+
+    const vector<Texture> textures =
+        transform<Texture>(texturesData, [](const JSON & textureData) -> Texture {
+            Texture::Options options;
+
+            forEach(textureData["options"], [&](const string & optionKey, const string & optionValue) -> void {
+                options[optionKey] = optionValue;
+            });
+
+            return {
+                "resources/textures/" + textureData["path"].get<string>(),
+                textureData["format"],
+                options,
+            };
+        });
+
+    loadTextures(textures);
+
+
     // Load vertex data.
     GLfloat spriteVertexData[] {
-        // Position
-        -0.5f, -0.5f,  0.0f,
-        -0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
+        // Position          // UV
+        -0.5f, -0.5f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
     };
 
     GLuint spriteIndexData[] {

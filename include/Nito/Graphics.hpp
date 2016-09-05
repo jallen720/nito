@@ -35,6 +35,15 @@ struct OpenGLConfig {
 using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
 
 
+struct Texture {
+    using Options = std::map<std::string, std::string>;
+
+    std::string path;
+    std::string format;
+    Options options;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -43,6 +52,7 @@ using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
 void initGLEW();
 void configureOpenGL(const OpenGLConfig & openGLConfig);
 void loadShaderPipelines(const std::vector<ShaderPipeline> & shaderPipelines);
+void loadTextures(const std::vector<Texture> & textures);
 
 
 void loadVertexData(

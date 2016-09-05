@@ -61,7 +61,7 @@ int main() {
                 {
                     glfwContextVersion["major"],
                     glfwContextVersion["minor"],
-                }
+                },
             });
 
 

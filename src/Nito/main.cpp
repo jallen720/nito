@@ -148,7 +148,16 @@ int main() {
          0.5f, -0.5f,  0.5f,
     };
 
-    loadVertexData(spriteVertexData, sizeof(spriteVertexData));
+    GLuint spriteIndexData[] = {
+        0, 1, 2,
+        0, 2, 3,
+    };
+
+    loadVertexData(
+        spriteVertexData,
+        sizeof(spriteVertexData),
+        spriteIndexData,
+        sizeof(spriteIndexData));
 
 
     // Main loop

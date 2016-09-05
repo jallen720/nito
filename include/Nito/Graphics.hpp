@@ -33,7 +33,15 @@ using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
 void initGLEW();
 void configureOpenGL(const OpenGLConfig & openGLConfig);
 void loadShaderPipelines(const std::vector<ShaderPipeline> & shaderPipelines);
-void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize);
+
+
+void loadVertexData(
+    const GLvoid * vertexData,
+    const GLsizeiptr vertexDataSize,
+    const GLuint * indexData,
+    const GLsizeiptr indexDataSize);
+
+
 void renderGraphics();
 void destroyGraphics();
 

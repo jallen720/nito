@@ -52,8 +52,10 @@ struct VertexAttribute {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const GLsizei VERTEX_ARRAY_COUNT  = 1;
 static const GLsizei VERTEX_BUFFER_COUNT = 1;
+static const GLsizei INDEX_BUFFER_COUNT  = 1;
 static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
 static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
+static GLuint indexBufferObjects[INDEX_BUFFER_COUNT];
 static vector<GLuint> shaderPrograms;
 
 
@@ -274,7 +276,12 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
 }
 
 
-void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) {
+void loadVertexData(
+    const GLvoid * vertexData,
+    const GLsizeiptr vertexDataSize,
+    const GLuint * indexData,
+    const GLsizeiptr indexDataSize)
+{
     // Vertex attribute specification
     static const vector<VertexAttribute> vertexAttributes {
         createVertexAttribute("float", 3, GL_FALSE), // Position
@@ -292,17 +299,25 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     // Generate containers for vertex data.
     glGenVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
     glGenBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
+    glGenBuffers(INDEX_BUFFER_COUNT, indexBufferObjects);
 
 
-    // Bind the Vertex Array Object first, then bind and set vertex buffer data.
+    // Bind the Vertex Array Object first, then bind and set vertex & index buffer data.
     glBindVertexArray(vertexArrayObjects[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjects[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObjects[0]);
 
     glBufferData(
         GL_ARRAY_BUFFER, // Target buffer to load data into
         vertexDataSize,  // Size of data
         vertexData,      // Pointer to data
         GL_STATIC_DRAW); // Usage
+
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER, // Target buffer to load data into
+        indexDataSize,           // Size of data
+        indexData,               // Pointer to data
+        GL_STATIC_DRAW);         // Usage
 
 
     // Define pointers to vertex attributes.
@@ -324,14 +339,12 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     }
 
 
-    // Note that this is allowed, the call to glVertexAttribPointer registered vertexBufferObjects
-    // as the currently bound vertex buffer object so afterwards we can safely unbind.
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-    // Unbind vertexArrayObjects (it's always a good thing to unbind any buffer/array to prevent
-    // strange bugs).
+    // Unbind vertex array first, that way unbinding GL_ELEMENT_ARRAY_BUFFER doesn't remove the index data from the
+    // vertex array. GL_ARRAY_BUFFER can be unbound before or after the vertex array, but for consistency's sake we'll
+    // unbind it after.
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
     // Validate no OpenGL errors occurred.
@@ -340,10 +353,10 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
 
 
 void renderGraphics() {
-    // static const GLenum   MODE        = GL_TRIANGLES;
-    // static const GLsizei  INDEX_COUNT = 4;
-    // static const GLenum   TYPE        = GL_UNSIGNED_INT;
-    // static const GLvoid * FIRST       = 0;
+    static const GLenum   MODE        = GL_TRIANGLES;
+    static const GLsizei  INDEX_COUNT = 6;
+    static const GLenum   TYPE        = GL_UNSIGNED_INT;
+    static const GLvoid * FIRST       = 0;
 
 
     // Clear color buffer.
@@ -356,13 +369,9 @@ void renderGraphics() {
     setUniform(shaderProgram, "uniformColor", { (sin(glfwGetTime()) / 2) + 0.5, 0.0f, 0.0f, 1.0f });
 
 
-    // Bind vertex array to be rendered.
+    // Bind and draw vertex array.
     glBindVertexArray(vertexArrayObjects[0]);
-
-
-    // Draw bound vertex data.
-    // glDrawElements(MODE, INDEX_COUNT, TYPE, FIRST);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(MODE, INDEX_COUNT, TYPE, FIRST);
 
 
     // Unbind shader program and vertex array.
@@ -380,6 +389,7 @@ void destroyGraphics() {
     // Delete vertex data.
     glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
     glDeleteBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
+    glDeleteBuffers(INDEX_BUFFER_COUNT, indexBufferObjects);
 
 
     // Delete shader pipelines.

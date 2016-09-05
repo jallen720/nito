@@ -59,7 +59,7 @@ static GLuint indexBufferObjects[INDEX_BUFFER_COUNT];
 static vector<GLuint> shaderPrograms;
 
 
-VertexAttribute::Types VertexAttribute::types = {
+VertexAttribute::Types VertexAttribute::types {
     {
         "float",
         {

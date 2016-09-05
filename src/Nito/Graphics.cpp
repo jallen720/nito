@@ -278,7 +278,6 @@ void loadVertexData(const GLvoid * vertexData, const GLsizeiptr vertexDataSize) 
     // Vertex attribute specification
     static const vector<VertexAttribute> vertexAttributes {
         createVertexAttribute("float", 3, GL_FALSE), // Position
-        createVertexAttribute("float", 4, GL_FALSE), // Color
     };
 
     static const GLsizei vertexStride =

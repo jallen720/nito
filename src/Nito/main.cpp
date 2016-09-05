@@ -141,11 +141,11 @@ int main() {
 
     // Load vertex data.
     GLfloat spriteVertexData[] = {
-        // Position          // Color
-        -0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,
-        // -0.5f, -0.5f,  0.0f,
+        // Position
+        -0.5f, -0.5f,  0.0f,
+        -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
     };
 
     loadVertexData(spriteVertexData, sizeof(spriteVertexData));

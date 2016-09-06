@@ -149,23 +149,23 @@ static void compileShaderObject(const GLuint shaderObject, const vector<string> 
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & value) {
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & uniformValue) {
     glUniform4f(
         glGetUniformLocation(shaderProgram, uniformName),
-        value.x,
-        value.y,
-        value.z,
-        value.w);
+        uniformValue.x,
+        uniformValue.y,
+        uniformValue.z,
+        uniformValue.w);
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint value) {
-    glUniform1i(glGetUniformLocation(shaderProgram, uniformName), value);
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint uniformValue) {
+    glUniform1i(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat value) {
-    glUniform1f(glGetUniformLocation(shaderProgram, uniformName), value);
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat uniformValue) {
+    glUniform1f(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
 }
 
 
@@ -473,7 +473,7 @@ void renderGraphics(float value) {
     glUseProgram(0);
 
 
-    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS THIS FUNCTION RUNS EVERY FRAME. !!!
+    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS renderGraphics() RUNS EVERY FRAME. !!!
     // Validate no OpenGL errors occurred.
     // validateNoOpenGLError("renderGraphics");
 }

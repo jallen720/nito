@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <cstddef>
-#include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
 #include <Magick++.h>
 #include "CppUtils/Fn/accumulate.hpp"
@@ -219,9 +218,7 @@ void initGLEW() {
 
 void configureOpenGL(const OpenGLConfig & openGLConfig) {
     // Configure viewport.
-    int width, height;
-    glfwGetFramebufferSize(openGLConfig.contextWindow, &width, &height);
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, openGLConfig.windowWidth, openGLConfig.windowHeight);
 
 
     // Configure clear color.
@@ -448,7 +445,7 @@ void loadVertexData(
 }
 
 
-void renderGraphics() {
+void renderGraphics(float value) {
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -461,7 +458,7 @@ void renderGraphics() {
     glUseProgram(shaderProgram);
     setUniform(shaderProgram, "texture0", 0);
     setUniform(shaderProgram, "texture1", 1);
-    setUniform(shaderProgram, "textureMixValue", (sinf(glfwGetTime() * 3) / 2) + 0.5f);
+    setUniform(shaderProgram, "textureMixValue", value);
 
     glDrawElements(
         GL_TRIANGLES,    // Render mode

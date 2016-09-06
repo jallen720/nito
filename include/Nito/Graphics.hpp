@@ -7,9 +7,6 @@
 #include <GL/glew.h>
 
 
-struct GLFWwindow;
-
-
 namespace Nito {
 
 
@@ -27,7 +24,8 @@ struct Color {
 
 
 struct OpenGLConfig {
-    GLFWwindow * contextWindow;
+    const GLsizei windowWidth;
+    const GLsizei windowHeight;
     const Color clearColor;
 };
 
@@ -62,7 +60,7 @@ void loadVertexData(
     const GLsizeiptr indexDataSize);
 
 
-void renderGraphics();
+void renderGraphics(float value);
 void destroyGraphics();
 
 

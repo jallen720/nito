@@ -94,11 +94,15 @@ int main() {
     // Initialize graphics engine.
     const JSON openGLConfig = readJSONFile("resources/configs/opengl.json");
     const JSON clearColor = openGLConfig["clear-color"];
+    int windowWidth;
+    int windowHeight;
     initGLEW();
+    glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
 
     configureOpenGL(
         {
-            window,
+            windowWidth,
+            windowHeight,
             {
                 clearColor["red"],
                 clearColor["green"],
@@ -186,7 +190,7 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        renderGraphics();
+        renderGraphics((sinf(glfwGetTime() * 3) / 2) + 0.5f);
         glfwSwapBuffers(window);
     }
 

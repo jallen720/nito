@@ -520,21 +520,35 @@ void renderGraphics() {
 
 
     // Setup matrices for current entity and bind them to shader program.
-    vec3 modelPosition { 2.0f, 1.0f, -0.5f };
-    mat4 modelMatrix;
     mat4 viewMatrix;
-    modelMatrix = translate(modelMatrix, modelPosition * unitScale);
     setUniform(shaderProgram, "projection", projectionMatrix);
     setUniform(shaderProgram, "view", viewMatrix);
-    setUniform(shaderProgram, "model", modelMatrix * textureScaleMatrix);
 
+    vec3 positions[] {
+        vec3(0.0f, 0.0f, -0.5f),
+        vec3(1.5f, 0.2f, -0.6f),
+        vec3(1.3f, 0.0f, -0.5f),
+        vec3(2.0f, 5.0f, -0.5f),
+        vec3(9.5f, 6.2f, -0.5f),
+        vec3(4.8f, 6.0f, -0.5f),
+        vec3(2.4f, 1.4f, -0.5f),
+        vec3(0.7f, 3.0f, -0.5f),
+        vec3(1.5f, 2.0f, -0.5f),
+        vec3(8.3f, 1.0f, -0.5f),
+    };
 
-    // Draw data.
-    glDrawElements(
-        GL_TRIANGLES,    // Render mode
-        6,               // Index count
-        GL_UNSIGNED_INT, // Index type
-        (GLvoid *)0);    // Pointer to start of index array
+    for (const vec3 & position : positions) {
+        mat4 modelMatrix;
+        modelMatrix = translate(modelMatrix, position * unitScale);
+        setUniform(shaderProgram, "model", modelMatrix * textureScaleMatrix);
+
+        // Draw data.
+        glDrawElements(
+            GL_TRIANGLES,    // Render mode
+            6,               // Index count
+            GL_UNSIGNED_INT, // Index type
+            (GLvoid *)0);    // Pointer to start of index array
+    }
 
 
     // Unbind vertex array, textures and shader program.

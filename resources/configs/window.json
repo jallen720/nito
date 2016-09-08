@@ -3,7 +3,8 @@
     "width": 1280,
     "height": 720,
     "refresh-rate": "every-update",
-    "glfw-context-version": {
+    "glfw-context-version":
+    {
         "major": 2,
         "minor": 0
     }

@@ -4,6 +4,7 @@ in vec2 vertexUV;
 out vec4 color;
 
 
-void main() {
+void main()
+{
     color = texture(texture0, vertexUV);
 }

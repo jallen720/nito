@@ -4,12 +4,14 @@ uniform mat4 model;
 out vec2 vertexUV;
 
 
-vec4 vertexPosition() {
+vec4 vertexPosition()
+{
     return projection * view * model * vec4(position, 1);
 }
 
 
-void main() {
+void main()
+{
     gl_Position = vertexPosition();
     vertexUV = uv;
 }

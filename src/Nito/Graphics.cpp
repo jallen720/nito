@@ -31,7 +31,8 @@ using CppUtils::containsKey;
 using CppUtils::forEach;
 
 
-namespace Nito {
+namespace Nito
+{
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,8 +40,10 @@ namespace Nito {
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct VertexAttribute {
-    struct Type {
+struct VertexAttribute
+{
+    struct Type
+    {
         const GLenum glType;
         const size_t size;
     };
@@ -56,7 +59,8 @@ struct VertexAttribute {
 };
 
 
-struct TextureFormat {
+struct TextureFormat
+{
     const GLenum internal;
     const std::string image;
 };
@@ -79,7 +83,8 @@ static mat4 projectionMatrix;
 static vec3 unitScale;
 
 
-VertexAttribute::Types VertexAttribute::types {
+VertexAttribute::Types VertexAttribute::types
+{
     {
         "float",
         {
@@ -100,13 +105,15 @@ static VertexAttribute createVertexAttribute(
     const GLint elementCount,
     const GLboolean isNormalized)
 {
-    if (!containsKey(VertexAttribute::types, typeName)) {
+    if (!containsKey(VertexAttribute::types, typeName))
+    {
         throw runtime_error("ERROR: " + typeName + " is not a valid vertex attribute type!");
     }
 
     const VertexAttribute::Type & type = VertexAttribute::types.at(typeName);
 
-    return {
+    return
+    {
         type,
         elementCount,
         isNormalized,
@@ -127,7 +134,8 @@ static void validateParameterIs(
 
 
     // Throw shader entity info log if parameterValue is not as expected.
-    if (parameterValue != expectedParameterValue) {
+    if (parameterValue != expectedParameterValue)
+    {
         GLint infoLogLength;
         getParameter(shaderEntity, GL_INFO_LOG_LENGTH, &infoLogLength);
         vector<GLchar> infoLog(infoLogLength);
@@ -137,12 +145,14 @@ static void validateParameterIs(
 }
 
 
-static void compileShaderObject(const GLuint shaderObject, const vector<string> sources) {
+static void compileShaderObject(const GLuint shaderObject, const vector<string> sources)
+{
     // Attach sources and compile shaderObject.
     const size_t sourceCount = sources.size();
     const GLchar * sourceCode[sourceCount];
 
-    for (size_t i = 0; i < sourceCount; i++) {
+    for (size_t i = 0; i < sourceCount; i++)
+    {
         sourceCode[i] = sources[i].c_str();
     }
 
@@ -160,7 +170,8 @@ static void compileShaderObject(const GLuint shaderObject, const vector<string> 
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & uniformValue) {
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & uniformValue)
+{
     glUniform4f(
         glGetUniformLocation(shaderProgram, uniformName),
         uniformValue.x,
@@ -170,12 +181,14 @@ static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, c
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint uniformValue) {
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint uniformValue)
+{
     glUniform1i(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat uniformValue) {
+static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat uniformValue)
+{
     glUniform1f(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
 }
 
@@ -194,8 +207,10 @@ static void setUniform(
 }
 
 
-static void validateNoOpenGLError(const string & functionName) {
-    static const map<GLenum, const string> openGLErrorMessages {
+static void validateNoOpenGLError(const string & functionName)
+{
+    static const map<GLenum, const string> openGLErrorMessages
+    {
         { GL_INVALID_ENUM                  , "Invalid enum"                  },
         { GL_INVALID_VALUE                 , "Invalid value"                 },
         { GL_INVALID_OPERATION             , "Invalid operation"             },
@@ -207,7 +222,8 @@ static void validateNoOpenGLError(const string & functionName) {
 
     const GLenum error = glGetError();
 
-    if (error != GL_NO_ERROR) {
+    if (error != GL_NO_ERROR)
+    {
         string errorMessage =
             containsKey(openGLErrorMessages, error)
             ? openGLErrorMessages.at(error)
@@ -218,7 +234,8 @@ static void validateNoOpenGLError(const string & functionName) {
 }
 
 
-static void bindTexture(const GLuint textureObject, const GLuint textureUnit) {
+static void bindTexture(const GLuint textureObject, const GLuint textureUnit)
+{
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, textureObject);
 }
@@ -229,19 +246,22 @@ static void bindTexture(const GLuint textureObject, const GLuint textureUnit) {
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void initGLEW() {
+void initGLEW()
+{
     // Init GLEW in experimental mode.
     glewExperimental = GL_TRUE;
 
 
     // Validate GLEW initialized properly.
-    if (glewInit() != GLEW_OK) {
+    if (glewInit() != GLEW_OK)
+    {
         throw runtime_error("GLEW ERROR: Failed to initialize GLEW!");
     }
 }
 
 
-void configureOpenGL(const OpenGLConfig & openGLConfig) {
+void configureOpenGL(const OpenGLConfig & openGLConfig)
+{
     // Configure viewport.
     glViewport(0, 0, openGLConfig.windowWidth, openGLConfig.windowHeight);
 
@@ -283,8 +303,10 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
 }
 
 
-void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
-    static const map<string, const GLenum> shaderTypes {
+void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines)
+{
+    static const map<string, const GLenum> shaderTypes
+    {
         { "vertex"   , GL_VERTEX_SHADER   },
         { "fragment" , GL_FRAGMENT_SHADER },
     };
@@ -292,18 +314,23 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
     GLuint shaderProgram;
     vector<GLuint> shaderObjects;
 
-    const auto processShaderObjects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void {
-        for (const GLuint shaderObject : shaderObjects) {
+    const auto processShaderObjects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void
+    {
+        for (const GLuint shaderObject : shaderObjects)
+        {
             processShaderObject(shaderProgram, shaderObject);
         }
     };
 
 
     // Process shader pipelines.
-    for (const ShaderPipeline & shaderPipeline : shaderPipelines) {
+    for (const ShaderPipeline & shaderPipeline : shaderPipelines)
+    {
         // Create and compile shader objects from sources.
-        forEach(shaderPipeline, [&](const string & shaderType, const vector<string> & sources) -> void {
-            if (!containsKey(shaderTypes, shaderType)) {
+        forEach(shaderPipeline, [&](const string & shaderType, const vector<string> & sources) -> void
+        {
+            if (!containsKey(shaderTypes, shaderType))
+            {
                 throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
             }
 
@@ -346,15 +373,18 @@ void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines) {
 }
 
 
-void loadTextures(const vector<Texture> & textures) {
-    static const map<string, const GLint> textureOptionKeys {
+void loadTextures(const vector<Texture> & textures)
+{
+    static const map<string, const GLint> textureOptionKeys
+    {
         { "wrap-s"     , GL_TEXTURE_WRAP_S     },
         { "wrap-t"     , GL_TEXTURE_WRAP_T     },
         { "min-filter" , GL_TEXTURE_MIN_FILTER },
         { "mag-filter" , GL_TEXTURE_MAG_FILTER },
     };
 
-    static const map<string, const GLint> textureOptionValues {
+    static const map<string, const GLint> textureOptionValues
+    {
         // Wrap values
         { "repeat"          , GL_REPEAT          },
         { "mirrored-repeat" , GL_MIRRORED_REPEAT },
@@ -365,7 +395,8 @@ void loadTextures(const vector<Texture> & textures) {
         { "nearest" , GL_NEAREST },
     };
 
-    static const map<string, const TextureFormat> textureFormats {
+    static const map<string, const TextureFormat> textureFormats
+    {
         { "rgba" , { GL_RGBA , "RGBA" } },
         { "rgb"  , { GL_RGB  , "RGB"  } },
     };
@@ -377,13 +408,15 @@ void loadTextures(const vector<Texture> & textures) {
 
 
     // Load data and configure options for textures.
-    for (auto i = 0u; i < textures.size(); i++) {
+    for (auto i = 0u; i < textures.size(); i++)
+    {
         const Texture & texture = textures[i];
         glBindTexture(GL_TEXTURE_2D, textureObjects[i]);
 
 
         // Configure options for the texture object.
-        forEach(texture.options, [&](const string & optionKey, const string & optionValue) -> void {
+        forEach(texture.options, [&](const string & optionKey, const string & optionValue) -> void
+        {
             glTexParameteri(
                 GL_TEXTURE_2D,
                 textureOptionKeys.at(optionKey),
@@ -428,7 +461,8 @@ void loadVertexData(
     const GLsizeiptr indexDataSize)
 {
     // Vertex attribute specification
-    static const vector<VertexAttribute> vertexAttributes {
+    static const vector<VertexAttribute> vertexAttributes
+    {
         createVertexAttribute("float", 3, GL_FALSE), // Position
         createVertexAttribute("float", 2, GL_FALSE), // UV
     };
@@ -437,7 +471,8 @@ void loadVertexData(
         accumulate(
             (GLsizei)0,
             vertexAttributes,
-            [](const GLsizei total, const VertexAttribute & vertexAttribute) -> GLsizei {
+            [](const GLsizei total, const VertexAttribute & vertexAttribute) -> GLsizei
+            {
                 return total + vertexAttribute.size;
             });
 
@@ -469,7 +504,8 @@ void loadVertexData(
     // Define pointers to vertex attributes.
     size_t previousAttributeSize = 0;
 
-    for (GLuint index = 0u; index < vertexAttributes.size(); index++) {
+    for (GLuint index = 0u; index < vertexAttributes.size(); index++)
+    {
         const VertexAttribute & vertexAttribute = vertexAttributes[index];
         glEnableVertexAttribArray(index);
 
@@ -498,7 +534,8 @@ void loadVertexData(
 }
 
 
-void renderGraphics() {
+void renderGraphics()
+{
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -524,7 +561,8 @@ void renderGraphics() {
     setUniform(shaderProgram, "projection", projectionMatrix);
     setUniform(shaderProgram, "view", viewMatrix);
 
-    vec3 positions[] {
+    vec3 positions[]
+    {
         vec3(0.0f, 0.0f, -0.5f),
         vec3(1.5f, 0.2f, -0.6f),
         vec3(1.3f, 0.0f, -0.5f),
@@ -537,7 +575,8 @@ void renderGraphics() {
         vec3(8.3f, 1.0f, -0.5f),
     };
 
-    for (const vec3 & position : positions) {
+    for (const vec3 & position : positions)
+    {
         mat4 modelMatrix;
         modelMatrix = translate(modelMatrix, position * unitScale);
         setUniform(shaderProgram, "model", modelMatrix * textureScaleMatrix);
@@ -563,7 +602,8 @@ void renderGraphics() {
 }
 
 
-void destroyGraphics() {
+void destroyGraphics()
+{
     // Delete vertex data.
     glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
     glDeleteBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);

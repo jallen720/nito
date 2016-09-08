@@ -13,7 +13,8 @@ using std::runtime_error;
 using CppUtils::containsKey;
 
 
-namespace Nito {
+namespace Nito
+{
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +22,8 @@ namespace Nito {
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct ControlBinding {
+struct ControlBinding
+{
     const int key;
     const int action;
     const ControlHandler & handler;
@@ -42,8 +44,10 @@ static map<string, ControlHandler> controlHandlers;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void addControlBinding(const string & key, const string & action, const string & handler) {
-    static const map<string, const int> glfwKeyCodes {
+void addControlBinding(const string & key, const string & action, const string & handler)
+{
+    static const map<string, const int> glfwKeyCodes
+    {
         { "space"         , GLFW_KEY_SPACE         },
         { "apostrophe"    , GLFW_KEY_APOSTROPHE    },
         { "comma"         , GLFW_KEY_COMMA         },
@@ -166,7 +170,8 @@ void addControlBinding(const string & key, const string & action, const string &
         { "menu"          , GLFW_KEY_MENU          },
     };
 
-    static const map<string, const int> glfwKeyActions {
+    static const map<string, const int> glfwKeyActions
+    {
         { "release" , GLFW_RELEASE },
         { "press"   , GLFW_PRESS   },
         { "repeat"  , GLFW_REPEAT  },
@@ -174,15 +179,18 @@ void addControlBinding(const string & key, const string & action, const string &
 
 
     // Validations
-    if (!containsKey(glfwKeyCodes, key)) {
+    if (!containsKey(glfwKeyCodes, key))
+    {
         throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
     }
 
-    if (!containsKey(glfwKeyActions, action)) {
+    if (!containsKey(glfwKeyActions, action))
+    {
         throw runtime_error("ERROR: \"" + action + "\" is not a valid action!");
     }
 
-    if (!containsKey(controlHandlers, handler)) {
+    if (!containsKey(controlHandlers, handler))
+    {
         throw runtime_error("ERROR: \"" + handler + "\" is not a registered control handler!");
     }
 
@@ -196,13 +204,16 @@ void addControlBinding(const string & key, const string & action, const string &
 }
 
 
-void setControlHandler(const string & name, const ControlHandler & controlHandler) {
+void setControlHandler(const string & name, const ControlHandler & controlHandler)
+{
     controlHandlers[name] = controlHandler;
 }
 
 
-void keyCallback(GLFWwindow * window, int key, int /*scancode*/, int action, int /*mods*/) {
-    for (const ControlBinding & controlBinding : controlBindings) {
+void keyCallback(GLFWwindow * window, int key, int /*scancode*/, int action, int /*mods*/)
+{
+    for (const ControlBinding & controlBinding : controlBindings)
+    {
         if (controlBinding.key == key &&
             controlBinding.action == action)
         {

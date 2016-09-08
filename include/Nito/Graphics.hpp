@@ -7,7 +7,8 @@
 #include <GL/glew.h>
 
 
-namespace Nito {
+namespace Nito
+{
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +16,8 @@ namespace Nito {
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Color {
+struct Color
+{
     const GLfloat red;
     const GLfloat green;
     const GLfloat blue;
@@ -23,7 +25,8 @@ struct Color {
 };
 
 
-struct OpenGLConfig {
+struct OpenGLConfig
+{
     const GLsizei windowWidth;
     const GLsizei windowHeight;
     const Color clearColor;
@@ -34,7 +37,8 @@ struct OpenGLConfig {
 using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
 
 
-struct Texture {
+struct Texture
+{
     using Options = std::map<std::string, std::string>;
 
     std::string path;

@@ -45,7 +45,8 @@ using Nito::ShaderPipeline;
 using Nito::Texture;
 
 
-int main() {
+int main()
+{
     initGLFW();
 
 
@@ -68,11 +69,13 @@ int main() {
 
 
     // Set control handlers.
-    auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void {
+    auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
+    {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     };
 
-    auto printHandler = [](GLFWwindow * /*window*/, const int key, const int action) -> void {
+    auto printHandler = [](GLFWwindow * /*window*/, const int key, const int action) -> void
+    {
         printf("key [%d] action [%d]\n", key, action);
     };
 
@@ -83,7 +86,8 @@ int main() {
     // Load control bindings.
     const vector<JSON> controls = readJSONFile("resources/data/controls.json");
 
-    for (const JSON & controlBinding : controls) {
+    for (const JSON & controlBinding : controls)
+    {
         addControlBinding(
             controlBinding["key"],
             controlBinding["action"],
@@ -121,16 +125,19 @@ int main() {
     const string vertexAttributesSource = readFile("resources/shaders/shared/vertex-attributes.glsl");
 
     const vector<ShaderPipeline> shaderPipelines =
-        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) -> ShaderPipeline {
+        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) -> ShaderPipeline
+        {
             ShaderPipeline shaderPipeline;
 
-            forEach(shaderPipelineData, [&](const string & shaderType, const string & shaderSource) -> void {
+            forEach(shaderPipelineData, [&](const string & shaderType, const string & shaderSource) -> void
+            {
                 // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
                 // source if this is a vertex shader, then finally the shader source itself.
                 vector<string> & shaderSources = shaderPipeline[shaderType];
                 shaderSources.push_back(versionSource);
 
-                if (shaderType == "vertex") {
+                if (shaderType == "vertex")
+                {
                     shaderSources.push_back(vertexAttributesSource);
                 }
 
@@ -150,14 +157,17 @@ int main() {
     const JSON texturesData = readJSONFile("resources/data/textures.json");
 
     const vector<Texture> textures =
-        transform<Texture>(texturesData, [](const JSON & textureData) -> Texture {
+        transform<Texture>(texturesData, [](const JSON & textureData) -> Texture
+        {
             Texture::Options options;
 
-            forEach(textureData["options"], [&](const string & optionKey, const string & optionValue) -> void {
+            forEach(textureData["options"], [&](const string & optionKey, const string & optionValue) -> void
+            {
                 options[optionKey] = optionValue;
             });
 
-            return {
+            return
+            {
                 "resources/textures/" + textureData["path"].get<string>(),
                 textureData["format"],
                 options,
@@ -168,7 +178,8 @@ int main() {
 
 
     // Load vertex data.
-    GLfloat spriteVertexData[] {
+    GLfloat spriteVertexData[]
+    {
         // Position          // UV
          0.0f,  0.0f,  0.0f,  0.0f,  0.0f,
          0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
@@ -176,7 +187,8 @@ int main() {
          1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
     };
 
-    GLuint spriteIndexData[] {
+    GLuint spriteIndexData[]
+    {
         0, 1, 2,
         0, 2, 3,
     };
@@ -189,7 +201,8 @@ int main() {
 
 
     // Main loop
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window))
+    {
         glfwPollEvents();
         renderGraphics();
         glfwSwapBuffers(window);

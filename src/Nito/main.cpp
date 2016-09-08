@@ -98,22 +98,28 @@ int main()
     // Initialize graphics engine.
     const JSON opengl_config = readJSONFile("resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear-color"];
+    const JSON blending = opengl_config["blending"];
     int window_width;
     int window_height;
-    init_glew();
     glfwGetFramebufferSize(window, &window_width, &window_height);
+    init_glew();
 
     configure_opengl(
         {
             window_width,
             window_height,
+            opengl_config["pixels-per-unit"],
             {
                 clear_color["red"],
                 clear_color["green"],
                 clear_color["blue"],
                 clear_color["alpha"],
             },
-            opengl_config["pixels-per-unit"],
+            {
+                blending["is-enabled"],
+                blending["s-factor"],
+                blending["d-factor"],
+            },
         });
 
 

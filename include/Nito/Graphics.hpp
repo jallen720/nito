@@ -27,10 +27,18 @@ struct Color
 
 struct OpenGL_Config
 {
+    struct Blending
+    {
+        const bool is_enabled;
+        const std::string s_factor;
+        const std::string d_factor;
+    };
+
     const GLsizei window_width;
     const GLsizei window_height;
-    const Color clear_color;
     const unsigned int pixels_per_unit;
+    const Color clear_color;
+    const Blending blending;
 };
 
 

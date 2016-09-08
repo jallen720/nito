@@ -1,4 +1,5 @@
 {
+    "pixels-per-unit": 64,
     "clear-color":
     {
         "red": 0.0,
@@ -6,5 +7,10 @@
         "blue": 0.0,
         "alpha": 0.0
     },
-    "pixels-per-unit": 64
+    "blending":
+    {
+        "is-enabled": true,
+        "s-factor": "source-alpha",
+        "d-factor": "one-minus-source-alpha"
+    }
 }

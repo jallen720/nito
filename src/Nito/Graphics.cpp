@@ -262,6 +262,17 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
+    static const map<string, const GLenum> blend_func_s_factors
+    {
+        { "source-alpha", GL_SRC_ALPHA },
+    };
+
+    static const map<string, const GLenum> blend_func_d_factors
+    {
+        { "one-minus-source-alpha", GL_ONE_MINUS_SRC_ALPHA },
+    };
+
+
     // Configure viewport.
     glViewport(0, 0, opengl_config.window_width, opengl_config.window_height);
 
@@ -289,9 +300,16 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     glEnable(GL_DEPTH_TEST);
 
 
-    // Enable transparency.
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Configure blending.
+    if (opengl_config.blending.is_enabled)
+    {
+        const OpenGL_Config::Blending & blending = opengl_config.blending;
+        glEnable(GL_BLEND);
+
+        glBlendFunc(
+            blend_func_s_factors.at(blending.s_factor),
+            blend_func_d_factors.at(blending.d_factor));
+    }
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.

@@ -265,8 +265,16 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
         clearColor.alpha);
 
 
-    // Configure other options.
+    // Enable depth testing.
     glEnable(GL_DEPTH_TEST);
+
+
+    // Enable transparency.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+    // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
     unitScale = { openGLConfig.pixelsPerUnit, openGLConfig.pixelsPerUnit, 1.0f };
 
 
@@ -347,8 +355,14 @@ void loadTextures(const vector<Texture> & textures) {
     };
 
     static const map<string, const GLint> textureOptionValues {
-        { "repeat" , GL_REPEAT },
-        { "linear" , GL_LINEAR },
+        // Wrap values
+        { "repeat"          , GL_REPEAT          },
+        { "mirrored-repeat" , GL_MIRRORED_REPEAT },
+        { "clamp-to-edge"   , GL_CLAMP_TO_EDGE   },
+
+        // Filter values
+        { "linear"  , GL_LINEAR  },
+        { "nearest" , GL_NEAREST },
     };
 
     static const map<string, const TextureFormat> textureFormats {

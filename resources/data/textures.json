@@ -1,5 +1,15 @@
 [
     {
+        "path": "character.png",
+        "format": "rgba",
+        "options": {
+            "wrap-s": "repeat",
+            "wrap-t": "repeat",
+            "min-filter": "nearest",
+            "mag-filter": "nearest"
+        }
+    },
+    {
         "path": "box.jpg",
         "format": "rgb",
         "options": {

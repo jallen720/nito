@@ -450,7 +450,7 @@ void loadTextures(const vector<Texture> & textures)
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("loadTextureData");
+    validateNoOpenGLError("loadTextures");
 }
 
 

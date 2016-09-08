@@ -25,16 +25,16 @@ struct Color
 };
 
 
-struct OpenGLConfig
+struct OpenGL_Config
 {
-    const GLsizei windowWidth;
-    const GLsizei windowHeight;
-    const Color clearColor;
-    const unsigned int pixelsPerUnit;
+    const GLsizei window_width;
+    const GLsizei window_height;
+    const Color clear_color;
+    const unsigned int pixels_per_unit;
 };
 
 
-using ShaderPipeline = std::map<std::string, std::vector<std::string>>;
+using Shader_Pipeline = std::map<std::string, std::vector<std::string>>;
 
 
 struct Texture
@@ -52,21 +52,19 @@ struct Texture
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void initGLEW();
-void configureOpenGL(const OpenGLConfig & openGLConfig);
-void loadShaderPipelines(const std::vector<ShaderPipeline> & shaderPipelines);
-void loadTextures(const std::vector<Texture> & textures);
+void init_glew();
+void configure_opengl(const OpenGL_Config & opengl_config);
+void load_shader_pipelines(const std::vector<Shader_Pipeline> & shader_pipelines);
+void load_textures(const std::vector<Texture> & textures);
 
+void load_vertex_data(
+    const GLvoid * vertex_data,
+    const GLsizeiptr vertex_data_size,
+    const GLuint * index_data,
+    const GLsizeiptr index_data_size);
 
-void loadVertexData(
-    const GLvoid * vertexData,
-    const GLsizeiptr vertexDataSize,
-    const GLuint * indexData,
-    const GLsizeiptr indexDataSize);
-
-
-void renderGraphics();
-void destroyGraphics();
+void render_graphics();
+void destroy_graphics();
 
 
 } // namespace Nito

@@ -25,160 +25,160 @@ using CppUtils::forEach;
 using CppUtils::transform;
 
 // Nito/Window.hpp
-using Nito::initGLFW;
-using Nito::createWindow;
-using Nito::terminateGLFW;
+using Nito::init_glfw;
+using Nito::create_window;
+using Nito::terminate_glfw;
 
 // Nito/Input.hpp
-using Nito::addControlBinding;
-using Nito::setControlHandler;
+using Nito::add_control_binding;
+using Nito::set_control_handler;
 
 // Nito/Graphics.hpp
-using Nito::initGLEW;
-using Nito::configureOpenGL;
-using Nito::loadShaderPipelines;
-using Nito::loadTextures;
-using Nito::loadVertexData;
-using Nito::renderGraphics;
-using Nito::destroyGraphics;
-using Nito::ShaderPipeline;
+using Nito::init_glew;
+using Nito::configure_opengl;
+using Nito::load_shader_pipelines;
+using Nito::load_textures;
+using Nito::load_vertex_data;
+using Nito::render_graphics;
+using Nito::destroy_graphics;
+using Nito::Shader_Pipeline;
 using Nito::Texture;
 
 
 int main()
 {
-    initGLFW();
+    init_glfw();
 
 
     // Create window.
-    JSON windowConfig = readJSONFile("resources/configs/window.json");
-    const JSON & glfwContextVersion = windowConfig["glfw-context-version"];
+    JSON window_config = readJSONFile("resources/configs/window.json");
+    const JSON & glfw_context_version = window_config["glfw-context-version"];
 
     GLFWwindow * window =
-        createWindow(
+        create_window(
             {
-                windowConfig["width"],
-                windowConfig["height"],
-                windowConfig["title"],
-                windowConfig["refresh-rate"],
+                window_config["width"],
+                window_config["height"],
+                window_config["title"],
+                window_config["refresh-rate"],
                 {
-                    glfwContextVersion["major"],
-                    glfwContextVersion["minor"],
+                    glfw_context_version["major"],
+                    glfw_context_version["minor"],
                 },
             });
 
 
     // Set control handlers.
-    auto exitHandler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
+    auto exit_handler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     };
 
-    auto printHandler = [](GLFWwindow * /*window*/, const int key, const int action) -> void
+    auto print_handler = [](GLFWwindow * /*window*/, const int key, const int action) -> void
     {
         printf("key [%d] action [%d]\n", key, action);
     };
 
-    setControlHandler("exit", exitHandler);
-    setControlHandler("print", printHandler);
+    set_control_handler("exit", exit_handler);
+    set_control_handler("print", print_handler);
 
 
     // Load control bindings.
     const vector<JSON> controls = readJSONFile("resources/data/controls.json");
 
-    for (const JSON & controlBinding : controls)
+    for (const JSON & control_binding : controls)
     {
-        addControlBinding(
-            controlBinding["key"],
-            controlBinding["action"],
-            controlBinding["handler"]);
+        add_control_binding(
+            control_binding["key"],
+            control_binding["action"],
+            control_binding["handler"]);
     }
 
 
     // Initialize graphics engine.
-    const JSON openGLConfig = readJSONFile("resources/configs/opengl.json");
-    const JSON clearColor = openGLConfig["clear-color"];
-    int windowWidth;
-    int windowHeight;
-    initGLEW();
-    glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
+    const JSON opengl_config = readJSONFile("resources/configs/opengl.json");
+    const JSON clear_color = opengl_config["clear-color"];
+    int window_width;
+    int window_height;
+    init_glew();
+    glfwGetFramebufferSize(window, &window_width, &window_height);
 
-    configureOpenGL(
+    configure_opengl(
         {
-            windowWidth,
-            windowHeight,
+            window_width,
+            window_height,
             {
-                clearColor["red"],
-                clearColor["green"],
-                clearColor["blue"],
-                clearColor["alpha"],
+                clear_color["red"],
+                clear_color["green"],
+                clear_color["blue"],
+                clear_color["alpha"],
             },
-            openGLConfig["pixels-per-unit"],
+            opengl_config["pixels-per-unit"],
         });
 
 
     // Load shader pipelines.
-    const JSON shaderPipelinesData      = readJSONFile("resources/data/shader-pipelines.json");
-    const JSON shadersConfig            = readJSONFile("resources/configs/shaders.json");
-    const JSON shaderExtensions         = shadersConfig["extensions"];
-    const string versionSource          = readFile("resources/shaders/shared/version.glsl");
-    const string vertexAttributesSource = readFile("resources/shaders/shared/vertex-attributes.glsl");
+    const JSON shader_pipelines_data     = readJSONFile("resources/data/shader-pipelines.json");
+    const JSON shader_config             = readJSONFile("resources/configs/shaders.json");
+    const JSON shader_extensions         = shader_config["extensions"];
+    const string version_source          = readFile("resources/shaders/shared/version.glsl");
+    const string vertex_attribute_source = readFile("resources/shaders/shared/vertex-attributes.glsl");
 
-    const vector<ShaderPipeline> shaderPipelines =
-        transform<ShaderPipeline>(shaderPipelinesData, [&](const JSON & shaderPipelineData) -> ShaderPipeline
+    const vector<Shader_Pipeline> shader_pipelines =
+        transform<Shader_Pipeline>(shader_pipelines_data, [&](const JSON & shader_pipeline_data) -> Shader_Pipeline
         {
-            ShaderPipeline shaderPipeline;
+            Shader_Pipeline shader_pipeline;
 
-            forEach(shaderPipelineData, [&](const string & shaderType, const string & shaderSource) -> void
+            forEach(shader_pipeline_data, [&](const string & shader_type, const string & shader_source) -> void
             {
                 // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
                 // source if this is a vertex shader, then finally the shader source itself.
-                vector<string> & shaderSources = shaderPipeline[shaderType];
-                shaderSources.push_back(versionSource);
+                vector<string> & shaderSources = shader_pipeline[shader_type];
+                shaderSources.push_back(version_source);
 
-                if (shaderType == "vertex")
+                if (shader_type == "vertex")
                 {
-                    shaderSources.push_back(vertexAttributesSource);
+                    shaderSources.push_back(vertex_attribute_source);
                 }
 
                 shaderSources.push_back(readFile(
                     "resources/shaders/" +
-                    shaderSource +
-                    shaderExtensions[shaderType].get<string>()));
+                    shader_source +
+                    shader_extensions[shader_type].get<string>()));
             });
 
-            return shaderPipeline;
+            return shader_pipeline;
         });
 
-    loadShaderPipelines(shaderPipelines);
+    load_shader_pipelines(shader_pipelines);
 
 
     // Load texture data.
-    const JSON texturesData = readJSONFile("resources/data/textures.json");
+    const JSON textures_data = readJSONFile("resources/data/textures.json");
 
     const vector<Texture> textures =
-        transform<Texture>(texturesData, [](const JSON & textureData) -> Texture
+        transform<Texture>(textures_data, [](const JSON & texture_data) -> Texture
         {
             Texture::Options options;
 
-            forEach(textureData["options"], [&](const string & optionKey, const string & optionValue) -> void
+            forEach(texture_data["options"], [&](const string & option_key, const string & option_value) -> void
             {
-                options[optionKey] = optionValue;
+                options[option_key] = option_value;
             });
 
             return
             {
-                "resources/textures/" + textureData["path"].get<string>(),
-                textureData["format"],
+                "resources/textures/" + texture_data["path"].get<string>(),
+                texture_data["format"],
                 options,
             };
         });
 
-    loadTextures(textures);
+    load_textures(textures);
 
 
     // Load vertex data.
-    GLfloat spriteVertexData[]
+    GLfloat sprite_vertex_data[]
     {
         // Position          // UV
          0.0f,  0.0f,  0.0f,  0.0f,  0.0f,
@@ -187,29 +187,29 @@ int main()
          1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
     };
 
-    GLuint spriteIndexData[]
+    GLuint sprite_index_data[]
     {
         0, 1, 2,
         0, 2, 3,
     };
 
-    loadVertexData(
-        spriteVertexData,
-        sizeof(spriteVertexData),
-        spriteIndexData,
-        sizeof(spriteIndexData));
+    load_vertex_data(
+        sprite_vertex_data,
+        sizeof(sprite_vertex_data),
+        sprite_index_data,
+        sizeof(sprite_index_data));
 
 
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        renderGraphics();
+        render_graphics();
         glfwSwapBuffers(window);
     }
 
 
-    destroyGraphics();
-    terminateGLFW();
+    destroy_graphics();
+    terminate_glfw();
     return 0;
 }

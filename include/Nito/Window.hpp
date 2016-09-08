@@ -16,20 +16,20 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct ContextVersion
+struct Context_Version
 {
     const int major;
     const int minor;
 };
 
 
-struct WindowConfig
+struct Window_Config
 {
     const int width;
     const int height;
     const std::string title;
-    const std::string refreshRate;
-    const ContextVersion contextVersion;
+    const std::string refresh_rate;
+    const Context_Version context_version;
 };
 
 
@@ -38,9 +38,9 @@ struct WindowConfig
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void initGLFW();
-GLFWwindow * createWindow(const WindowConfig & windowConfig);
-void terminateGLFW();
+void init_glfw();
+GLFWwindow * create_window(const Window_Config & window_config);
+void terminate_glfw();
 
 
 } // namespace Nito

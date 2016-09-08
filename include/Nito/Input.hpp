@@ -15,7 +15,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-using ControlHandler = std::function<void(GLFWwindow *, const int, const int)>;
+using Control_Handler = std::function<void(GLFWwindow *, const int, const int)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,13 +23,13 @@ using ControlHandler = std::function<void(GLFWwindow *, const int, const int)>;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void addControlBinding(
+void add_control_binding(
     const std::string & key,
     const std::string & action,
     const std::string & handler);
 
-void setControlHandler(const std::string & name, const ControlHandler & controlHandler);
-void keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods);
+void set_control_handler(const std::string & name, const Control_Handler & control_handler);
+void key_callback(GLFWwindow * window, int key, int scan_code, int action, int mods);
 
 
 } // namespace Nito

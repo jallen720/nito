@@ -22,11 +22,11 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct ControlBinding
+struct Control_Binding
 {
     const int key;
     const int action;
-    const ControlHandler & handler;
+    const Control_Handler & handler;
 };
 
 
@@ -35,8 +35,8 @@ struct ControlBinding
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<ControlBinding> controlBindings;
-static map<string, ControlHandler> controlHandlers;
+static vector<Control_Binding> control_bindings;
+static map<string, Control_Handler> control_handlers;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ static map<string, ControlHandler> controlHandlers;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void addControlBinding(const string & key, const string & action, const string & handler)
+void add_control_binding(const string & key, const string & action, const string & handler)
 {
-    static const map<string, const int> glfwKeyCodes
+    static const map<string, const int> glfw_key_codes
     {
         { "space"         , GLFW_KEY_SPACE         },
         { "apostrophe"    , GLFW_KEY_APOSTROPHE    },
@@ -170,7 +170,7 @@ void addControlBinding(const string & key, const string & action, const string &
         { "menu"          , GLFW_KEY_MENU          },
     };
 
-    static const map<string, const int> glfwKeyActions
+    static const map<string, const int> glfw_key_actions
     {
         { "release" , GLFW_RELEASE },
         { "press"   , GLFW_PRESS   },
@@ -179,45 +179,45 @@ void addControlBinding(const string & key, const string & action, const string &
 
 
     // Validations
-    if (!containsKey(glfwKeyCodes, key))
+    if (!containsKey(glfw_key_codes, key))
     {
         throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
     }
 
-    if (!containsKey(glfwKeyActions, action))
+    if (!containsKey(glfw_key_actions, action))
     {
         throw runtime_error("ERROR: \"" + action + "\" is not a valid action!");
     }
 
-    if (!containsKey(controlHandlers, handler))
+    if (!containsKey(control_handlers, handler))
     {
         throw runtime_error("ERROR: \"" + handler + "\" is not a registered control handler!");
     }
 
 
-    controlBindings.push_back(
+    control_bindings.push_back(
         {
-            glfwKeyCodes.at(key),
-            glfwKeyActions.at(action),
-            controlHandlers.at(handler),
+            glfw_key_codes.at(key),
+            glfw_key_actions.at(action),
+            control_handlers.at(handler),
         });
 }
 
 
-void setControlHandler(const string & name, const ControlHandler & controlHandler)
+void set_control_handler(const string & name, const Control_Handler & control_handler)
 {
-    controlHandlers[name] = controlHandler;
+    control_handlers[name] = control_handler;
 }
 
 
-void keyCallback(GLFWwindow * window, int key, int /*scancode*/, int action, int /*mods*/)
+void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, int /*mods*/)
 {
-    for (const ControlBinding & controlBinding : controlBindings)
+    for (const Control_Binding & control_binding : control_bindings)
     {
-        if (controlBinding.key == key &&
-            controlBinding.action == action)
+        if (control_binding.key == key &&
+            control_binding.action == action)
         {
-            controlBinding.handler(window, key, action);
+            control_binding.handler(window, key, action);
         }
     }
 }

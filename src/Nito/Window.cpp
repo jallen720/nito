@@ -20,7 +20,7 @@ using CppUtils::containsKey;
 using CppUtils::forEach;
 
 // Nito/input.hpp
-using Nito::keyCallback;
+using Nito::key_callback;
 
 
 namespace Nito
@@ -40,7 +40,7 @@ static vector<GLFWwindow *> windows;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static void errorCallback(int error, const char * description)
+static void error_callback(int error, const char * description)
 {
     throw runtime_error((string)"GLFW ERROR [" + toString(error) + "]: " + description + "!");
 }
@@ -51,9 +51,9 @@ static void errorCallback(int error, const char * description)
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void initGLFW()
+void init_glfw()
 {
-    glfwSetErrorCallback(errorCallback);
+    glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
     {
@@ -62,31 +62,31 @@ void initGLFW()
 }
 
 
-GLFWwindow * createWindow(const WindowConfig & windowConfig)
+GLFWwindow * create_window(const Window_Config & window_config)
 {
-    static const map<string, const int> swapIntervals
+    static const map<string, const int> swap_intervals
     {
         { "every-update"       , 1 },
         { "every-other-update" , 2 },
     };
 
-    if (!containsKey(swapIntervals, windowConfig.refreshRate))
+    if (!containsKey(swap_intervals, window_config.refresh_rate))
     {
-        throw runtime_error("ERROR: \"" + windowConfig.refreshRate + "\" is not a valid refresh rate!");
+        throw runtime_error("ERROR: \"" + window_config.refresh_rate + "\" is not a valid refresh rate!");
     }
 
 
     // Window pre-configuration
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, windowConfig.contextVersion.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, windowConfig.contextVersion.minor);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, window_config.context_version.major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, window_config.context_version.minor);
 
 
     // Window creation
     GLFWwindow * window =
         glfwCreateWindow(
-            windowConfig.width,
-            windowConfig.height,
-            windowConfig.title.c_str(),
+            window_config.width,
+            window_config.height,
+            window_config.title.c_str(),
             nullptr,
             nullptr);
 
@@ -100,15 +100,15 @@ GLFWwindow * createWindow(const WindowConfig & windowConfig)
 
     // Window post-configuration
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(swapIntervals.at(windowConfig.refreshRate));
-    glfwSetKeyCallback(window, keyCallback);
+    glfwSwapInterval(swap_intervals.at(window_config.refresh_rate));
+    glfwSetKeyCallback(window, key_callback);
 
 
     return window;
 }
 
 
-void terminateGLFW()
+void terminate_glfw()
 {
     // Destroy all windows.
     forEach(windows, glfwDestroyWindow);

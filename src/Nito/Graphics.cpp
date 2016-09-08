@@ -40,11 +40,11 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct VertexAttribute
+struct Vertex_Attribute
 {
     struct Type
     {
-        const GLenum glType;
+        const GLenum gl_type;
         const size_t size;
     };
 
@@ -53,13 +53,13 @@ struct VertexAttribute
     static Types types;
 
     const Type & type;
-    const GLint elementCount;
-    const GLboolean isNormalized;
+    const GLint element_count;
+    const GLboolean is_normalize;
     const size_t size;
 };
 
 
-struct TextureFormat
+struct Texture_Format
 {
     const GLenum internal;
     const std::string image;
@@ -74,16 +74,16 @@ struct TextureFormat
 static const GLsizei VERTEX_ARRAY_COUNT  = 1;
 static const GLsizei VERTEX_BUFFER_COUNT = 1;
 static const GLsizei INDEX_BUFFER_COUNT  = 1;
-static GLuint vertexArrayObjects[VERTEX_ARRAY_COUNT];
-static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
-static GLuint indexBufferObjects[INDEX_BUFFER_COUNT];
-static vector<GLuint> textureObjects;
-static vector<GLuint> shaderPrograms;
-static mat4 projectionMatrix;
-static vec3 unitScale;
+static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
+static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
+static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
+static vector<GLuint> texture_objects;
+static vector<GLuint> shader_programs;
+static mat4 projection_matrix;
+static vec3 unit_scale;
 
 
-VertexAttribute::Types VertexAttribute::types
+Vertex_Attribute::Types Vertex_Attribute::types
 {
     {
         "float",
@@ -100,69 +100,69 @@ VertexAttribute::Types VertexAttribute::types
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static VertexAttribute createVertexAttribute(
-    const string & typeName,
-    const GLint elementCount,
-    const GLboolean isNormalized)
+static Vertex_Attribute create_vertex_attribute(
+    const string & type_name,
+    const GLint element_count,
+    const GLboolean is_normalize)
 {
-    if (!containsKey(VertexAttribute::types, typeName))
+    if (!containsKey(Vertex_Attribute::types, type_name))
     {
-        throw runtime_error("ERROR: " + typeName + " is not a valid vertex attribute type!");
+        throw runtime_error("ERROR: " + type_name + " is not a valid vertex attribute type!");
     }
 
-    const VertexAttribute::Type & type = VertexAttribute::types.at(typeName);
+    const Vertex_Attribute::Type & type = Vertex_Attribute::types.at(type_name);
 
     return
     {
         type,
-        elementCount,
-        isNormalized,
-        type.size * elementCount,
+        element_count,
+        is_normalize,
+        type.size * element_count,
     };
 }
 
 
-static void validateParameterIs(
-    const GLuint shaderEntity,
+static void validate_parameter_is(
+    const GLuint shader_entity,
     const GLenum parameter,
-    const GLint expectedParameterValue,
-    void (* getParameter)(GLuint, GLenum, GLint *),
-    void (* getInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *))
+    const GLint expected_parameter_value,
+    void (* get_parameter)(GLuint, GLenum, GLint *),
+    void (* get_info_log)(GLuint, GLsizei, GLsizei *, GLchar *))
 {
-    GLint parameterValue;
-    getParameter(shaderEntity, parameter, &parameterValue);
+    GLint parameter_value;
+    get_parameter(shader_entity, parameter, &parameter_value);
 
 
-    // Throw shader entity info log if parameterValue is not as expected.
-    if (parameterValue != expectedParameterValue)
+    // Throw shader entity info log if parameter_value is not as expected.
+    if (parameter_value != expected_parameter_value)
     {
-        GLint infoLogLength;
-        getParameter(shaderEntity, GL_INFO_LOG_LENGTH, &infoLogLength);
-        vector<GLchar> infoLog(infoLogLength);
-        getInfoLog(shaderEntity, infoLog.size(), nullptr, &infoLog[0]);
-        throw runtime_error("ERROR: " + string(infoLog.begin(), infoLog.end()));
+        GLint info_log_length;
+        get_parameter(shader_entity, GL_INFO_LOG_LENGTH, &info_log_length);
+        vector<GLchar> info_log(info_log_length);
+        get_info_log(shader_entity, info_log.size(), nullptr, &info_log[0]);
+        throw runtime_error("ERROR: " + string(info_log.begin(), info_log.end()));
     }
 }
 
 
-static void compileShaderObject(const GLuint shaderObject, const vector<string> sources)
+static void compile_shader_object(const GLuint shader_object, const vector<string> sources)
 {
-    // Attach sources and compile shaderObject.
-    const size_t sourceCount = sources.size();
-    const GLchar * sourceCode[sourceCount];
+    // Attach sources and compile shader_object.
+    const size_t source_count = sources.size();
+    const GLchar * source_code[source_count];
 
-    for (size_t i = 0; i < sourceCount; i++)
+    for (size_t i = 0; i < source_count; i++)
     {
-        sourceCode[i] = sources[i].c_str();
+        source_code[i] = sources[i].c_str();
     }
 
-    glShaderSource(shaderObject, sourceCount, sourceCode, nullptr);
-    glCompileShader(shaderObject);
+    glShaderSource(shader_object, source_count, source_code, nullptr);
+    glCompileShader(shader_object);
 
 
     // Check for compile time errors.
-    validateParameterIs(
-        shaderObject,
+    validate_parameter_is(
+        shader_object,
         GL_COMPILE_STATUS,
         GL_TRUE,
         glGetShaderiv,
@@ -170,46 +170,46 @@ static void compileShaderObject(const GLuint shaderObject, const vector<string> 
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const vec4 & uniformValue)
+static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
 {
     glUniform4f(
-        glGetUniformLocation(shaderProgram, uniformName),
-        uniformValue.x,
-        uniformValue.y,
-        uniformValue.z,
-        uniformValue.w);
+        glGetUniformLocation(shader_program, uniform_name),
+        uniform_value.x,
+        uniform_value.y,
+        uniform_value.z,
+        uniform_value.w);
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLint uniformValue)
+static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLint uniform_value)
 {
-    glUniform1i(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
+    glUniform1i(glGetUniformLocation(shader_program, uniform_name), uniform_value);
 }
 
 
-static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, const GLfloat uniformValue)
+static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLfloat uniform_value)
 {
-    glUniform1f(glGetUniformLocation(shaderProgram, uniformName), uniformValue);
+    glUniform1f(glGetUniformLocation(shader_program, uniform_name), uniform_value);
 }
 
 
-static void setUniform(
-    const GLuint shaderProgram,
-    const GLchar * uniformName,
-    const mat4 & uniformValue,
+static void set_uniform(
+    const GLuint shader_program,
+    const GLchar * uniform_name,
+    const mat4 & uniform_value,
     const GLboolean transpose = GL_FALSE)
 {
     glUniformMatrix4fv(
-        glGetUniformLocation(shaderProgram, uniformName), // Uniform location
+        glGetUniformLocation(shader_program, uniform_name), // Uniform location
         1,                                                // Matrices to be modified (1 if target is not an array)
         transpose,                                        // Transpose matric (must be GL_FALSE apparently?)
-        value_ptr(uniformValue));                         // Pointer to uniform value
+        value_ptr(uniform_value));                         // Pointer to uniform value
 }
 
 
-static void validateNoOpenGLError(const string & functionName)
+static void validate_no_opengl_error(const string & function_name)
 {
-    static const map<GLenum, const string> openGLErrorMessages
+    static const map<GLenum, const string> opengl_error_messages
     {
         { GL_INVALID_ENUM                  , "Invalid enum"                  },
         { GL_INVALID_VALUE                 , "Invalid value"                 },
@@ -224,20 +224,20 @@ static void validateNoOpenGLError(const string & functionName)
 
     if (error != GL_NO_ERROR)
     {
-        string errorMessage =
-            containsKey(openGLErrorMessages, error)
-            ? openGLErrorMessages.at(error)
+        string error_message =
+            containsKey(opengl_error_messages, error)
+            ? opengl_error_messages.at(error)
             : "An unknown OpenGL error occurred!";
 
-        throw runtime_error("OPENGL ERROR: in " + functionName + "(): " + errorMessage);
+        throw runtime_error("OPENGL ERROR: in " + function_name + "(): " + error_message);
     }
 }
 
 
-static void bindTexture(const GLuint textureObject, const GLuint textureUnit)
+static void bind_texture(const GLuint texture_object, const GLuint texture_unit)
 {
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureObject);
+    glActiveTexture(GL_TEXTURE0 + texture_unit);
+    glBindTexture(GL_TEXTURE_2D, texture_object);
 }
 
 
@@ -246,7 +246,7 @@ static void bindTexture(const GLuint textureObject, const GLuint textureUnit)
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void initGLEW()
+void init_glew()
 {
     // Init GLEW in experimental mode.
     glewExperimental = GL_TRUE;
@@ -260,29 +260,29 @@ void initGLEW()
 }
 
 
-void configureOpenGL(const OpenGLConfig & openGLConfig)
+void configure_opengl(const OpenGL_Config & opengl_config)
 {
     // Configure viewport.
-    glViewport(0, 0, openGLConfig.windowWidth, openGLConfig.windowHeight);
+    glViewport(0, 0, opengl_config.window_width, opengl_config.window_height);
 
-    projectionMatrix =
+    projection_matrix =
         ortho(
-            0.0f,                             // Left
-            (float)openGLConfig.windowWidth,  // Right
-            0.0f,                             // Top
-            (float)openGLConfig.windowHeight, // Bottom
-            0.1f,                             // Z near
-            100.0f);                          // Z far
+            0.0f,                               // Left
+            (float)opengl_config.window_width,  // Right
+            0.0f,                               // Top
+            (float)opengl_config.window_height, // Bottom
+            0.1f,                               // Z near
+            100.0f);                            // Z far
 
 
     // Configure clear color.
-    const Color & clearColor = openGLConfig.clearColor;
+    const Color & clear_color = opengl_config.clear_color;
 
     glClearColor(
-        clearColor.red,
-        clearColor.green,
-        clearColor.blue,
-        clearColor.alpha);
+        clear_color.red,
+        clear_color.green,
+        clear_color.blue,
+        clear_color.alpha);
 
 
     // Enable depth testing.
@@ -295,87 +295,87 @@ void configureOpenGL(const OpenGLConfig & openGLConfig)
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
-    unitScale = { openGLConfig.pixelsPerUnit, openGLConfig.pixelsPerUnit, 1.0f };
+    unit_scale = { opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f };
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("configureOpenGL");
+    validate_no_opengl_error("configure_opengl");
 }
 
 
-void loadShaderPipelines(const vector<ShaderPipeline> & shaderPipelines)
+void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 {
-    static const map<string, const GLenum> shaderTypes
+    static const map<string, const GLenum> shader_types
     {
         { "vertex"   , GL_VERTEX_SHADER   },
         { "fragment" , GL_FRAGMENT_SHADER },
     };
 
-    GLuint shaderProgram;
-    vector<GLuint> shaderObjects;
+    GLuint shader_program;
+    vector<GLuint> shader_objects;
 
-    const auto processShaderObjects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void
+    const auto process_shader_objects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void
     {
-        for (const GLuint shaderObject : shaderObjects)
+        for (const GLuint shader_object : shader_objects)
         {
-            processShaderObject(shaderProgram, shaderObject);
+            processShaderObject(shader_program, shader_object);
         }
     };
 
 
     // Process shader pipelines.
-    for (const ShaderPipeline & shaderPipeline : shaderPipelines)
+    for (const Shader_Pipeline & shader_pipeline : shader_pipelines)
     {
         // Create and compile shader objects from sources.
-        forEach(shaderPipeline, [&](const string & shaderType, const vector<string> & sources) -> void
+        forEach(shader_pipeline, [&](const string & shader_type, const vector<string> & sources) -> void
         {
-            if (!containsKey(shaderTypes, shaderType))
+            if (!containsKey(shader_types, shader_type))
             {
-                throw runtime_error("ERROR: " + shaderType + " is not a valid shader type!");
+                throw runtime_error("ERROR: " + shader_type + " is not a valid shader type!");
             }
 
-            GLuint shaderObject = glCreateShader(shaderTypes.at(shaderType));
-            compileShaderObject(shaderObject, sources);
-            shaderObjects.push_back(shaderObject);
+            GLuint shader_object = glCreateShader(shader_types.at(shader_type));
+            compile_shader_object(shader_object, sources);
+            shader_objects.push_back(shader_object);
         });
 
 
         // Create, attach shader objects to and link shader program.
-        shaderProgram = glCreateProgram();
-        processShaderObjects(glAttachShader);
-        glLinkProgram(shaderProgram);
+        shader_program = glCreateProgram();
+        process_shader_objects(glAttachShader);
+        glLinkProgram(shader_program);
 
 
         // Track shader program if it linked successfully.
-        validateParameterIs(
-            shaderProgram,
+        validate_parameter_is(
+            shader_program,
             GL_LINK_STATUS,
             GL_TRUE,
             glGetProgramiv,
             glGetProgramInfoLog);
 
-        shaderPrograms.push_back(shaderProgram);
+        shader_programs.push_back(shader_program);
 
 
         // Detach and delete shaders, as they are no longer needed by anything.
-        processShaderObjects(glDetachShader);
-        forEach(shaderObjects, glDeleteShader);
+        process_shader_objects(glDetachShader);
+        forEach(shader_objects, glDeleteShader);
 
 
         // Clear current pipeline's data.
-        shaderObjects.clear();
-        shaderProgram = 0;
+        shader_objects.clear();
+        shader_program = 0;
     }
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("loadShaderPipelines");
+    validate_no_opengl_error("load_shader_pipelines");
 }
 
 
-void loadTextures(const vector<Texture> & textures)
+void load_textures(const vector<Texture> & textures)
 {
-    static const map<string, const GLint> textureOptionKeys
+    static const map<string, const GLint> texture_option_keys
     {
         { "wrap-s"     , GL_TEXTURE_WRAP_S     },
         { "wrap-t"     , GL_TEXTURE_WRAP_T     },
@@ -383,7 +383,7 @@ void loadTextures(const vector<Texture> & textures)
         { "mag-filter" , GL_TEXTURE_MAG_FILTER },
     };
 
-    static const map<string, const GLint> textureOptionValues
+    static const map<string, const GLint> texture_option_values
     {
         // Wrap values
         { "repeat"          , GL_REPEAT          },
@@ -395,7 +395,7 @@ void loadTextures(const vector<Texture> & textures)
         { "nearest" , GL_NEAREST },
     };
 
-    static const map<string, const TextureFormat> textureFormats
+    static const map<string, const Texture_Format> texture_formats
     {
         { "rgba" , { GL_RGBA , "RGBA" } },
         { "rgb"  , { GL_RGB  , "RGB"  } },
@@ -403,45 +403,45 @@ void loadTextures(const vector<Texture> & textures)
 
 
     // Allocate memory to hold texture objects.
-    textureObjects.reserve(textures.size());
-    glGenTextures(textureObjects.capacity(), &textureObjects[0]);
+    texture_objects.reserve(textures.size());
+    glGenTextures(texture_objects.capacity(), &texture_objects[0]);
 
 
     // Load data and configure options for textures.
     for (auto i = 0u; i < textures.size(); i++)
     {
         const Texture & texture = textures[i];
-        glBindTexture(GL_TEXTURE_2D, textureObjects[i]);
+        glBindTexture(GL_TEXTURE_2D, texture_objects[i]);
 
 
         // Configure options for the texture object.
-        forEach(texture.options, [&](const string & optionKey, const string & optionValue) -> void
+        forEach(texture.options, [&](const string & option_key, const string & option_value) -> void
         {
             glTexParameteri(
                 GL_TEXTURE_2D,
-                textureOptionKeys.at(optionKey),
-                textureOptionValues.at(optionValue));
+                texture_option_keys.at(option_key),
+                texture_option_values.at(option_value));
         });
 
 
         // Load texture data from image at path.
-        const TextureFormat textureFormat = textureFormats.at(texture.format);
+        const Texture_Format texture_format = texture_formats.at(texture.format);
         Blob  blob;
         Image image;
         image.read(texture.path);
         image.flip();
-        image.write(&blob, textureFormat.image);
+        image.write(&blob, texture_format.image);
 
         glTexImage2D(
-            GL_TEXTURE_2D,          // Target
-            0,                      // Level of detail (0 is base image LOD)
-            textureFormat.internal, // Internal format
-            image.columns(),        // Image width
-            image.rows(),           // Image height
-            0,                      // Border width (must be 0 apparently?)
-            textureFormat.internal, // Texel data format (must match internal format)
-            GL_UNSIGNED_BYTE,       // Texel data type
-            blob.data());           // Pointer to image data
+            GL_TEXTURE_2D,           // Target
+            0,                       // Level of detail (0 is base image LOD)
+            texture_format.internal, // Internal format
+            image.columns(),         // Image width
+            image.rows(),            // Image height
+            0,                       // Border width (must be 0 apparently?)
+            texture_format.internal, // Texel data format (must match internal format)
+            GL_UNSIGNED_BYTE,        // Texel data type
+            blob.data());            // Pointer to image data
 
 
         // Unbind texture now that its data has been loaded.
@@ -450,74 +450,74 @@ void loadTextures(const vector<Texture> & textures)
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("loadTextures");
+    validate_no_opengl_error("load_textures");
 }
 
 
-void loadVertexData(
-    const GLvoid * vertexData,
-    const GLsizeiptr vertexDataSize,
-    const GLuint * indexData,
-    const GLsizeiptr indexDataSize)
+void load_vertex_data(
+    const GLvoid * vertex_data,
+    const GLsizeiptr vertex_data_size,
+    const GLuint * index_data,
+    const GLsizeiptr index_data_size)
 {
     // Vertex attribute specification
-    static const vector<VertexAttribute> vertexAttributes
+    static const vector<Vertex_Attribute> vertex_attributes
     {
-        createVertexAttribute("float", 3, GL_FALSE), // Position
-        createVertexAttribute("float", 2, GL_FALSE), // UV
+        create_vertex_attribute("float", 3, GL_FALSE), // Position
+        create_vertex_attribute("float", 2, GL_FALSE), // UV
     };
 
-    static const GLsizei vertexStride =
+    static const GLsizei vertex_stride =
         accumulate(
             (GLsizei)0,
-            vertexAttributes,
-            [](const GLsizei total, const VertexAttribute & vertexAttribute) -> GLsizei
+            vertex_attributes,
+            [](const GLsizei total, const Vertex_Attribute & vertex_attribute) -> GLsizei
             {
-                return total + vertexAttribute.size;
+                return total + vertex_attribute.size;
             });
 
 
     // Generate containers for vertex data.
-    glGenVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
-    glGenBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
-    glGenBuffers(INDEX_BUFFER_COUNT, indexBufferObjects);
+    glGenVertexArrays(VERTEX_ARRAY_COUNT, vertex_array_objects);
+    glGenBuffers(VERTEX_BUFFER_COUNT, vertex_buffer_objects);
+    glGenBuffers(INDEX_BUFFER_COUNT, index_buffer_objects);
 
 
     // Bind the Vertex Array Object first, then bind and set vertex & index buffer data.
-    glBindVertexArray(vertexArrayObjects[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjects[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObjects[0]);
+    glBindVertexArray(vertex_array_objects[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_objects[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_objects[0]);
 
     glBufferData(
-        GL_ARRAY_BUFFER, // Target buffer to load data into
-        vertexDataSize,  // Size of data
-        vertexData,      // Pointer to data
-        GL_STATIC_DRAW); // Usage
+        GL_ARRAY_BUFFER,  // Target buffer to load data into
+        vertex_data_size, // Size of data
+        vertex_data,      // Pointer to data
+        GL_STATIC_DRAW);  // Usage
 
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER, // Target buffer to load data into
-        indexDataSize,           // Size of data
-        indexData,               // Pointer to data
+        index_data_size,         // Size of data
+        index_data,              // Pointer to data
         GL_STATIC_DRAW);         // Usage
 
 
     // Define pointers to vertex attributes.
-    size_t previousAttributeSize = 0;
+    size_t previous_attribute_size = 0;
 
-    for (GLuint index = 0u; index < vertexAttributes.size(); index++)
+    for (GLuint attribute_index = 0u; attribute_index < vertex_attributes.size(); attribute_index++)
     {
-        const VertexAttribute & vertexAttribute = vertexAttributes[index];
-        glEnableVertexAttribArray(index);
+        const Vertex_Attribute & vertex_attribute = vertex_attributes[attribute_index];
+        glEnableVertexAttribArray(attribute_index);
 
         glVertexAttribPointer(
-            index,                            // Index of attribute
-            vertexAttribute.elementCount,     // Number of attribute elements
-            vertexAttribute.type.glType,      // Type of attribute elements
-            vertexAttribute.isNormalized,     // Should attribute elements be normalized?
-            vertexStride,                     // Stride between attributes
-            (GLvoid *)previousAttributeSize); // Pointer to first element of attribute
+            attribute_index,                    // Index of attribute
+            vertex_attribute.element_count,     // Number of attribute elements
+            vertex_attribute.type.gl_type,      // Type of attribute elements
+            vertex_attribute.is_normalize,      // Should attribute elements be normalized?
+            vertex_stride,                      // Stride between attributes
+            (GLvoid *)previous_attribute_size); // Pointer to first element of attribute
 
-        previousAttributeSize = vertexAttribute.size;
+        previous_attribute_size = vertex_attribute.size;
     }
 
 
@@ -530,36 +530,36 @@ void loadVertexData(
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("loadVertexData");
+    validate_no_opengl_error("load_vertex_data");
 }
 
 
-void renderGraphics()
+void render_graphics()
 {
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
     // Bind vertex array, textures and shader program, then draw data.
-    const GLuint shaderProgram = shaderPrograms[0];
-    glBindVertexArray(vertexArrayObjects[0]);
-    bindTexture(textureObjects[0], 0u);
-    glUseProgram(shaderProgram);
-    setUniform(shaderProgram, "texture0", 0);
+    const GLuint shader_program = shader_programs[0];
+    glBindVertexArray(vertex_array_objects[0]);
+    bind_texture(texture_objects[0], 0u);
+    glUseProgram(shader_program);
+    set_uniform(shader_program, "texture0", 0);
 
 
     // Create matrix to scale model to texture's dimensions.
-    int textureWidth;
-    int textureHeight;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
-    mat4 textureScaleMatrix = scale(mat4(), { textureWidth, textureHeight, 1.0f });
+    int texture_width;
+    int texture_height;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
+    mat4 texture_scale_matrix = scale(mat4(), { texture_width, texture_height, 1.0f });
 
 
     // Setup matrices for current entity and bind them to shader program.
-    mat4 viewMatrix;
-    setUniform(shaderProgram, "projection", projectionMatrix);
-    setUniform(shaderProgram, "view", viewMatrix);
+    mat4 view_matrix;
+    set_uniform(shader_program, "projection", projection_matrix);
+    set_uniform(shader_program, "view", view_matrix);
 
     vec3 positions[]
     {
@@ -577,9 +577,10 @@ void renderGraphics()
 
     for (const vec3 & position : positions)
     {
-        mat4 modelMatrix;
-        modelMatrix = translate(modelMatrix, position * unitScale);
-        setUniform(shaderProgram, "model", modelMatrix * textureScaleMatrix);
+        mat4 model_matrix;
+        model_matrix = translate(model_matrix, position * unit_scale);
+        set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
+
 
         // Draw data.
         glDrawElements(
@@ -596,27 +597,27 @@ void renderGraphics()
     glUseProgram(0);
 
 
-    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS renderGraphics() RUNS EVERY FRAME. !!!
+    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS render_graphics() RUNS EVERY FRAME. !!!
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("renderGraphics");
+    validate_no_opengl_error("render_graphics");
 }
 
 
-void destroyGraphics()
+void destroy_graphics()
 {
     // Delete vertex data.
-    glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertexArrayObjects);
-    glDeleteBuffers(VERTEX_BUFFER_COUNT, vertexBufferObjects);
-    glDeleteBuffers(INDEX_BUFFER_COUNT, indexBufferObjects);
+    glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertex_array_objects);
+    glDeleteBuffers(VERTEX_BUFFER_COUNT, vertex_buffer_objects);
+    glDeleteBuffers(INDEX_BUFFER_COUNT, index_buffer_objects);
 
 
     // Delete shader pipelines.
-    forEach(shaderPrograms, glDeleteProgram);
-    shaderPrograms.clear();
+    forEach(shader_programs, glDeleteProgram);
+    shader_programs.clear();
 
 
     // Validate no OpenGL errors occurred.
-    validateNoOpenGLError("destroyGraphics");
+    validate_no_opengl_error("destroy_graphics");
 }
 
 

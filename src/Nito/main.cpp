@@ -109,6 +109,7 @@ int main() {
                 clearColor["blue"],
                 clearColor["alpha"],
             },
+            openGLConfig["pixels-per-unit"],
         });
 
 
@@ -169,10 +170,10 @@ int main() {
     // Load vertex data.
     GLfloat spriteVertexData[] {
         // Position          // UV
-        -0.5f, -0.5f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+         0.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         1.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
     };
 
     GLuint spriteIndexData[] {
@@ -190,7 +191,7 @@ int main() {
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        renderGraphics((sinf(glfwGetTime() * 3) / 2) + 0.5f);
+        renderGraphics();
         glfwSwapBuffers(window);
     }
 

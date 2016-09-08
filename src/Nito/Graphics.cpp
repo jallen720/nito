@@ -2,11 +2,15 @@
 
 #include <stdexcept>
 #include <cstddef>
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <Magick++.h>
 #include "CppUtils/Fn/accumulate.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
 #include "CppUtils/ContainerUtils/forEach.hpp"
+
+#include "Nito/Debugging.hpp"
 
 
 using std::map;
@@ -14,7 +18,12 @@ using std::vector;
 using std::string;
 using std::runtime_error;
 using std::size_t;
+using glm::vec3;
 using glm::vec4;
+using glm::mat4;
+using glm::translate;
+using glm::value_ptr;
+using glm::ortho;
 using Magick::Blob;
 using Magick::Image;
 using CppUtils::accumulate;
@@ -66,6 +75,8 @@ static GLuint vertexBufferObjects[VERTEX_BUFFER_COUNT];
 static GLuint indexBufferObjects[INDEX_BUFFER_COUNT];
 static vector<GLuint> textureObjects;
 static vector<GLuint> shaderPrograms;
+static mat4 projectionMatrix;
+static vec3 unitScale;
 
 
 VertexAttribute::Types VertexAttribute::types {
@@ -169,6 +180,20 @@ static void setUniform(const GLuint shaderProgram, const GLchar * uniformName, c
 }
 
 
+static void setUniform(
+    const GLuint shaderProgram,
+    const GLchar * uniformName,
+    const mat4 & uniformValue,
+    const GLboolean transpose = GL_FALSE)
+{
+    glUniformMatrix4fv(
+        glGetUniformLocation(shaderProgram, uniformName), // Uniform location
+        1,                                                // Matrices to be modified (1 if target is not an array)
+        transpose,                                        // Transpose matric (must be GL_FALSE apparently?)
+        value_ptr(uniformValue));                         // Pointer to uniform value
+}
+
+
 static void validateNoOpenGLError(const string & functionName) {
     static const map<GLenum, const string> openGLErrorMessages {
         { GL_INVALID_ENUM                  , "Invalid enum"                  },
@@ -220,6 +245,15 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
     // Configure viewport.
     glViewport(0, 0, openGLConfig.windowWidth, openGLConfig.windowHeight);
 
+    projectionMatrix =
+        ortho(
+            0.0f,                             // Left
+            (float)openGLConfig.windowWidth,  // Right
+            0.0f,                             // Top
+            (float)openGLConfig.windowHeight, // Bottom
+            0.1f,                             // Z near
+            100.0f);                          // Z far
+
 
     // Configure clear color.
     const Color & clearColor = openGLConfig.clearColor;
@@ -229,6 +263,11 @@ void configureOpenGL(const OpenGLConfig & openGLConfig) {
         clearColor.green,
         clearColor.blue,
         clearColor.alpha);
+
+
+    // Configure other options.
+    glEnable(GL_DEPTH_TEST);
+    unitScale = { openGLConfig.pixelsPerUnit, openGLConfig.pixelsPerUnit, 1.0f };
 
 
     // Validate no OpenGL errors occurred.
@@ -445,21 +484,38 @@ void loadVertexData(
 }
 
 
-void renderGraphics(float value) {
+void renderGraphics() {
     // Clear color buffer.
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
     // Bind vertex array, textures and shader program, then draw data.
     const GLuint shaderProgram = shaderPrograms[0];
     glBindVertexArray(vertexArrayObjects[0]);
     bindTexture(textureObjects[0], 0u);
-    bindTexture(textureObjects[1], 1u);
     glUseProgram(shaderProgram);
     setUniform(shaderProgram, "texture0", 0);
-    setUniform(shaderProgram, "texture1", 1);
-    setUniform(shaderProgram, "textureMixValue", value);
 
+
+    // Create matrix to scale model to texture's dimensions.
+    int textureWidth;
+    int textureHeight;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
+    mat4 textureScaleMatrix = scale(mat4(), { textureWidth, textureHeight, 1.0f });
+
+
+    // Setup matrices for current entity and bind them to shader program.
+    vec3 modelPosition { 2.0f, 1.0f, -0.5f };
+    mat4 modelMatrix;
+    mat4 viewMatrix;
+    modelMatrix = translate(modelMatrix, modelPosition * unitScale);
+    setUniform(shaderProgram, "projection", projectionMatrix);
+    setUniform(shaderProgram, "view", viewMatrix);
+    setUniform(shaderProgram, "model", modelMatrix * textureScaleMatrix);
+
+
+    // Draw data.
     glDrawElements(
         GL_TRIANGLES,    // Render mode
         6,               // Index count
@@ -475,7 +531,7 @@ void renderGraphics(float value) {
 
     // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS renderGraphics() RUNS EVERY FRAME. !!!
     // Validate no OpenGL errors occurred.
-    // validateNoOpenGLError("renderGraphics");
+    validateNoOpenGLError("renderGraphics");
 }
 
 

@@ -27,6 +27,7 @@ struct OpenGLConfig {
     const GLsizei windowWidth;
     const GLsizei windowHeight;
     const Color clearColor;
+    const unsigned int pixelsPerUnit;
 };
 
 
@@ -60,7 +61,7 @@ void loadVertexData(
     const GLsizeiptr indexDataSize);
 
 
-void renderGraphics(float value);
+void renderGraphics();
 void destroyGraphics();
 
 

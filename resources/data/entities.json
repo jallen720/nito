@@ -1,6 +1,7 @@
 [
     {
-        "shader-pipeline": "dev",
+        "shader-pipeline-name": "dev",
+        "texture-path": "resources/textures/character.png",
         "position":
         {
             "x": 1,
@@ -8,11 +9,21 @@
         }
     },
     {
-        "shader-pipeline": "dev",
+        "shader-pipeline-name": "dev",
+        "texture-path": "resources/textures/box.jpg",
         "position":
         {
             "x": 3,
             "y": 1
+        }
+    },
+    {
+        "shader-pipeline-name": "dev",
+        "texture-path": "resources/textures/polys.jpg",
+        "position":
+        {
+            "x": 10,
+            "y": 4
         }
     }
 ]

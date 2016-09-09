@@ -78,7 +78,7 @@ static const GLsizei INDEX_BUFFER_COUNT  = 1;
 static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
 static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
-static vector<GLuint> texture_objects;
+static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
 static vector<Entity> entities;
 static mat4 projection_matrix;
@@ -420,15 +420,18 @@ void load_textures(const vector<Texture> & textures)
 
 
     // Allocate memory to hold texture objects.
-    texture_objects.reserve(textures.size());
-    glGenTextures(texture_objects.capacity(), &texture_objects[0]);
+    const size_t texture_count = textures.size();
+    vector<GLuint> texture_object_ids;
+    texture_object_ids.reserve(texture_count);
+    glGenTextures(texture_object_ids.capacity(), &texture_object_ids[0]);
 
 
     // Load data and configure options for textures.
-    for (auto i = 0u; i < textures.size(); i++)
+    for (auto i = 0u; i < texture_count; i++)
     {
         const Texture & texture = textures[i];
-        glBindTexture(GL_TEXTURE_2D, texture_objects[i]);
+        const GLuint texture_object = texture_object_ids[i];
+        glBindTexture(GL_TEXTURE_2D, texture_object);
 
 
         // Configure options for the texture object.
@@ -463,6 +466,10 @@ void load_textures(const vector<Texture> & textures)
 
         // Unbind texture now that its data has been loaded.
         glBindTexture(GL_TEXTURE_2D, 0);
+
+
+        // Track texture by its path.
+        texture_objects[texture.path] = texture_object;
     }
 
 
@@ -567,18 +574,6 @@ void render_graphics()
     glBindVertexArray(vertex_array_objects[0]);
 
 
-    // Bind first texture to texture unit 0.
-    bind_texture(texture_objects[0], 0u);
-
-
-    // Create matrix to scale model to texture's dimensions.
-    int texture_width;
-    int texture_height;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-    mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
-
-
     // Create view matrix.
     mat4 view_matrix;
 
@@ -591,7 +586,19 @@ void render_graphics()
         model_matrix = translate(model_matrix, entity.position * unit_scale);
 
 
-        // Bind shader pipeline for entity and set its uniforms.
+        // Bind entity's texture to texture unit 0.
+        bind_texture(texture_objects.at(entity.texture_path), 0u);
+
+
+        // Create matrix to scale entity's model matrix to texture's dimensions.
+        int texture_width;
+        int texture_height;
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
+        mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
+
+
+        // Bind entity's shader pipeline and set its uniforms.
         const GLuint shader_program = shader_programs.at(entity.shader_pipeline_name);
         glUseProgram(shader_program);
         set_uniform(shader_program, "texture0", 0);

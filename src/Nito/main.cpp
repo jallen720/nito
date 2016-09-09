@@ -222,7 +222,8 @@ int main()
 
         add_entity(
             {
-                entity_data["shader-pipeline"],
+                entity_data["shader-pipeline-name"],
+                entity_data["texture-path"],
                 vec3(position["x"], position["y"], 0.0f),
             });
     }

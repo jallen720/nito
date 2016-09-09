@@ -63,6 +63,7 @@ struct Texture
 struct Entity
 {
     const std::string shader_pipeline_name;
+    const std::string texture_path;
     const glm::vec3 position;
 };
 

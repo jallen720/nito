@@ -581,7 +581,7 @@ void render_graphics()
     // Render all entities.
     for (const Entity & entity : entities)
     {
-        // Create entity's model matrix and setup its transformations.
+        // Create entity's model matrix and transform it.
         mat4 model_matrix;
         model_matrix = translate(model_matrix, entity.position * unit_scale);
 

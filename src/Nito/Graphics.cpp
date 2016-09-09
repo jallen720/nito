@@ -260,12 +260,12 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 {
     static const map<string, const GLenum> blend_func_s_factors
     {
-        { "source-alpha", GL_SRC_ALPHA },
+        { "source_alpha", GL_SRC_ALPHA },
     };
 
     static const map<string, const GLenum> blend_func_d_factors
     {
-        { "one-minus-source-alpha", GL_ONE_MINUS_SRC_ALPHA },
+        { "one_minus_source_alpha", GL_ONE_MINUS_SRC_ALPHA },
     };
 
 
@@ -388,18 +388,18 @@ void load_textures(const vector<Texture> & textures)
 {
     static const map<string, const GLint> texture_option_keys
     {
-        { "wrap-s"     , GL_TEXTURE_WRAP_S     },
-        { "wrap-t"     , GL_TEXTURE_WRAP_T     },
-        { "min-filter" , GL_TEXTURE_MIN_FILTER },
-        { "mag-filter" , GL_TEXTURE_MAG_FILTER },
+        { "wrap_s"     , GL_TEXTURE_WRAP_S     },
+        { "wrap_t"     , GL_TEXTURE_WRAP_T     },
+        { "min_filter" , GL_TEXTURE_MIN_FILTER },
+        { "mag_filter" , GL_TEXTURE_MAG_FILTER },
     };
 
     static const map<string, const GLint> texture_option_values
     {
         // Wrap values
         { "repeat"          , GL_REPEAT          },
-        { "mirrored-repeat" , GL_MIRRORED_REPEAT },
-        { "clamp-to-edge"   , GL_CLAMP_TO_EDGE   },
+        { "mirrored_repeat" , GL_MIRRORED_REPEAT },
+        { "clamp_to_edge"   , GL_CLAMP_TO_EDGE   },
 
         // Filter values
         { "linear"  , GL_LINEAR  },

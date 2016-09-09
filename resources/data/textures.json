@@ -4,10 +4,10 @@
         "format": "rgba",
         "options":
         {
-            "wrap-s": "repeat",
-            "wrap-t": "repeat",
-            "min-filter": "nearest",
-            "mag-filter": "nearest"
+            "wrap_s": "repeat",
+            "wrap_t": "repeat",
+            "min_filter": "nearest",
+            "mag_filter": "nearest"
         }
     },
     {
@@ -15,10 +15,10 @@
         "format": "rgb",
         "options":
         {
-            "wrap-s": "repeat",
-            "wrap-t": "repeat",
-            "min-filter": "linear",
-            "mag-filter": "linear"
+            "wrap_s": "repeat",
+            "wrap_t": "repeat",
+            "min_filter": "linear",
+            "mag_filter": "linear"
         }
     },
     {
@@ -26,10 +26,10 @@
         "format": "rgb",
         "options":
         {
-            "wrap-s": "repeat",
-            "wrap-t": "repeat",
-            "min-filter": "linear",
-            "mag-filter": "linear"
+            "wrap_s": "repeat",
+            "wrap_t": "repeat",
+            "min_filter": "linear",
+            "mag_filter": "linear"
         }
     }
 ]

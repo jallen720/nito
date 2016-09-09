@@ -2,8 +2,8 @@
     "title": "My window",
     "width": 1280,
     "height": 720,
-    "refresh-rate": "every-update",
-    "glfw-context-version":
+    "refresh_rate": "every_update",
+    "glfw_context_version":
     {
         "major": 2,
         "minor": 0

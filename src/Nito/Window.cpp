@@ -66,8 +66,8 @@ GLFWwindow * create_window(const Window_Config & window_config)
 {
     static const map<string, const int> swap_intervals
     {
-        { "every-update"       , 1 },
-        { "every-other-update" , 2 },
+        { "every_update"       , 1 },
+        { "every_other_update" , 2 },
     };
 
     if (!containsKey(swap_intervals, window_config.refresh_rate))

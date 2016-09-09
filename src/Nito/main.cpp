@@ -55,7 +55,7 @@ int main()
 
     // Create window.
     JSON window_config = readJSONFile("resources/configs/window.json");
-    const JSON & glfw_context_version = window_config["glfw-context-version"];
+    const JSON & glfw_context_version = window_config["glfw_context_version"];
 
     GLFWwindow * window =
         create_window(
@@ -63,7 +63,7 @@ int main()
                 window_config["width"],
                 window_config["height"],
                 window_config["title"],
-                window_config["refresh-rate"],
+                window_config["refresh_rate"],
                 {
                     glfw_context_version["major"],
                     glfw_context_version["minor"],
@@ -100,7 +100,7 @@ int main()
 
     // Initialize graphics engine.
     const JSON opengl_config = readJSONFile("resources/configs/opengl.json");
-    const JSON clear_color = opengl_config["clear-color"];
+    const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
     int window_width;
     int window_height;
@@ -111,7 +111,7 @@ int main()
         {
             window_width,
             window_height,
-            opengl_config["pixels-per-unit"],
+            opengl_config["pixels_per_unit"],
             {
                 clear_color["red"],
                 clear_color["green"],
@@ -119,19 +119,19 @@ int main()
                 clear_color["alpha"],
             },
             {
-                blending["is-enabled"],
-                blending["s-factor"],
-                blending["d-factor"],
+                blending["is_enabled"],
+                blending["s_factor"],
+                blending["d_factor"],
             },
         });
 
 
     // Load shader pipelines.
-    const JSON shader_pipelines_data     = readJSONFile("resources/data/shader-pipelines.json");
-    const JSON shader_config             = readJSONFile("resources/configs/shaders.json");
-    const JSON shader_extensions         = shader_config["extensions"];
-    const string version_source          = readFile("resources/shaders/shared/version.glsl");
-    const string vertex_attribute_source = readFile("resources/shaders/shared/vertex-attributes.glsl");
+    const JSON shader_pipelines_data      = readJSONFile("resources/data/shader_pipelines.json");
+    const JSON shader_config              = readJSONFile("resources/configs/shaders.json");
+    const JSON shader_extensions          = shader_config["extensions"];
+    const string version_source           = readFile("resources/shaders/shared/version.glsl");
+    const string vertex_attributes_source = readFile("resources/shaders/shared/vertex_attributes.glsl");
     vector<Shader_Pipeline> shader_pipelines;
 
     for (const JSON & shader_pipeline_data : shader_pipelines_data)
@@ -146,18 +146,18 @@ int main()
             vector<string> & shader_sources = shader_pipeline.shader_sources[shader_type];
 
 
-            // Load sources for shader into pipeline, starting with the version source, then the vertex-attributes
-            // source if this is a vertex shader, then finally the shader source itself.
+            // Load sources for shader into pipeline, starting with the version.glsl source, then the
+            // vertex_attributes.glsl source if this is a vertex shader, then finally the shader source itself.
             shader_sources.push_back(version_source);
 
             if (shader_type == "vertex")
             {
-                shader_sources.push_back(vertex_attribute_source);
+                shader_sources.push_back(vertex_attributes_source);
             }
 
             shader_sources.push_back(readFile(
                 "resources/shaders/" +
-                shader["source-path"].get<string>() +
+                shader["source_path"].get<string>() +
                 shader_extensions[shader_type].get<string>()));
         }
 
@@ -224,8 +224,8 @@ int main()
 
         add_entity(
             {
-                entity_data["shader-pipeline-name"],
-                entity_data["texture-path"],
+                entity_data["shader_pipeline_name"],
+                entity_data["texture_path"],
                 vec3(position["x"], position["y"], 0.0f),
                 vec3(scale["x"], scale["y"], 1.0f),
             });

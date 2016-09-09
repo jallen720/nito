@@ -5,11 +5,11 @@
         [
             {
                 "type": "vertex",
-                "source-path": "dev"
+                "source_path": "dev"
             },
             {
                 "type": "fragment",
-                "source-path": "dev"
+                "source_path": "dev"
             }
         ]
     },
@@ -19,11 +19,11 @@
         [
             {
                 "type": "vertex",
-                "source-path": "simple"
+                "source_path": "simple"
             },
             {
                 "type": "fragment",
-                "source-path": "simple"
+                "source_path": "simple"
             }
         ]
     },
@@ -33,11 +33,11 @@
         [
             {
                 "type": "vertex",
-                "source-path": "colorful"
+                "source_path": "colorful"
             },
             {
                 "type": "fragment",
-                "source-path": "colorful"
+                "source_path": "colorful"
             }
         ]
     }

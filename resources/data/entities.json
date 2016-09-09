@@ -1,7 +1,7 @@
 [
     {
-        "shader-pipeline-name": "dev",
-        "texture-path": "resources/textures/character.png",
+        "shader_pipeline_name": "dev",
+        "texture_path": "resources/textures/character.png",
         "position":
         {
             "x": 1,
@@ -14,8 +14,8 @@
         }
     },
     {
-        "shader-pipeline-name": "dev",
-        "texture-path": "resources/textures/box.jpg",
+        "shader_pipeline_name": "dev",
+        "texture_path": "resources/textures/box.jpg",
         "position":
         {
             "x": 3,
@@ -28,8 +28,8 @@
         }
     },
     {
-        "shader-pipeline-name": "dev",
-        "texture-path": "resources/textures/polys.jpg",
+        "shader_pipeline_name": "dev",
+        "texture_path": "resources/textures/polys.jpg",
         "position":
         {
             "x": 10,
@@ -42,8 +42,8 @@
         }
     },
     {
-        "shader-pipeline-name": "dev",
-        "texture-path": "resources/textures/polys.jpg",
+        "shader_pipeline_name": "dev",
+        "texture_path": "resources/textures/polys.jpg",
         "position":
         {
             "x": 10,
@@ -56,8 +56,8 @@
         }
     },
     {
-        "shader-pipeline-name": "dev",
-        "texture-path": "resources/textures/polys.jpg",
+        "shader_pipeline_name": "dev",
+        "texture_path": "resources/textures/polys.jpg",
         "position":
         {
             "x": 10,

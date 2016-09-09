@@ -328,14 +328,6 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
     GLuint shader_program;
     vector<GLuint> shader_objects;
 
-    const auto process_shader_objects = [&](void (* processShaderObject)(GLuint, GLuint)) -> void
-    {
-        for (const GLuint shader_object : shader_objects)
-        {
-            processShaderObject(shader_program, shader_object);
-        }
-    };
-
 
     // Process shader pipelines.
     for (const Shader_Pipeline & shader_pipeline : shader_pipelines)
@@ -356,7 +348,12 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 
         // Create, attach shader objects to and link shader program.
         shader_program = glCreateProgram();
-        process_shader_objects(glAttachShader);
+
+        for (const GLuint shader_object : shader_objects)
+        {
+            glAttachShader(shader_program, shader_object);
+        }
+
         glLinkProgram(shader_program);
 
 
@@ -372,7 +369,11 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 
 
         // Detach and delete shaders, as they are no longer needed by anything.
-        process_shader_objects(glDetachShader);
+        for (const GLuint shader_object : shader_objects)
+        {
+            glDetachShader(shader_program, shader_object);
+        }
+
         forEach(shader_objects, glDeleteShader);
 
 

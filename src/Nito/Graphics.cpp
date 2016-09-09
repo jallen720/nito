@@ -282,8 +282,8 @@ void configure_opengl(const OpenGL_Config & opengl_config)
             (float)opengl_config.window_width,  // Right
             0.0f,                               // Top
             (float)opengl_config.window_height, // Bottom
-            0.1f,                               // Z near
-            100.0f);                            // Z far
+            -1.0f,                              // Z near
+            1.0f);                              // Z far
 
 
     // Configure clear color.
@@ -578,16 +578,10 @@ void render_graphics()
 
     vec3 positions[]
     {
-        vec3(0.0f, 0.0f, -0.5f),
-        vec3(1.5f, 0.2f, -0.6f),
-        vec3(1.3f, 0.0f, -0.5f),
-        vec3(2.0f, 5.0f, -0.5f),
-        vec3(9.5f, 6.2f, -0.5f),
-        vec3(4.8f, 6.0f, -0.5f),
-        vec3(2.4f, 1.4f, -0.5f),
-        vec3(0.7f, 3.0f, -0.5f),
-        vec3(1.5f, 2.0f, -0.5f),
-        vec3(8.3f, 1.0f, -0.5f),
+        vec3(2.0f, 3.5f, 0),
+        vec3(2.0f, 3.0f, 0),
+        vec3(2.0f, 2.5f, 0),
+        vec3(2.0f, 2.0f, 0),
     };
 
     for (const vec3 & position : positions)

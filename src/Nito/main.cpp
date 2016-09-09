@@ -87,7 +87,7 @@ int main()
 
 
     // Load control bindings.
-    const vector<JSON> controls = readJSONFile("resources/data/controls.json");
+    const JSON controls = readJSONFile("resources/data/controls.json");
 
     for (const JSON & control_binding : controls)
     {
@@ -127,18 +127,18 @@ int main()
 
 
     // Load shader pipelines.
-    const vector<JSON> shader_pipelines_data = readJSONFile("resources/data/shader-pipelines.json");
-    const JSON shader_config                 = readJSONFile("resources/configs/shaders.json");
-    const JSON shader_extensions             = shader_config["extensions"];
-    const string version_source              = readFile("resources/shaders/shared/version.glsl");
-    const string vertex_attribute_source     = readFile("resources/shaders/shared/vertex-attributes.glsl");
+    const JSON shader_pipelines_data     = readJSONFile("resources/data/shader-pipelines.json");
+    const JSON shader_config             = readJSONFile("resources/configs/shaders.json");
+    const JSON shader_extensions         = shader_config["extensions"];
+    const string version_source          = readFile("resources/shaders/shared/version.glsl");
+    const string vertex_attribute_source = readFile("resources/shaders/shared/vertex-attributes.glsl");
     vector<Shader_Pipeline> shader_pipelines;
 
     for (const JSON & shader_pipeline_data : shader_pipelines_data)
     {
         Shader_Pipeline shader_pipeline;
         shader_pipeline.name = shader_pipeline_data["name"];
-        const vector<JSON> shaders = shader_pipeline_data["shaders"];
+        const JSON shaders = shader_pipeline_data["shaders"];
 
         for (const JSON & shader : shaders)
         {
@@ -167,7 +167,7 @@ int main()
 
 
     // Load texture data.
-    const vector<JSON> textures_data = readJSONFile("resources/data/textures.json");
+    const JSON textures_data = readJSONFile("resources/data/textures.json");
 
     const vector<Texture> textures =
         transform<Texture>(textures_data, [](const JSON & texture_data) -> Texture
@@ -214,7 +214,7 @@ int main()
 
 
     // Load entities.
-    const vector<JSON> entities_data = readJSONFile("resources/data/entities.json");
+    const JSON entities_data = readJSONFile("resources/data/entities.json");
 
     for (const JSON & entity_data : entities_data)
     {

@@ -296,10 +296,6 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         clear_color.alpha);
 
 
-    // Enable depth testing.
-    glEnable(GL_DEPTH_TEST);
-
-
     // Configure blending.
     if (opengl_config.blending.is_enabled)
     {
@@ -555,7 +551,7 @@ void load_vertex_data(
 void render_graphics()
 {
     // Clear color buffer.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
 
     // Bind vertex array, textures and shader program, then draw data.

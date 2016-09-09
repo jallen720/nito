@@ -139,15 +139,15 @@ int main()
             {
                 // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
                 // source if this is a vertex shader, then finally the shader source itself.
-                vector<string> & shaderSources = shader_pipeline[shader_type];
-                shaderSources.push_back(version_source);
+                vector<string> & shader_sources = shader_pipeline[shader_type];
+                shader_sources.push_back(version_source);
 
                 if (shader_type == "vertex")
                 {
-                    shaderSources.push_back(vertex_attribute_source);
+                    shader_sources.push_back(vertex_attribute_source);
                 }
 
-                shaderSources.push_back(readFile(
+                shader_sources.push_back(readFile(
                     "resources/shaders/" +
                     shader_source +
                     shader_extensions[shader_type].get<string>()));
@@ -186,11 +186,11 @@ int main()
     // Load vertex data.
     GLfloat sprite_vertex_data[]
     {
-        // Position          // UV
-         0.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         1.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        // Position       // UV
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
     };
 
     GLuint sprite_index_data[]

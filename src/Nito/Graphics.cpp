@@ -592,7 +592,7 @@ void render_graphics()
 
 
         // Bind shader pipeline for entity and set its uniforms.
-        const GLuint shader_program = shader_programs.at(entity.shader_pipeline);
+        const GLuint shader_program = shader_programs.at(entity.shader_pipeline_name);
         glUseProgram(shader_program);
         set_uniform(shader_program, "texture0", 0);
         set_uniform(shader_program, "projection", projection_matrix);

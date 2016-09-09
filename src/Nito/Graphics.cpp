@@ -207,7 +207,7 @@ static void set_uniform(
 }
 
 
-static void validate_no_opengl_error(const string & function_name)
+static void validate_no_opengl_error(const string & description)
 {
     static const map<GLenum, const string> opengl_error_messages
     {
@@ -229,7 +229,7 @@ static void validate_no_opengl_error(const string & function_name)
             ? opengl_error_messages.at(error)
             : "An unknown OpenGL error occurred!";
 
-        throw runtime_error("OPENGL ERROR: in " + function_name + "(): " + error_message);
+        throw runtime_error("OPENGL ERROR: " + description + ": " + error_message);
     }
 }
 
@@ -313,7 +313,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("configure_opengl");
+    validate_no_opengl_error("configure_opengl()");
 }
 
 
@@ -384,7 +384,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("load_shader_pipelines");
+    validate_no_opengl_error("load_shader_pipelines()");
 }
 
 
@@ -465,7 +465,7 @@ void load_textures(const vector<Texture> & textures)
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("load_textures");
+    validate_no_opengl_error("load_textures()");
 }
 
 
@@ -545,7 +545,13 @@ void load_vertex_data(
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("load_vertex_data");
+    validate_no_opengl_error("load_vertex_data()");
+}
+
+
+void add_entity(const Entity & entity)
+{
+    entities.push_back(entity);
 }
 
 
@@ -608,7 +614,7 @@ void render_graphics()
 
     // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS render_graphics() RUNS EVERY FRAME. !!!
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("render_graphics");
+    validate_no_opengl_error("render_graphics()");
 }
 
 
@@ -626,7 +632,7 @@ void destroy_graphics()
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("destroy_graphics");
+    validate_no_opengl_error("destroy_graphics()");
 }
 
 

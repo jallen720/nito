@@ -72,7 +72,7 @@ int main()
 
 
     // Set control handlers.
-    auto exit_handler = [&](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
+    auto exit_handler = [](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     };
@@ -143,10 +143,11 @@ int main()
         for (const JSON & shader : shaders)
         {
             const string shader_type = shader["type"];
-
-            // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
-            // source if this is a vertex shader, then finally the shader source itself.
             vector<string> & shader_sources = shader_pipeline.shader_sources[shader_type];
+
+
+            // Load sources for shader into pipeline, starting with the version source, then the vertex-attributes
+            // source if this is a vertex shader, then finally the shader source itself.
             shader_sources.push_back(version_source);
 
             if (shader_type == "vertex")

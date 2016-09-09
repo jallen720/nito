@@ -19,7 +19,7 @@ using CppUtils::toString;
 using CppUtils::containsKey;
 using CppUtils::forEach;
 
-// Nito/input.hpp
+// Nito/Input.hpp
 using Nito::key_callback;
 
 
@@ -77,8 +77,9 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
 
     // Window pre-configuration
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, window_config.context_version.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, window_config.context_version.minor);
+    const Window_Config::Context_Version & context_version = window_config.context_version;
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_version.major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_version.minor);
 
 
     // Window creation

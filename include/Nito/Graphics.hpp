@@ -17,29 +17,28 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Color
-{
-    const GLfloat red;
-    const GLfloat green;
-    const GLfloat blue;
-    const GLfloat alpha;
-};
-
-
 struct OpenGL_Config
 {
-    struct Blending
+    const GLsizei window_width;
+    const GLsizei window_height;
+    const unsigned int pixels_per_unit;
+
+    const struct Clear_Color
+    {
+        const GLfloat red;
+        const GLfloat green;
+        const GLfloat blue;
+        const GLfloat alpha;
+    }
+    clear_color;
+
+    const struct Blending
     {
         const bool is_enabled;
         const std::string s_factor;
         const std::string d_factor;
-    };
-
-    const GLsizei window_width;
-    const GLsizei window_height;
-    const unsigned int pixels_per_unit;
-    const Color clear_color;
-    const Blending blending;
+    }
+    blending;
 };
 
 

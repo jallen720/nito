@@ -16,20 +16,19 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Context_Version
-{
-    const int major;
-    const int minor;
-};
-
-
 struct Window_Config
 {
     const int width;
     const int height;
     const std::string title;
     const std::string refresh_rate;
-    const Context_Version context_version;
+
+    const struct Context_Version
+    {
+        const int major;
+        const int minor;
+    }
+    context_version;
 };
 
 

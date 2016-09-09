@@ -147,7 +147,7 @@ static void compile_shader_object(const GLuint shader_object, const vector<strin
     const size_t source_count = sources.size();
     const GLchar * source_code[source_count];
 
-    for (size_t i = 0; i < source_count; i++)
+    for (auto i = 0u; i < source_count; i++)
     {
         source_code[i] = sources[i].c_str();
     }
@@ -196,10 +196,10 @@ static void set_uniform(
     const GLboolean transpose = GL_FALSE)
 {
     glUniformMatrix4fv(
-        glGetUniformLocation(shader_program, uniform_name), // Uniform location
-        1,                                                // Matrices to be modified (1 if target is not an array)
-        transpose,                                        // Transpose matric (must be GL_FALSE apparently?)
-        value_ptr(uniform_value));                         // Pointer to uniform value
+        glGetUniformLocation(shader_program, uniform_name),
+        1,                         // Matrices to be modified (1 if target is not an array)
+        transpose,                 // Transpose matrix (must be GL_FALSE apparently?)
+        value_ptr(uniform_value)); // Pointer to uniform value
 }
 
 
@@ -283,7 +283,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Configure clear color.
-    const Color & clear_color = opengl_config.clear_color;
+    const OpenGL_Config::Clear_Color & clear_color = opengl_config.clear_color;
 
     glClearColor(
         clear_color.red,

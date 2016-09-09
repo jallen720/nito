@@ -23,11 +23,7 @@ using Control_Handler = std::function<void(GLFWwindow *, const int, const int)>;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void add_control_binding(
-    const std::string & key,
-    const std::string & action,
-    const std::string & handler);
-
+void add_control_binding(const std::string & key, const std::string & action, const std::string & handler);
 void set_control_handler(const std::string & name, const Control_Handler & control_handler);
 void key_callback(GLFWwindow * window, int key, int scan_code, int action, int mods);
 

@@ -309,7 +309,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
-    unit_scale = { opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f };
+    unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
 
 
     // Validate no OpenGL errors occurred.

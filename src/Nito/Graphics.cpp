@@ -87,13 +87,7 @@ static vec3 unit_scale;
 
 Vertex_Attribute::Types Vertex_Attribute::types
 {
-    {
-        "float",
-        {
-            GL_FLOAT,
-            sizeof(GLfloat),
-        },
-    },
+    { "float", { GL_FLOAT, sizeof(GLfloat) } },
 };
 
 

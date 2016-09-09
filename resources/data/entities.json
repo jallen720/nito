@@ -6,6 +6,11 @@
         {
             "x": 1,
             "y": 2
+        },
+        "scale":
+        {
+            "x": 1,
+            "y": 1
         }
     },
     {
@@ -14,6 +19,11 @@
         "position":
         {
             "x": 3,
+            "y": 1
+        },
+        "scale":
+        {
+            "x": 1,
             "y": 1
         }
     },
@@ -24,6 +34,39 @@
         {
             "x": 10,
             "y": 4
+        },
+        "scale":
+        {
+            "x": 0.5,
+            "y": 0.5
+        }
+    },
+    {
+        "shader-pipeline-name": "dev",
+        "texture-path": "resources/textures/polys.jpg",
+        "position":
+        {
+            "x": 10,
+            "y": 4
+        },
+        "scale":
+        {
+            "x": 0.25,
+            "y": 0.25
+        }
+    },
+    {
+        "shader-pipeline-name": "dev",
+        "texture-path": "resources/textures/polys.jpg",
+        "position":
+        {
+            "x": 10,
+            "y": 4
+        },
+        "scale":
+        {
+            "x": 0.125,
+            "y": 0.125
         }
     }
 ]

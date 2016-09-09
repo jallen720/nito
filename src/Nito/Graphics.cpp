@@ -584,6 +584,7 @@ void render_graphics()
         // Create entity's model matrix and transform it.
         mat4 model_matrix;
         model_matrix = translate(model_matrix, entity.position * unit_scale);
+        model_matrix = scale(model_matrix, entity.scale);
 
 
         // Bind entity's texture to texture unit 0.

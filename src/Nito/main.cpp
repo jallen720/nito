@@ -219,12 +219,14 @@ int main()
     for (const JSON & entity_data : entities_data)
     {
         const JSON & position = entity_data["position"];
+        const JSON & scale    = entity_data["scale"];
 
         add_entity(
             {
                 entity_data["shader-pipeline-name"],
                 entity_data["texture-path"],
                 vec3(position["x"], position["y"], 0.0f),
+                vec3(scale["x"], scale["y"], 1.0f),
             });
     }
 

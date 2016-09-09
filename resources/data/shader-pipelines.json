@@ -1,14 +1,44 @@
 [
     {
-        "vertex": "dev",
-        "fragment": "dev"
+        "name": "dev",
+        "shaders":
+        [
+            {
+                "type": "vertex",
+                "source-path": "dev"
+            },
+            {
+                "type": "fragment",
+                "source-path": "dev"
+            }
+        ]
     },
     {
-        "vertex": "simple",
-        "fragment": "simple"
+        "name": "simple",
+        "shaders":
+        [
+            {
+                "type": "vertex",
+                "source-path": "simple"
+            },
+            {
+                "type": "fragment",
+                "source-path": "simple"
+            }
+        ]
     },
     {
-        "vertex": "colorful",
-        "fragment": "colorful"
+        "name": "colorful",
+        "shaders":
+        [
+            {
+                "type": "vertex",
+                "source-path": "colorful"
+            },
+            {
+                "type": "fragment",
+                "source-path": "colorful"
+            }
+        ]
     }
 ]

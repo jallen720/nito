@@ -1,0 +1,18 @@
+[
+    {
+        "shader-pipeline": "dev",
+        "position":
+        {
+            "x": 1,
+            "y": 2
+        }
+    },
+    {
+        "shader-pipeline": "dev",
+        "position":
+        {
+            "x": 3,
+            "y": 1
+        }
+    }
+]

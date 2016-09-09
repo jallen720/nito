@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdio>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include "CppUtils/JSON/JSON.hpp"
 #include "CppUtils/JSON/readJSONFile.hpp"
 #include "CppUtils/FileUtils/readFile.hpp"
@@ -18,6 +19,7 @@
 
 using std::string;
 using std::vector;
+using glm::vec3;
 using CppUtils::JSON;
 using CppUtils::readJSONFile;
 using CppUtils::readFile;
@@ -39,6 +41,7 @@ using Nito::configure_opengl;
 using Nito::load_shader_pipelines;
 using Nito::load_textures;
 using Nito::load_vertex_data;
+using Nito::add_entity;
 using Nito::render_graphics;
 using Nito::destroy_graphics;
 using Nito::Shader_Pipeline;
@@ -124,43 +127,47 @@ int main()
 
 
     // Load shader pipelines.
-    const JSON shader_pipelines_data     = readJSONFile("resources/data/shader-pipelines.json");
-    const JSON shader_config             = readJSONFile("resources/configs/shaders.json");
-    const JSON shader_extensions         = shader_config["extensions"];
-    const string version_source          = readFile("resources/shaders/shared/version.glsl");
-    const string vertex_attribute_source = readFile("resources/shaders/shared/vertex-attributes.glsl");
+    const vector<JSON> shader_pipelines_data = readJSONFile("resources/data/shader-pipelines.json");
+    const JSON shader_config                 = readJSONFile("resources/configs/shaders.json");
+    const JSON shader_extensions             = shader_config["extensions"];
+    const string version_source              = readFile("resources/shaders/shared/version.glsl");
+    const string vertex_attribute_source     = readFile("resources/shaders/shared/vertex-attributes.glsl");
+    vector<Shader_Pipeline> shader_pipelines;
 
-    const vector<Shader_Pipeline> shader_pipelines =
-        transform<Shader_Pipeline>(shader_pipelines_data, [&](const JSON & shader_pipeline_data) -> Shader_Pipeline
+    for (const JSON & shader_pipeline_data : shader_pipelines_data)
+    {
+        Shader_Pipeline shader_pipeline;
+        shader_pipeline.name = shader_pipeline_data["name"];
+        const vector<JSON> shaders = shader_pipeline_data["shaders"];
+
+        for (const JSON & shader : shaders)
         {
-            Shader_Pipeline shader_pipeline;
+            const string shader_type = shader["type"];
 
-            forEach(shader_pipeline_data, [&](const string & shader_type, const string & shader_source) -> void
+            // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
+            // source if this is a vertex shader, then finally the shader source itself.
+            vector<string> & shader_sources = shader_pipeline.shader_sources[shader_type];
+            shader_sources.push_back(version_source);
+
+            if (shader_type == "vertex")
             {
-                // Load sources for shader into pipeline, starting with the version source, then the vertex attributes
-                // source if this is a vertex shader, then finally the shader source itself.
-                vector<string> & shader_sources = shader_pipeline[shader_type];
-                shader_sources.push_back(version_source);
+                shader_sources.push_back(vertex_attribute_source);
+            }
 
-                if (shader_type == "vertex")
-                {
-                    shader_sources.push_back(vertex_attribute_source);
-                }
+            shader_sources.push_back(readFile(
+                "resources/shaders/" +
+                shader["source-path"].get<string>() +
+                shader_extensions[shader_type].get<string>()));
+        }
 
-                shader_sources.push_back(readFile(
-                    "resources/shaders/" +
-                    shader_source +
-                    shader_extensions[shader_type].get<string>()));
-            });
-
-            return shader_pipeline;
-        });
+        shader_pipelines.push_back(shader_pipeline);
+    }
 
     load_shader_pipelines(shader_pipelines);
 
 
     // Load texture data.
-    const JSON textures_data = readJSONFile("resources/data/textures.json");
+    const vector<JSON> textures_data = readJSONFile("resources/data/textures.json");
 
     const vector<Texture> textures =
         transform<Texture>(textures_data, [](const JSON & texture_data) -> Texture
@@ -204,6 +211,21 @@ int main()
         sizeof(sprite_vertex_data),
         sprite_index_data,
         sizeof(sprite_index_data));
+
+
+    // Load entities.
+    const vector<JSON> entities_data = readJSONFile("resources/data/entities.json");
+
+    for (const JSON & entity_data : entities_data)
+    {
+        const JSON & position = entity_data["position"];
+
+        add_entity(
+            {
+                entity_data["shader-pipeline"],
+                vec3(position["x"], position["y"], 0.0f),
+            });
+    }
 
 
     // Main loop

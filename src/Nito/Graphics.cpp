@@ -2,12 +2,12 @@
 
 #include <stdexcept>
 #include <cstddef>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <Magick++.h>
 #include "CppUtils/Fn/accumulate.hpp"
 #include "CppUtils/MapUtils/containsKey.hpp"
+#include "CppUtils/MapUtils/getValues.hpp"
 #include "CppUtils/ContainerUtils/forEach.hpp"
 
 #include "Nito/Debugging.hpp"
@@ -28,6 +28,7 @@ using Magick::Blob;
 using Magick::Image;
 using CppUtils::accumulate;
 using CppUtils::containsKey;
+using CppUtils::getValues;
 using CppUtils::forEach;
 
 
@@ -78,7 +79,8 @@ static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
 static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static vector<GLuint> texture_objects;
-static vector<GLuint> shader_programs;
+static map<string, GLuint> shader_programs;
+static vector<Entity> entities;
 static mat4 projection_matrix;
 static vec3 unit_scale;
 
@@ -333,7 +335,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
     for (const Shader_Pipeline & shader_pipeline : shader_pipelines)
     {
         // Create and compile shader objects from sources.
-        forEach(shader_pipeline, [&](const string & shader_type, const vector<string> & sources) -> void
+        forEach(shader_pipeline.shader_sources, [&](const string & shader_type, const vector<string> & sources) -> void
         {
             if (!containsKey(shader_types, shader_type))
             {
@@ -357,7 +359,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
         glLinkProgram(shader_program);
 
 
-        // Track shader program if it linked successfully.
+        // Validate linking was successful, then track shader program.
         validate_parameter_is(
             shader_program,
             GL_LINK_STATUS,
@@ -365,7 +367,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
             glGetProgramiv,
             glGetProgramInfoLog);
 
-        shader_programs.push_back(shader_program);
+        shader_programs[shader_pipeline.name] = shader_program;
 
 
         // Detach and delete shaders, as they are no longer needed by anything.
@@ -561,12 +563,12 @@ void render_graphics()
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-    // Bind vertex array, textures and shader program, then draw data.
-    const GLuint shader_program = shader_programs[0];
+    // Bind sprite vertex array.
     glBindVertexArray(vertex_array_objects[0]);
+
+
+    // Bind first texture to texture unit 0.
     bind_texture(texture_objects[0], 0u);
-    glUseProgram(shader_program);
-    set_uniform(shader_program, "texture0", 0);
 
 
     // Create matrix to scale model to texture's dimensions.
@@ -574,26 +576,27 @@ void render_graphics()
     int texture_height;
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-    mat4 texture_scale_matrix = scale(mat4(), { texture_width, texture_height, 1.0f });
+    mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
 
 
-    // Setup matrices for current entity and bind them to shader program.
+    // Create view matrix.
     mat4 view_matrix;
-    set_uniform(shader_program, "projection", projection_matrix);
-    set_uniform(shader_program, "view", view_matrix);
 
-    vec3 positions[]
-    {
-        vec3(2.0f, 3.5f, 0),
-        vec3(2.0f, 3.0f, 0),
-        vec3(2.0f, 2.5f, 0),
-        vec3(2.0f, 2.0f, 0),
-    };
 
-    for (const vec3 & position : positions)
+    // Render all entities.
+    for (const Entity & entity : entities)
     {
+        // Create entity's model matrix and setup its transformations.
         mat4 model_matrix;
-        model_matrix = translate(model_matrix, position * unit_scale);
+        model_matrix = translate(model_matrix, entity.position * unit_scale);
+
+
+        // Bind shader pipeline for entity and set its uniforms.
+        const GLuint shader_program = shader_programs.at(entity.shader_pipeline);
+        glUseProgram(shader_program);
+        set_uniform(shader_program, "texture0", 0);
+        set_uniform(shader_program, "projection", projection_matrix);
+        set_uniform(shader_program, "view", view_matrix);
         set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
 
 
@@ -627,7 +630,7 @@ void destroy_graphics()
 
 
     // Delete shader pipelines.
-    forEach(shader_programs, glDeleteProgram);
+    forEach(getValues(shader_programs), glDeleteProgram);
     shader_programs.clear();
 
 

@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 
 namespace Nito
@@ -42,7 +43,11 @@ struct OpenGL_Config
 };
 
 
-using Shader_Pipeline = std::map<std::string, std::vector<std::string>>;
+struct Shader_Pipeline
+{
+    std::string name;
+    std::map<std::string, std::vector<std::string>> shader_sources;
+};
 
 
 struct Texture
@@ -52,6 +57,13 @@ struct Texture
     std::string path;
     std::string format;
     Options options;
+};
+
+
+struct Entity
+{
+    const std::string shader_pipeline;
+    const glm::vec3 position;
 };
 
 
@@ -71,6 +83,7 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
+void add_entity(const Entity & entity);
 void render_graphics();
 void destroy_graphics();
 

@@ -439,7 +439,7 @@ void load_textures(const vector<Texture> & textures)
 
         // Load texture data from image at path.
         const Texture_Format texture_format = texture_formats.at(texture.format);
-        Blob  blob;
+        Blob blob;
         Image image;
         image.read(texture.path);
         image.flip();

@@ -219,7 +219,7 @@ int main()
     for (const JSON & entity_data : entities_data)
     {
         const JSON & position = entity_data["position"];
-        const JSON & scale    = entity_data["scale"];
+        const JSON & scale = entity_data["scale"];
 
         add_entity(
             {

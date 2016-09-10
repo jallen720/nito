@@ -4,9 +4,9 @@
 #include <vector>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
-#include "CppUtils/StringUtils/toString.hpp"
-#include "CppUtils/MapUtils/containsKey.hpp"
-#include "CppUtils/ContainerUtils/forEach.hpp"
+#include "Cpp_Utils/String.hpp"
+#include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Container.hpp"
 
 #include "Nito/Input.hpp"
 
@@ -15,9 +15,9 @@ using std::string;
 using std::map;
 using std::vector;
 using std::runtime_error;
-using CppUtils::toString;
-using CppUtils::containsKey;
-using CppUtils::forEach;
+using Cpp_Utils::to_string;
+using Cpp_Utils::contains_key;
+using Cpp_Utils::for_each;
 
 // Nito/Input.hpp
 using Nito::key_callback;
@@ -42,7 +42,7 @@ static vector<GLFWwindow *> windows;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void error_callback(int error, const char * description)
 {
-    throw runtime_error((string)"GLFW ERROR [" + toString(error) + "]: " + description + "!");
+    throw runtime_error((string)"GLFW ERROR [" + to_string(error) + "]: " + description + "!");
 }
 
 
@@ -70,7 +70,7 @@ GLFWwindow * create_window(const Window_Config & window_config)
         { "every_other_update" , 2 },
     };
 
-    if (!containsKey(swap_intervals, window_config.refresh_rate))
+    if (!contains_key(swap_intervals, window_config.refresh_rate))
     {
         throw runtime_error("ERROR: \"" + window_config.refresh_rate + "\" is not a valid refresh rate!");
     }
@@ -112,7 +112,7 @@ GLFWwindow * create_window(const Window_Config & window_config)
 void terminate_glfw()
 {
     // Destroy all windows.
-    forEach(windows, glfwDestroyWindow);
+    for_each(windows, glfwDestroyWindow);
     windows.clear();
 
 

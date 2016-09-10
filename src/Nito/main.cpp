@@ -6,11 +6,10 @@
 #include <cstdio>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "CppUtils/JSON/JSON.hpp"
-#include "CppUtils/JSON/readJSONFile.hpp"
-#include "CppUtils/FileUtils/readFile.hpp"
-#include "CppUtils/ContainerUtils/forEach.hpp"
-#include "CppUtils/Fn/transform.hpp"
+#include "Cpp_Utils/JSON.hpp"
+#include "Cpp_Utils/File.hpp"
+#include "Cpp_Utils/Container.hpp"
+#include "Cpp_Utils/Fn.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
@@ -20,11 +19,11 @@
 using std::string;
 using std::vector;
 using glm::vec3;
-using CppUtils::JSON;
-using CppUtils::readJSONFile;
-using CppUtils::readFile;
-using CppUtils::forEach;
-using CppUtils::transform;
+using Cpp_Utils::JSON;
+using Cpp_Utils::read_json_file;
+using Cpp_Utils::read_file;
+using Cpp_Utils::for_each;
+using Cpp_Utils::transform;
 
 // Nito/Window.hpp
 using Nito::init_glfw;
@@ -54,7 +53,7 @@ int main()
 
 
     // Create window.
-    JSON window_config = readJSONFile("resources/configs/window.json");
+    JSON window_config = read_json_file("resources/configs/window.json");
     const JSON & glfw_context_version = window_config["glfw_context_version"];
 
     GLFWwindow * window =
@@ -87,7 +86,7 @@ int main()
 
 
     // Load control bindings.
-    const JSON controls = readJSONFile("resources/data/controls.json");
+    const JSON controls = read_json_file("resources/data/controls.json");
 
     for (const JSON & control_binding : controls)
     {
@@ -99,7 +98,7 @@ int main()
 
 
     // Initialize graphics engine.
-    const JSON opengl_config = readJSONFile("resources/configs/opengl.json");
+    const JSON opengl_config = read_json_file("resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
     int window_width;
@@ -127,11 +126,11 @@ int main()
 
 
     // Load shader pipelines.
-    const JSON shader_pipelines_data      = readJSONFile("resources/data/shader_pipelines.json");
-    const JSON shader_config              = readJSONFile("resources/configs/shaders.json");
+    const JSON shader_pipelines_data      = read_json_file("resources/data/shader_pipelines.json");
+    const JSON shader_config              = read_json_file("resources/configs/shaders.json");
     const JSON shader_extensions          = shader_config["extensions"];
-    const string version_source           = readFile("resources/shaders/shared/version.glsl");
-    const string vertex_attributes_source = readFile("resources/shaders/shared/vertex_attributes.glsl");
+    const string version_source           = read_file("resources/shaders/shared/version.glsl");
+    const string vertex_attributes_source = read_file("resources/shaders/shared/vertex_attributes.glsl");
     vector<Shader_Pipeline> shader_pipelines;
 
     for (const JSON & shader_pipeline_data : shader_pipelines_data)
@@ -155,7 +154,7 @@ int main()
                 shader_sources.push_back(vertex_attributes_source);
             }
 
-            shader_sources.push_back(readFile(
+            shader_sources.push_back(read_file(
                 "resources/shaders/" +
                 shader["source_path"].get<string>() +
                 shader_extensions[shader_type].get<string>()));
@@ -168,14 +167,14 @@ int main()
 
 
     // Load texture data.
-    const JSON textures_data = readJSONFile("resources/data/textures.json");
+    const JSON textures_data = read_json_file("resources/data/textures.json");
 
     const vector<Texture> textures =
         transform<Texture>(textures_data, [](const JSON & texture_data) -> Texture
         {
             Texture::Options options;
 
-            forEach(texture_data["options"], [&](const string & option_key, const string & option_value) -> void
+            for_each(texture_data["options"], [&](const string & option_key, const string & option_value) -> void
             {
                 options[option_key] = option_value;
             });
@@ -215,7 +214,7 @@ int main()
 
 
     // Load entities.
-    const JSON entities_data = readJSONFile("resources/data/entities.json");
+    const JSON entities_data = read_json_file("resources/data/entities.json");
 
     for (const JSON & entity_data : entities_data)
     {

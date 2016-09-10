@@ -3,14 +3,14 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
-#include "CppUtils/MapUtils/containsKey.hpp"
+#include "Cpp_Utils/Map.hpp"
 
 
 using std::string;
 using std::vector;
 using std::map;
 using std::runtime_error;
-using CppUtils::containsKey;
+using Cpp_Utils::contains_key;
 
 
 namespace Nito
@@ -179,17 +179,17 @@ void add_control_binding(const string & key, const string & action, const string
 
 
     // Validations
-    if (!containsKey(glfw_key_codes, key))
+    if (!contains_key(glfw_key_codes, key))
     {
         throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
     }
 
-    if (!containsKey(glfw_key_actions, action))
+    if (!contains_key(glfw_key_actions, action))
     {
         throw runtime_error("ERROR: \"" + action + "\" is not a valid action!");
     }
 
-    if (!containsKey(control_handlers, handler))
+    if (!contains_key(control_handlers, handler))
     {
         throw runtime_error("ERROR: \"" + handler + "\" is not a registered control handler!");
     }

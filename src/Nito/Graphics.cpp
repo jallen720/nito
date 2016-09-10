@@ -5,10 +5,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <Magick++.h>
-#include "CppUtils/Fn/accumulate.hpp"
-#include "CppUtils/MapUtils/containsKey.hpp"
-#include "CppUtils/MapUtils/getValues.hpp"
-#include "CppUtils/ContainerUtils/forEach.hpp"
+#include "Cpp_Utils/Fn.hpp"
+#include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Container.hpp"
 
 #include "Nito/Debugging.hpp"
 
@@ -26,10 +25,10 @@ using glm::value_ptr;
 using glm::ortho;
 using Magick::Blob;
 using Magick::Image;
-using CppUtils::accumulate;
-using CppUtils::containsKey;
-using CppUtils::getValues;
-using CppUtils::forEach;
+using Cpp_Utils::accumulate;
+using Cpp_Utils::contains_key;
+using Cpp_Utils::get_values;
+using Cpp_Utils::for_each;
 
 
 namespace Nito
@@ -101,7 +100,7 @@ static Vertex_Attribute create_vertex_attribute(
     const GLint element_count,
     const GLboolean is_normalize)
 {
-    if (!containsKey(Vertex_Attribute::types, type_name))
+    if (!contains_key(Vertex_Attribute::types, type_name))
     {
         throw runtime_error("ERROR: " + type_name + " is not a valid vertex attribute type!");
     }
@@ -221,7 +220,7 @@ static void validate_no_opengl_error(const string & description)
     if (error != GL_NO_ERROR)
     {
         string error_message =
-            containsKey(opengl_error_messages, error)
+            contains_key(opengl_error_messages, error)
             ? opengl_error_messages.at(error)
             : "An unknown OpenGL error occurred!";
 
@@ -329,9 +328,9 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
     for (const Shader_Pipeline & shader_pipeline : shader_pipelines)
     {
         // Create and compile shader objects from sources.
-        forEach(shader_pipeline.shader_sources, [&](const string & shader_type, const vector<string> & sources) -> void
+        for_each(shader_pipeline.shader_sources, [&](const string & shader_type, const vector<string> & sources) -> void
         {
-            if (!containsKey(shader_types, shader_type))
+            if (!contains_key(shader_types, shader_type))
             {
                 throw runtime_error("ERROR: " + shader_type + " is not a valid shader type!");
             }
@@ -370,7 +369,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
             glDetachShader(shader_program, shader_object);
         }
 
-        forEach(shader_objects, glDeleteShader);
+        for_each(shader_objects, glDeleteShader);
 
 
         // Clear current pipeline's data.
@@ -429,7 +428,7 @@ void load_textures(const vector<Texture> & textures)
 
 
         // Configure options for the texture object.
-        forEach(texture.options, [&](const string & option_key, const string & option_value) -> void
+        for_each(texture.options, [&](const string & option_key, const string & option_value) -> void
         {
             glTexParameteri(
                 GL_TEXTURE_2D,
@@ -632,7 +631,7 @@ void destroy_graphics()
 
 
     // Delete shader pipelines.
-    forEach(getValues(shader_programs), glDeleteProgram);
+    for_each(get_values(shader_programs), glDeleteProgram);
     shader_programs.clear();
 
 

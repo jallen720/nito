@@ -16,7 +16,7 @@ configure_project()
 configure_magick_compiler_options()
 
 # App binary
-module_dependency("CppUtils")
+module_dependency("Cpp_Utils")
 module_dependency("GLFW3")
 module_dependency("GLEW")
 module_dependency("Magick++")

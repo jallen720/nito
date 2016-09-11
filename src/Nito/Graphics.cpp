@@ -54,7 +54,7 @@ struct Vertex_Attribute
 
     const Type & type;
     const GLint element_count;
-    const GLboolean is_normalize;
+    const GLboolean is_normalized;
     const size_t size;
 };
 
@@ -98,7 +98,7 @@ Vertex_Attribute::Types Vertex_Attribute::types
 static Vertex_Attribute create_vertex_attribute(
     const string & type_name,
     const GLint element_count,
-    const GLboolean is_normalize)
+    const GLboolean is_normalized)
 {
     if (!contains_key(Vertex_Attribute::types, type_name))
     {
@@ -111,7 +111,7 @@ static Vertex_Attribute create_vertex_attribute(
     {
         type,
         element_count,
-        is_normalize,
+        is_normalized,
         type.size * element_count,
     };
 }
@@ -530,7 +530,7 @@ void load_vertex_data(
             attribute_index,                    // Index of attribute
             vertex_attribute.element_count,     // Number of attribute elements
             vertex_attribute.type.gl_type,      // Type of attribute elements
-            vertex_attribute.is_normalize,      // Should attribute elements be normalized?
+            vertex_attribute.is_normalized,     // Should attribute elements be normalized?
             vertex_stride,                      // Stride between attributes
             (GLvoid *)previous_attribute_size); // Pointer to first element of attribute
 

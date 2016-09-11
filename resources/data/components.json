@@ -1,0 +1,10 @@
+[
+    {
+        "type": "sprite",
+        "dependencies": [ "transform" ]
+    },
+    {
+        "type": "transform",
+        "dependencies": []
+    }
+]

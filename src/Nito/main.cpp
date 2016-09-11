@@ -56,11 +56,13 @@ using Nito::Shader_Pipeline;
 using Nito::Texture;
 
 // Nito/ECS.hpp
+using Nito::set_component_dependency_data;
 using Nito::create_entity;
 using Nito::add_component;
 using Nito::get_component;
 using Nito::Entity;
 using Nito::Component;
+using Nito::Component_Dependency_Data;
 
 // Nito/Components.hpp
 using Nito::Transform;
@@ -279,6 +281,18 @@ int main()
         sizeof(sprite_vertex_data),
         sprite_index_data,
         sizeof(sprite_index_data));
+
+
+    // Load component metadata
+    const JSON components_data = read_json_file("resources/data/components.json");
+    Component_Dependency_Data component_dependency_data;
+
+    for (const JSON & component_data : components_data)
+    {
+        component_dependency_data[component_data["type"]] = component_data["dependencies"].get<vector<string>>();
+    }
+
+    set_component_dependency_data(component_dependency_data);
 
 
     // Load entities.

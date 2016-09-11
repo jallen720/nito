@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <GL/glew.h>
-#include <glm/glm.hpp>
 
 
 namespace Nito
@@ -59,15 +58,6 @@ struct Texture
 };
 
 
-struct Entity
-{
-    const std::string shader_pipeline_name;
-    const std::string texture_path;
-    const glm::vec3 position;
-    const glm::vec3 scale;
-};
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -84,7 +74,6 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
-void add_entity(const Entity & entity);
 void render_graphics();
 void destroy_graphics();
 

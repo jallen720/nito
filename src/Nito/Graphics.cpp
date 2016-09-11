@@ -9,7 +9,8 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Container.hpp"
 
-#include "Nito/Debugging.hpp"
+#include "Nito/ECS.hpp"
+#include "Nito/Components.hpp"
 
 
 using std::map;
@@ -79,7 +80,6 @@ static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
-static vector<Entity> entities;
 static mat4 projection_matrix;
 static vec3 unit_scale;
 
@@ -551,12 +551,6 @@ void load_vertex_data(
 }
 
 
-void add_entity(const Entity & entity)
-{
-    entities.push_back(entity);
-}
-
-
 void render_graphics()
 {
     // Clear color buffer.
@@ -572,16 +566,21 @@ void render_graphics()
 
 
     // Render all entities.
-    for (const Entity & entity : entities)
+    for (const Entity entity : get_entities())
     {
+        // Get entity's components.
+        auto entity_transform = (Transform *)get_component(entity, "transform");
+        auto entity_sprite = (Sprite *)get_component(entity, "sprite");
+
+
         // Create entity's model matrix and transform it.
         mat4 model_matrix;
-        model_matrix = translate(model_matrix, entity.position * unit_scale);
-        model_matrix = scale(model_matrix, entity.scale);
+        model_matrix = translate(model_matrix, entity_transform->position * unit_scale);
+        model_matrix = scale(model_matrix, entity_transform->scale);
 
 
         // Bind entity's texture to texture unit 0.
-        bind_texture(texture_objects.at(entity.texture_path), 0u);
+        bind_texture(texture_objects.at(entity_sprite->texture_path), 0u);
 
 
         // Create matrix to scale entity's model matrix to texture's dimensions.
@@ -593,7 +592,7 @@ void render_graphics()
 
 
         // Bind entity's shader pipeline and set its uniforms.
-        const GLuint shader_program = shader_programs.at(entity.shader_pipeline_name);
+        const GLuint shader_program = shader_programs.at(entity_sprite->shader_pipeline_name);
         glUseProgram(shader_program);
         set_uniform(shader_program, "texture0", 0);
         set_uniform(shader_program, "projection", projection_matrix);

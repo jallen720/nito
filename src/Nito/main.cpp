@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <functional>
+#include <stdexcept>
 #include <cstdio>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -10,20 +13,27 @@
 #include "Cpp_Utils/File.hpp"
 #include "Cpp_Utils/Container.hpp"
 #include "Cpp_Utils/Fn.hpp"
+#include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
 #include "Nito/Graphics.hpp"
+#include "Nito/ECS.hpp"
+#include "Nito/Components.hpp"
 
 
 using std::string;
 using std::vector;
+using std::map;
+using std::function;
+using std::runtime_error;
 using glm::vec3;
 using Cpp_Utils::JSON;
 using Cpp_Utils::read_json_file;
 using Cpp_Utils::read_file;
 using Cpp_Utils::for_each;
 using Cpp_Utils::transform;
+using Cpp_Utils::contains_key;
 
 // Nito/Window.hpp
 using Nito::init_glfw;
@@ -40,13 +50,71 @@ using Nito::configure_opengl;
 using Nito::load_shader_pipelines;
 using Nito::load_textures;
 using Nito::load_vertex_data;
-using Nito::add_entity;
 using Nito::render_graphics;
 using Nito::destroy_graphics;
 using Nito::Shader_Pipeline;
 using Nito::Texture;
 
+// Nito/ECS.hpp
+using Nito::create_entity;
+using Nito::add_component;
+using Nito::get_component;
+using Nito::Entity;
+using Nito::Component;
 
+// Nito/Components.hpp
+using Nito::Transform;
+using Nito::Sprite;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Data Structures
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using Component_Handler = function<Component(const JSON &)>;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Data
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const map<string, Component_Handler> component_handlers
+{
+    {
+        "transform",
+        [](const JSON & component_config) -> Component
+        {
+            static const auto DEFAULT_POSITION_Z = 0.0f;
+            static const auto DEFAULT_SCALE_Z = 1.0f;
+
+            Transform * transform = new Transform;
+            const JSON & position = component_config["position"];
+            const JSON & scale = component_config["scale"];
+            transform->position = vec3(position["x"], position["y"], DEFAULT_POSITION_Z);
+            transform->scale = vec3(scale["x"], scale["y"], DEFAULT_SCALE_Z);
+            return transform;
+        },
+    },
+    {
+        "sprite",
+        [](const JSON & component_config) -> Component
+        {
+            Sprite * sprite = new Sprite;
+            sprite->texture_path = component_config["texture_path"];
+            sprite->shader_pipeline_name = component_config["shader_pipeline_name"];
+            return sprite;
+        },
+    },
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Interface
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
     init_glfw();
@@ -218,16 +286,23 @@ int main()
 
     for (const JSON & entity_data : entities_data)
     {
-        const JSON & position = entity_data["position"];
-        const JSON & scale = entity_data["scale"];
+        Entity entity = create_entity();
+        const JSON & components_data = entity_data["components"];
 
-        add_entity(
+        for (const JSON & component_data : components_data)
+        {
+            const string component_type = component_data["type"];
+
+            if (!contains_key(component_handlers, component_type))
             {
-                entity_data["shader_pipeline_name"],
-                entity_data["texture_path"],
-                vec3(position["x"], position["y"], 0.0f),
-                vec3(scale["x"], scale["y"], 1.0f),
-            });
+                throw runtime_error("\"" + component_type + "\" is not a supported component type!");
+            }
+
+            add_component(
+                entity,
+                component_type,
+                component_handlers.at(component_type)(component_data["config"]));
+        }
     }
 
 

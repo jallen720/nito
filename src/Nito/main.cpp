@@ -33,6 +33,7 @@ using Cpp_Utils::read_json_file;
 using Cpp_Utils::read_file;
 using Cpp_Utils::for_each;
 using Cpp_Utils::transform;
+using Cpp_Utils::filter;
 using Cpp_Utils::contains_key;
 
 // Nito/Window.hpp
@@ -50,15 +51,18 @@ using Nito::configure_opengl;
 using Nito::load_shader_pipelines;
 using Nito::load_textures;
 using Nito::load_vertex_data;
-using Nito::render_graphics;
+using Nito::render;
 using Nito::destroy_graphics;
 using Nito::Shader_Pipeline;
 using Nito::Texture;
+using Nito::Renderable;
 
 // Nito/ECS.hpp
 using Nito::set_component_dependency_data;
 using Nito::create_entity;
+using Nito::get_entities;
 using Nito::add_component;
+using Nito::has_component;
 using Nito::get_component;
 using Nito::Entity;
 using Nito::Component;
@@ -320,11 +324,27 @@ int main()
     }
 
 
+    // Load rendering data.
+    vector<Entity> renderable_entities = filter(get_entities(), [](const Entity entity) -> bool
+    {
+        return has_component(entity, "sprite");
+    });
+
+    vector<Renderable> renderables = transform<Renderable>(renderable_entities, [](const Entity entity) -> Renderable
+    {
+        return
+        {
+            (Transform *)get_component(entity, "transform"),
+            (Sprite *)get_component(entity, "sprite"),
+        };
+    });
+
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        render_graphics();
+        render(renderables);
         glfwSwapBuffers(window);
     }
 

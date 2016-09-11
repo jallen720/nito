@@ -9,9 +9,6 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Container.hpp"
 
-#include "Nito/ECS.hpp"
-#include "Nito/Components.hpp"
-
 
 using std::map;
 using std::vector;
@@ -551,7 +548,7 @@ void load_vertex_data(
 }
 
 
-void render_graphics()
+void render(const vector<Renderable> & renderables)
 {
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT);
@@ -565,25 +562,20 @@ void render_graphics()
     mat4 view_matrix;
 
 
-    // Render all entities.
-    for (const Entity entity : get_entities())
+    // Render all renderables.
+    for (const Renderable & renderable : renderables)
     {
-        // Get entity's components.
-        auto entity_transform = (Transform *)get_component(entity, "transform");
-        auto entity_sprite = (Sprite *)get_component(entity, "sprite");
-
-
-        // Create entity's model matrix and transform it.
+        // Create model matrix and transform it.
         mat4 model_matrix;
-        model_matrix = translate(model_matrix, entity_transform->position * unit_scale);
-        model_matrix = scale(model_matrix, entity_transform->scale);
+        model_matrix = translate(model_matrix, renderable.transform->position * unit_scale);
+        model_matrix = scale(model_matrix, renderable.transform->scale);
 
 
-        // Bind entity's texture to texture unit 0.
-        bind_texture(texture_objects.at(entity_sprite->texture_path), 0u);
+        // Bind texture to texture unit 0.
+        bind_texture(texture_objects.at(renderable.sprite->texture_path), 0u);
 
 
-        // Create matrix to scale entity's model matrix to texture's dimensions.
+        // Create matrix to scale model matrix to texture's dimensions.
         int texture_width;
         int texture_height;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
@@ -591,8 +583,8 @@ void render_graphics()
         mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
 
 
-        // Bind entity's shader pipeline and set its uniforms.
-        const GLuint shader_program = shader_programs.at(entity_sprite->shader_pipeline_name);
+        // Bind shader pipeline and set its uniforms.
+        const GLuint shader_program = shader_programs.at(renderable.sprite->shader_pipeline_name);
         glUseProgram(shader_program);
         set_uniform(shader_program, "texture0", 0);
         set_uniform(shader_program, "projection", projection_matrix);

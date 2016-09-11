@@ -6,6 +6,8 @@
 #include <string>
 #include <GL/glew.h>
 
+#include "Nito/Components.hpp"
+
 
 namespace Nito
 {
@@ -58,6 +60,13 @@ struct Texture
 };
 
 
+struct Renderable
+{
+    const Transform * transform;
+    const Sprite * sprite;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -74,7 +83,7 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
-void render_graphics();
+void render(const std::vector<Renderable> & renderables);
 void destroy_graphics();
 
 

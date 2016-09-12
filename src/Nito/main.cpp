@@ -101,7 +101,7 @@ const map<string, Component_Handler> component_handlers
             transform->position = vec3(position["x"], position["y"], DEFAULT_POSITION_Z);
             transform->scale = vec3(scale["x"], scale["y"], DEFAULT_SCALE_Z);
             return transform;
-        },
+        }
     },
     {
         "sprite",
@@ -111,7 +111,7 @@ const map<string, Component_Handler> component_handlers
             sprite->texture_path = component_config["texture_path"];
             sprite->shader_pipeline_name = component_config["shader_pipeline_name"];
             return sprite;
-        },
+        }
     },
 };
 
@@ -287,7 +287,7 @@ int main()
         sizeof(sprite_index_data));
 
 
-    // Load component metadata
+    // Load component metadata.
     const JSON components_data = read_json_file("resources/data/components.json");
     Component_Dependency_Data component_dependency_data;
 
@@ -305,6 +305,9 @@ int main()
     for (const JSON & entity_data : entities_data)
     {
         Entity entity = create_entity();
+
+
+        // Load components for entity.
         const JSON & components_data = entity_data["components"];
 
         for (const JSON & component_data : components_data)

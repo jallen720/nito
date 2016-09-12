@@ -565,10 +565,10 @@ void render(const vector<Renderable> & renderables)
     // Render all renderables.
     for (const Renderable & renderable : renderables)
     {
-        // Create model matrix and transform it.
-        mat4 model_matrix;
-        model_matrix = translate(model_matrix, renderable.transform->position * unit_scale);
-        model_matrix = scale(model_matrix, renderable.transform->scale);
+        // Create model matrix from renderable's transformations.
+        mat4 model_matrix = scale(translate(mat4(),
+            renderable.transform->position * unit_scale),
+            renderable.transform->scale);
 
 
         // Bind texture to texture unit 0.

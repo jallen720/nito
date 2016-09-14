@@ -58,7 +58,6 @@ using Nito::Texture;
 using Nito::Renderable;
 
 // Nito/ECS.hpp
-using Nito::set_component_dependency_data;
 using Nito::create_entity;
 using Nito::get_entities;
 using Nito::add_component;
@@ -66,7 +65,6 @@ using Nito::has_component;
 using Nito::get_component;
 using Nito::Entity;
 using Nito::Component;
-using Nito::Component_Dependency_Data;
 
 // Nito/Components.hpp
 using Nito::Transform;
@@ -287,16 +285,6 @@ int main()
         sizeof(sprite_index_data));
 
 
-    // Load component metadata.
-    const JSON components_data = read_json_file("resources/data/components.json");
-    Component_Dependency_Data component_dependency_data;
-
-    for (const JSON & component_data : components_data)
-    {
-        component_dependency_data[component_data["type"]] = component_data["dependencies"].get<vector<string>>();
-    }
-
-    set_component_dependency_data(component_dependency_data);
 
 
     // Load entities.
@@ -330,7 +318,8 @@ int main()
     // Load rendering data.
     vector<Entity> renderable_entities = filter(get_entities(), [](const Entity entity) -> bool
     {
-        return has_component(entity, "sprite");
+        return has_component(entity, "sprite") &&
+               has_component(entity, "transform");
     });
 
     vector<Renderable> renderables = transform<Renderable>(renderable_entities, [](const Entity entity) -> Renderable

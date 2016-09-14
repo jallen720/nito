@@ -30,7 +30,6 @@ using Components = map<Entity, void *>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static vector<Entity> entities;
 static map<string, Components> components;
-static Component_Dependency_Data component_dependency_data;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,12 +37,6 @@ static Component_Dependency_Data component_dependency_data;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void set_component_dependency_data(const Component_Dependency_Data & _component_dependency_data)
-{
-    component_dependency_data = _component_dependency_data;
-}
-
-
 Entity create_entity()
 {
     static Entity entity_index = 0u;
@@ -62,17 +55,6 @@ const vector<Entity> & get_entities()
 
 void add_component(const Entity entity, const string & type, Component component)
 {
-    // Validate all component dependencies have been met.
-    for (const string & dependency : component_dependency_data.at(type))
-    {
-        if (!has_component(entity, dependency))
-        {
-            throw runtime_error(
-                "Entity is missing \"" + dependency + "\" component required by \"" + type + "\" component!");
-        }
-    }
-
-
     components[type][entity] = component;
 }
 

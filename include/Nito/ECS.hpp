@@ -17,7 +17,6 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using Entity = unsigned int;
 using Component = void *;
-using Component_Dependency_Data = std::map<std::string, std::vector<std::string>>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +24,6 @@ using Component_Dependency_Data = std::map<std::string, std::vector<std::string>
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void set_component_dependency_data(const Component_Dependency_Data & _component_dependency_data);
 Entity create_entity();
 const std::vector<Entity> & get_entities();
 void add_component(const Entity entity, const std::string & type, Component component);

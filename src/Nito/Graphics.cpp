@@ -27,6 +27,7 @@ using Cpp_Utils::accumulate;
 using Cpp_Utils::contains_key;
 using Cpp_Utils::get_values;
 using Cpp_Utils::for_each;
+using Cpp_Utils::transform;
 
 
 namespace Nito
@@ -141,14 +142,14 @@ static void compile_shader_object(const GLuint shader_object, const vector<strin
 {
     // Attach sources and compile shader_object.
     const size_t source_count = sources.size();
-    const GLchar * source_code[source_count];
 
-    for (auto i = 0u; i < source_count; i++)
-    {
-        source_code[i] = sources[i].c_str();
-    }
+    const vector<const GLchar *> source_code =
+        transform<const GLchar *>(sources, [](const string & source) -> const GLchar *
+        {
+            return source.c_str();
+        });
 
-    glShaderSource(shader_object, source_count, source_code, nullptr);
+    glShaderSource(shader_object, source_count, &source_code[0], nullptr);
     glCompileShader(shader_object);
 
 

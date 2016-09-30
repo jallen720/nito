@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-cpp-build && clear && ./bin/Nito
+cpp_build && clear && ./bin/Nito

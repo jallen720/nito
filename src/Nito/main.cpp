@@ -33,7 +33,6 @@ using Cpp_Utils::read_json_file;
 using Cpp_Utils::read_file;
 using Cpp_Utils::for_each;
 using Cpp_Utils::transform;
-using Cpp_Utils::filter;
 using Cpp_Utils::contains_key;
 
 // Nito/Window.hpp

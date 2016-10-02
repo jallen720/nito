@@ -105,7 +105,7 @@ const map<string, const Component_Handler> component_handlers
             static const auto DEFAULT_POSITION_Z = 0.0f;
             static const auto DEFAULT_SCALE_Z = 1.0f;
 
-            Transform * transform = new Transform;
+            auto transform = new Transform;
             const JSON & position = component_config["position"];
             const JSON & scale = component_config["scale"];
             transform->position = vec3(position["x"], position["y"], DEFAULT_POSITION_Z);
@@ -117,7 +117,7 @@ const map<string, const Component_Handler> component_handlers
         "sprite",
         [](const JSON & component_config) -> Component
         {
-            Sprite * sprite = new Sprite;
+            auto sprite = new Sprite;
             sprite->texture_path = component_config["texture_path"];
             sprite->shader_pipeline_name = component_config["shader_pipeline_name"];
             return sprite;
@@ -149,7 +149,7 @@ int main()
 
 
     // Create window.
-    JSON window_config = read_json_file("resources/configs/window.json");
+    const JSON window_config = read_json_file("resources/configs/window.json");
     const JSON & glfw_context_version = window_config["glfw_context_version"];
 
     GLFWwindow * window =
@@ -351,10 +351,10 @@ int main()
     {
         glfwPollEvents();
 
-        for (const auto & system_handler : system_handlers)
+        for_each(system_handlers, [](const string & /*system_name*/, const System_Handler & system_handler) -> void
         {
-            (*system_handler.second.update_handler)();
-        }
+            system_handler.update_handler();
+        });
 
         glfwSwapBuffers(window);
     }

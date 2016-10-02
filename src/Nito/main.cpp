@@ -20,6 +20,7 @@
 #include "Nito/Graphics.hpp"
 #include "Nito/ECS.hpp"
 #include "Nito/Components.hpp"
+#include "Nito/Systems/Renderer.hpp"
 
 
 using std::string;
@@ -50,11 +51,9 @@ using Nito::configure_opengl;
 using Nito::load_shader_pipelines;
 using Nito::load_textures;
 using Nito::load_vertex_data;
-using Nito::render;
 using Nito::destroy_graphics;
 using Nito::Shader_Pipeline;
 using Nito::Texture;
-using Nito::Renderable;
 
 // Nito/ECS.hpp
 using Nito::create_entity;
@@ -69,6 +68,10 @@ using Nito::Component;
 using Nito::Transform;
 using Nito::Sprite;
 
+// Nito/Systems/Renderer.hpp
+using Nito::renderer_subscribe;
+using Nito::renderer_update;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -78,12 +81,22 @@ using Nito::Sprite;
 using Component_Handler = function<Component(const JSON &)>;
 
 
+struct System_Handler
+{
+    using Subscribe_Handler = void (*)(const Entity);
+    using Update_Handler = void (*)();
+
+    Subscribe_Handler subscribe_handler;
+    Update_Handler update_handler;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const map<string, Component_Handler> component_handlers
+const map<string, const Component_Handler> component_handlers
 {
     {
         "transform",
@@ -110,6 +123,18 @@ const map<string, Component_Handler> component_handlers
             return sprite;
         }
     },
+};
+
+
+const map<string, const System_Handler> system_handlers
+{
+    {
+        "renderer",
+        {
+            renderer_subscribe,
+            renderer_update,
+        },
+    }
 };
 
 
@@ -284,8 +309,6 @@ int main()
         sizeof(sprite_index_data));
 
 
-
-
     // Load entities.
     const JSON entities_data = read_json_file("resources/data/entities.json");
 
@@ -311,31 +334,28 @@ int main()
                 component_type,
                 component_handlers.at(component_type)(component_data["config"]));
         }
-    }
 
 
-    // Load rendering data.
-    vector<Entity> renderable_entities = filter(get_entities(), [](const Entity entity) -> bool
-    {
-        return has_component(entity, "sprite") &&
-               has_component(entity, "transform");
-    });
+        // Subscribe entity to systems.
+        const JSON & systems_data = entity_data["systems"];
 
-    vector<Renderable> renderables = transform<Renderable>(renderable_entities, [](const Entity entity) -> Renderable
-    {
-        return
+        for (const string & system_name : systems_data)
         {
-            (Transform *)get_component(entity, "transform"),
-            (Sprite *)get_component(entity, "sprite"),
-        };
-    });
+            system_handlers.at(system_name).subscribe_handler(entity);
+        }
+    }
 
 
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        render(renderables);
+
+        for (const auto & system_handler : system_handlers)
+        {
+            (*system_handler.second.update_handler)();
+        }
+
         glfwSwapBuffers(window);
     }
 

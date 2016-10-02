@@ -30,6 +30,9 @@ using Cpp_Utils::for_each;
 using Cpp_Utils::transform;
 
 
+#define DEBUG
+
+
 namespace Nito
 {
 
@@ -79,6 +82,7 @@ static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
 static mat4 projection_matrix;
+static mat4 view_matrix;
 static vec3 unit_scale;
 
 
@@ -549,7 +553,7 @@ void load_vertex_data(
 }
 
 
-void render(const vector<Renderable> & renderables)
+void init_rendering()
 {
     // Clear color buffer.
     glClear(GL_COLOR_BUFFER_BIT);
@@ -559,58 +563,66 @@ void render(const vector<Renderable> & renderables)
     glBindVertexArray(vertex_array_objects[0]);
 
 
-    // Create view matrix.
-    mat4 view_matrix;
+#ifdef DEBUG
+    validate_no_opengl_error("init_rendering()");
+#endif
+}
 
 
-    // Render all renderables.
-    for (const Renderable & renderable : renderables)
-    {
-        // Create model matrix from renderable's transformations.
-        mat4 model_matrix = scale(translate(mat4(),
-            renderable.transform->position * unit_scale),
-            renderable.transform->scale);
+void render(const Sprite * sprite, const Transform * transform)
+{
+    // Create model matrix from renderable's transformations.
+    mat4 model_matrix = scale(translate(mat4(),
+        transform->position * unit_scale),
+        transform->scale);
 
 
-        // Bind texture to texture unit 0.
-        bind_texture(texture_objects.at(renderable.sprite->texture_path), 0u);
+    // Bind texture to texture unit 0.
+    bind_texture(texture_objects.at(sprite->texture_path), 0u);
 
 
-        // Create matrix to scale model matrix to texture's dimensions.
-        int texture_width;
-        int texture_height;
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-        mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
+    // Create matrix to scale model matrix to texture's dimensions.
+    int texture_width;
+    int texture_height;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
+    mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
 
 
-        // Bind shader pipeline and set its uniforms.
-        const GLuint shader_program = shader_programs.at(renderable.sprite->shader_pipeline_name);
-        glUseProgram(shader_program);
-        set_uniform(shader_program, "texture0", 0);
-        set_uniform(shader_program, "projection", projection_matrix);
-        set_uniform(shader_program, "view", view_matrix);
-        set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
+    // Bind shader pipeline and set its uniforms.
+    const GLuint shader_program = shader_programs.at(sprite->shader_pipeline_name);
+    glUseProgram(shader_program);
+    set_uniform(shader_program, "texture0", 0);
+    set_uniform(shader_program, "projection", projection_matrix);
+    set_uniform(shader_program, "view", view_matrix);
+    set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
 
 
-        // Draw data.
-        glDrawElements(
-            GL_TRIANGLES,    // Render mode
-            6,               // Index count
-            GL_UNSIGNED_INT, // Index type
-            (GLvoid *)0);    // Pointer to start of index array
-    }
+    // Draw data.
+    glDrawElements(
+        GL_TRIANGLES,    // Render mode
+        6,               // Index count
+        GL_UNSIGNED_INT, // Index type
+        (GLvoid *)0);    // Pointer to start of index array
 
 
+#ifdef DEBUG
+    validate_no_opengl_error("render_graphics()");
+#endif
+}
+
+
+void cleanup_rendering()
+{
     // Unbind vertex array, textures and shader program.
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 
 
-    // !!! SHOULD ONLY BE UNCOMMENTED FOR DEBUGGING, AS render_graphics() RUNS EVERY FRAME. !!!
-    // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("render_graphics()");
+#ifdef DEBUG
+    validate_no_opengl_error("cleanup_rendering()");
+#endif
 }
 
 

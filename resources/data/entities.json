@@ -19,7 +19,7 @@
                 }
             }
         ],
-        "systems": []
+        "systems": [ "renderer" ]
     },
     {
         "components":
@@ -41,6 +41,6 @@
                 }
             }
         ],
-        "systems": []
+        "systems": [ "renderer" ]
     }
 ]

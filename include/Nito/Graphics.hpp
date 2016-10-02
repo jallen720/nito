@@ -60,13 +60,6 @@ struct Texture
 };
 
 
-struct Renderable
-{
-    const Transform * transform;
-    const Sprite * sprite;
-};
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -83,7 +76,9 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
-void render(const std::vector<Renderable> & renderables);
+void init_rendering();
+void render(const Sprite * sprite, const Transform * transform);
+void cleanup_rendering();
 void destroy_graphics();
 
 

@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <glm/glm.hpp>
 
 #include "Nito/Components.hpp"
 #include "Nito/Graphics.hpp"
@@ -12,7 +11,6 @@
 using std::vector;
 using std::string;
 using std::runtime_error;
-using glm::vec3;
 
 
 namespace Nito
@@ -24,9 +22,9 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-vector<Entity> entities;
-vector<Sprite *> entity_sprites;
-vector<Transform *> entity_transforms;
+static vector<Entity> entities;
+static vector<Sprite *> entity_sprites;
+static vector<Transform *> entity_transforms;
 
 const vector<string> required_components
 {

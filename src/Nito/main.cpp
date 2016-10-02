@@ -354,9 +354,9 @@ int main()
 
 
         // Subscribe entity to systems.
-        const JSON & systems_data = entity_data["systems"];
+        const JSON & entity_systems = entity_data["systems"];
 
-        for (const string & system_name : systems_data)
+        for (const string & system_name : entity_systems)
         {
             system_handlers.at(system_name).subscribe_handler(entity);
         }

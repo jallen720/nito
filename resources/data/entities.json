@@ -19,7 +19,7 @@
                 }
             }
         ],
-        "systems": [ "renderer" ]
+        "systems": [ "renderer", "controller" ]
     },
     {
         "components":

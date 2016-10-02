@@ -21,6 +21,7 @@
 #include "Nito/ECS.hpp"
 #include "Nito/Components.hpp"
 #include "Nito/Systems/Renderer.hpp"
+#include "Nito/Systems/Controller.hpp"
 
 
 using std::string;
@@ -71,6 +72,11 @@ using Nito::Sprite;
 // Nito/Systems/Renderer.hpp
 using Nito::renderer_subscribe;
 using Nito::renderer_update;
+
+// Nito/Systems/Controller.hpp
+using Nito::controller_subscribe;
+using Nito::controller_update;
+using Nito::controller_init;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +140,14 @@ const map<string, const System_Handler> system_handlers
             renderer_subscribe,
             renderer_update,
         },
-    }
+    },
+    {
+        "controller",
+        {
+            controller_subscribe,
+            controller_update,
+        },
+    },
 };
 
 
@@ -164,6 +177,10 @@ int main()
                     glfw_context_version["minor"],
                 },
             });
+
+
+    // !!! TEMP !!!
+    controller_init(window);
 
 
     // Set control handlers.

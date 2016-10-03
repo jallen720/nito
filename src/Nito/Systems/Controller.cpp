@@ -4,7 +4,6 @@
 
 #include <map>
 #include <vector>
-#include <stdexcept>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Container.hpp"
@@ -16,7 +15,6 @@
 using std::map;
 using std::pair;
 using std::vector;
-using std::runtime_error;
 using glm::vec3;
 using Cpp_Utils::for_each;
 
@@ -30,7 +28,6 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Entity> entities;
 static vector<Transform *> entity_transforms;
 static GLFWwindow * window;
 
@@ -42,7 +39,6 @@ static GLFWwindow * window;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void controller_subscribe(const Entity entity)
 {
-    entities.push_back(entity);
     entity_transforms.push_back((Transform *)get_component(entity, "transform"));
 }
 

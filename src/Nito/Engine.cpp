@@ -54,6 +54,12 @@ static GLFWwindow * window;
 static vector<Update_Handler> update_handlers;
 
 
+static vector<Update_Handler> default_update_handlers
+{
+    renderer_update,
+};
+
+
 static map<string, const Component_Handler> default_component_handlers
 {
     {
@@ -90,9 +96,15 @@ static map<string, const System_Subscribe_Handler> default_system_subscribe_hand
 };
 
 
-static vector<Update_Handler> default_update_handlers
+static map<string, const Control_Handler> default_control_handlers
 {
-    renderer_update,
+    {
+        "exit",
+        [](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+    }
 };
 
 
@@ -115,6 +127,14 @@ void add_update_handler(const Update_Handler & update_handler)
 
 int run_engine()
 {
+    // Load default handlers.
+    for_each(default_update_handlers, add_update_handler);
+    for_each(default_component_handlers, set_component_handler);
+    for_each(default_system_subscribe_handlers, set_system_subscribe_handler);
+    for_each(default_control_handlers, set_control_handler);
+
+
+    // Initalize GLFW.
     init_glfw();
 
 
@@ -134,27 +154,6 @@ int run_engine()
                     glfw_context_version["minor"],
                 },
             });
-
-
-    // Load default handlers.
-    for_each(default_update_handlers, add_update_handler);
-    for_each(default_component_handlers, add_component_handler);
-    for_each(default_system_subscribe_handlers, add_system_subscribe_handler);
-
-
-    // Set control handlers.
-    auto exit_handler = [](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    };
-
-    auto print_handler = [](GLFWwindow * /*window*/, const int key, const int action) -> void
-    {
-        printf("key [%d] action [%d]\n", key, action);
-    };
-
-    set_control_handler("exit", exit_handler);
-    set_control_handler("print", print_handler);
 
 
     // Load control bindings.

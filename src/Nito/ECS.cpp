@@ -81,13 +81,13 @@ Component get_component(const Entity entity, const string & type)
 }
 
 
-void add_component_handler(const string & type, const Component_Handler & component_handler)
+void set_component_handler(const string & type, const Component_Handler & component_handler)
 {
     component_handlers[type] = component_handler;
 }
 
 
-void add_system_subscribe_handler(const string & name, const System_Subscribe_Handler & system_subscribe_handler)
+void set_system_subscribe_handler(const string & name, const System_Subscribe_Handler & system_subscribe_handler)
 {
     system_subscribe_handlers[name] = system_subscribe_handler;
 }

@@ -327,13 +327,15 @@ int run_engine()
 
 
     // Main loop
+    static const float delta_time = 0.02f;
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        for (const Update_Handler update_handler : update_handlers)
+        for (const Update_Handler & update_handler : update_handlers)
         {
-            update_handler();
+            update_handler(delta_time);
         }
 
         glfwSwapBuffers(window);

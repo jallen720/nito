@@ -34,7 +34,7 @@ void renderer_subscribe(const Entity entity)
 }
 
 
-void renderer_update()
+void renderer_update(const float /*delta_time*/)
 {
     init_rendering();
 

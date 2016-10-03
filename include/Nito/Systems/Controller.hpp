@@ -18,7 +18,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void controller_subscribe(const Entity entity);
 void controller_update();
-void controller_init(GLFWwindow * _window);
+void controller_init(GLFWwindow ** _window);
 
 
 } // namespace Nito

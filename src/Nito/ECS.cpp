@@ -1,13 +1,16 @@
 #include "Nito/ECS.hpp"
 
+#include <map>
+#include <vector>
 #include <stdexcept>
 #include "Cpp_Utils/Map.hpp"
 
 
 using std::string;
-using std::vector;
 using std::map;
+using std::vector;
 using std::runtime_error;
+using Cpp_Utils::JSON;
 using Cpp_Utils::contains_key;
 
 
@@ -30,6 +33,8 @@ using Components = map<Entity, void *>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static vector<Entity> entities;
 static map<string, Components> components;
+static map<string, Component_Handler> component_handlers;
+static map<string, System_Subscribe_Handler> system_subscribe_handlers;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,15 +52,14 @@ Entity create_entity()
 }
 
 
-const vector<Entity> & get_entities()
+void add_component(const Entity entity, const string & type, const JSON & config)
 {
-    return entities;
-}
+    if (!contains_key(component_handlers, type))
+    {
+        throw runtime_error("\"" + type + "\" is not a supported component type!");
+    }
 
-
-void add_component(const Entity entity, const string & type, Component component)
-{
-    components[type][entity] = component;
+    components[type][entity] = component_handlers.at(type)(config);
 }
 
 
@@ -74,6 +78,24 @@ Component get_component(const Entity entity, const string & type)
     }
 
     return components.at(type).at(entity);
+}
+
+
+void add_component_handler(const string & type, const Component_Handler & component_handler)
+{
+    component_handlers[type] = component_handler;
+}
+
+
+void add_system_subscribe_handler(const string & name, const System_Subscribe_Handler & system_subscribe_handler)
+{
+    system_subscribe_handlers[name] = system_subscribe_handler;
+}
+
+
+void subscribe_to_system(const Entity entity, const string & system_name)
+{
+    system_subscribe_handlers.at(system_name)(entity);
 }
 
 

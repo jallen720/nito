@@ -2,8 +2,8 @@
 
 
 #include <string>
-#include <vector>
-#include <map>
+#include <functional>
+#include "Cpp_Utils/JSON.hpp"
 
 
 namespace Nito
@@ -17,6 +17,8 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using Entity = unsigned int;
 using Component = void *;
+using Component_Handler = std::function<Component(const Cpp_Utils::JSON &)>;
+using System_Subscribe_Handler = std::function<void(const Entity)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,10 +27,12 @@ using Component = void *;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Entity create_entity();
-const std::vector<Entity> & get_entities();
-void add_component(const Entity entity, const std::string & type, Component component);
+void add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & config);
 bool has_component(const Entity entity, const std::string & type);
 Component get_component(const Entity entity, const std::string & type);
+void add_component_handler(const std::string & type, const Component_Handler & component_handler);
+void add_system_subscribe_handler(const std::string & name, const System_Subscribe_Handler & system_subscribe_handler);
+void subscribe_to_system(const Entity entity, const std::string & system_name);
 
 
 } // namespace Nito

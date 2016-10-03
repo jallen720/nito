@@ -29,7 +29,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static vector<Transform *> entity_transforms;
-static GLFWwindow * window;
+static GLFWwindow ** window;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ void controller_update()
     {
         for_each(key_directions, [&](const int key, const vec3 & direction) -> void
         {
-            int key_state = glfwGetKey(window, key);
+            int key_state = glfwGetKey(*window, key);
 
             if (key_state == GLFW_PRESS || key_state == GLFW_REPEAT)
             {
@@ -68,7 +68,7 @@ void controller_update()
 }
 
 
-void controller_init(GLFWwindow * _window)
+void controller_init(GLFWwindow ** _window)
 {
     window = _window;
 }

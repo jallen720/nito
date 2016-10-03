@@ -1,0 +1,18 @@
+{
+    "renderer":
+    {
+        "required_components":
+        [
+            "sprite",
+            "transform"
+        ]
+    },
+
+    "controller":
+    {
+        "required_components":
+        [
+            "transform"
+        ]
+    }
+}

@@ -4,7 +4,6 @@
 
 #include <map>
 #include <vector>
-#include <string>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -17,7 +16,6 @@
 using std::map;
 using std::pair;
 using std::vector;
-using std::string;
 using std::runtime_error;
 using glm::vec3;
 using Cpp_Utils::accumulate;
@@ -35,11 +33,6 @@ namespace Nito
 static vector<Entity> entities;
 static vector<Transform *> entity_transforms;
 static GLFWwindow * window;
-
-const vector<string> required_components
-{
-    "transform",
-};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,21 +57,6 @@ static vec3 key_direction_accumulator(const vec3 & accumulation, const pair<int,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void controller_subscribe(const Entity entity)
 {
-    string error_message;
-
-    for (const string & component : required_components)
-    {
-        if (!has_component(entity, component))
-        {
-            error_message += "Entity does not have a " + component + " component required by the controller system!";
-        }
-    }
-
-    if (!error_message.empty())
-    {
-        throw runtime_error(error_message);
-    }
-
     entities.push_back(entity);
     entity_transforms.push_back((Transform *)get_component(entity, "transform"));
 }

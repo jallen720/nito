@@ -14,6 +14,7 @@
 #include "Cpp_Utils/Container.hpp"
 #include "Cpp_Utils/Fn.hpp"
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/String.hpp"
 
 #include "Nito/Window.hpp"
 #include "Nito/Input.hpp"
@@ -36,6 +37,7 @@ using Cpp_Utils::read_file;
 using Cpp_Utils::for_each;
 using Cpp_Utils::transform;
 using Cpp_Utils::contains_key;
+using Cpp_Utils::to_string;
 
 // Nito/Window.hpp
 using Nito::init_glfw;
@@ -328,6 +330,7 @@ int main()
 
     // Load entities.
     const JSON entities_data = read_json_file("resources/data/entities.json");
+    const JSON systems_data  = read_json_file("resources/data/systems.json");
 
     for (const JSON & entity_data : entities_data)
     {
@@ -358,6 +361,20 @@ int main()
 
         for (const string & system_name : entity_systems)
         {
+            // Validate entity has components required by system.
+            const JSON & required_components = systems_data[system_name]["required_components"];
+
+            for (const string & required_component : required_components)
+            {
+                if (!has_component(entity, required_component))
+                {
+                    throw runtime_error(
+                        "Entity " + to_string(entity) + " does not contain a " + required_component + " component " +
+                        "required by the " + system_name + " system!");
+                }
+            }
+
+
             system_handlers.at(system_name).subscribe_handler(entity);
         }
     }

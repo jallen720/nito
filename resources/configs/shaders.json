@@ -1,7 +1,0 @@
-{
-    "extensions":
-    {
-        "vertex": ".vert",
-        "fragment": ".frag"
-    }
-}

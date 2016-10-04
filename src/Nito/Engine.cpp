@@ -304,8 +304,8 @@ int run_engine()
 
 
     // Load entities.
-    const JSON entities_data = read_json_file("resources/data/entities.json");
-    const JSON systems_data  = read_json_file("resources/data/systems.json");
+    const JSON entities_data            = read_json_file("resources/data/entities.json");
+    const JSON required_components_data = read_json_file("resources/data/required_components.json");
 
     for (const JSON & entity_data : entities_data)
     {
@@ -327,7 +327,7 @@ int run_engine()
         for (const string & system_name : entity_systems)
         {
             // Validate entity has components required by system.
-            const JSON & required_components = systems_data[system_name]["required_components"];
+            const JSON & required_components = required_components_data[system_name];
 
             for (const string & required_component : required_components)
             {

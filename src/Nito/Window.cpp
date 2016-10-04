@@ -15,8 +15,14 @@ using std::string;
 using std::map;
 using std::vector;
 using std::runtime_error;
+
+// Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
+
+// Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
 
 // Nito/Input.hpp

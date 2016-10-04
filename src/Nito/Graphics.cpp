@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <cstddef>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <Magick++.h>
@@ -15,19 +16,33 @@ using std::vector;
 using std::string;
 using std::runtime_error;
 using std::size_t;
+
+// glm/glm.hpp
 using glm::vec3;
 using glm::vec4;
 using glm::mat4;
+
+// glm/gtc/matrix_transform.hpp
 using glm::translate;
-using glm::value_ptr;
 using glm::ortho;
+
+// glm/gtc/type_ptr.hpp
+using glm::value_ptr;
+
+// Magick++.h
 using Magick::Blob;
 using Magick::Image;
+
+// Cpp_Utils/Fn.hpp
 using Cpp_Utils::accumulate;
+using Cpp_Utils::transform;
+
+// Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
 using Cpp_Utils::get_values;
+
+// Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
-using Cpp_Utils::transform;
 
 
 #define DEBUG

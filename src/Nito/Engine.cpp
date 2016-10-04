@@ -31,13 +31,27 @@ using std::vector;
 using std::map;
 using std::function;
 using std::runtime_error;
+
+// glm/glm.hpp
 using glm::vec3;
+
+// Cpp_Utils/JSON.hpp
 using Cpp_Utils::JSON;
 using Cpp_Utils::read_json_file;
+
+// Cpp_Utils/File.hpp
 using Cpp_Utils::read_file;
+
+// Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
+
+// Cpp_Utils/Fn.hpp
 using Cpp_Utils::transform;
+
+// Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
 
 

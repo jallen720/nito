@@ -294,8 +294,8 @@ void configure_opengl(const OpenGL_Config & opengl_config)
             (float)opengl_config.window_width,  // Right
             0.0f,                               // Top
             (float)opengl_config.window_height, // Bottom
-            -1.0f,                              // Z near
-            1.0f);                              // Z far
+            opengl_config.z_near,               // Z near
+            opengl_config.z_far);               // Z far
 
 
     // Configure clear color.

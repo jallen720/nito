@@ -22,6 +22,8 @@ struct OpenGL_Config
 {
     const GLsizei window_width;
     const GLsizei window_height;
+    const float z_near;
+    const float z_far;
     const unsigned int pixels_per_unit;
 
     const struct Clear_Color

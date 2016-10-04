@@ -200,6 +200,8 @@ int run_engine()
         {
             window_width,
             window_height,
+            opengl_config["z_near"],
+            opengl_config["z_far"],
             opengl_config["pixels_per_unit"],
             {
                 clear_color["red"],

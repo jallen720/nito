@@ -52,14 +52,14 @@ Entity create_entity()
 }
 
 
-void add_component(const Entity entity, const string & type, const JSON & config)
+void add_component(const Entity entity, const string & type, const JSON & data)
 {
     if (!contains_key(component_handlers, type))
     {
         throw runtime_error("\"" + type + "\" is not a supported component type!");
     }
 
-    components[type][entity] = component_handlers.at(type)(config);
+    components[type][entity] = component_handlers.at(type)(data);
 }
 
 

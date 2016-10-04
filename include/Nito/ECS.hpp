@@ -27,7 +27,7 @@ using System_Subscribe_Handler = std::function<void(const Entity)>;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Entity create_entity();
-void add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & config);
+void add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & data);
 bool has_component(const Entity entity, const std::string & type);
 Component get_component(const Entity entity, const std::string & type);
 void set_component_handler(const std::string & type, const Component_Handler & component_handler);

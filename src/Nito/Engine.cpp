@@ -64,14 +64,14 @@ static map<string, const Component_Handler> default_component_handlers
 {
     {
         "transform",
-        [](const JSON & component_config) -> Component
+        [](const JSON & component_data) -> Component
         {
             static const auto DEFAULT_POSITION_Z = 0.0f;
             static const auto DEFAULT_SCALE_Z = 1.0f;
 
             auto transform = new Transform;
-            const JSON & position = component_config["position"];
-            const JSON & scale = component_config["scale"];
+            const JSON & position = component_data["position"];
+            const JSON & scale = component_data["scale"];
             transform->position = vec3(position["x"], position["y"], DEFAULT_POSITION_Z);
             transform->scale = vec3(scale["x"], scale["y"], DEFAULT_SCALE_Z);
             return transform;
@@ -79,11 +79,11 @@ static map<string, const Component_Handler> default_component_handlers
     },
     {
         "sprite",
-        [](const JSON & component_config) -> Component
+        [](const JSON & component_data) -> Component
         {
             auto sprite = new Sprite;
-            sprite->texture_path = component_config["texture_path"];
-            sprite->shader_pipeline_name = component_config["shader_pipeline_name"];
+            sprite->texture_path = component_data["texture_path"];
+            sprite->shader_pipeline_name = component_data["shader_pipeline_name"];
             return sprite;
         }
     },
@@ -298,7 +298,7 @@ int run_engine()
 
         for (const JSON & component_data : components_data)
         {
-            add_component(entity, component_data["type"], component_data["config"]);
+            add_component(entity, component_data["type"], component_data["data"]);
         }
 
 

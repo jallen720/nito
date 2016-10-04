@@ -33,6 +33,7 @@ Component get_component(const Entity entity, const std::string & type);
 void set_component_handler(const std::string & type, const Component_Handler & component_handler);
 void set_system_subscribe_handler(const std::string & name, const System_Subscribe_Handler & system_subscribe_handler);
 void subscribe_to_system(const Entity entity, const std::string & system_name);
+Entity get_entity(const std::string & id);
 
 
 } // namespace Nito

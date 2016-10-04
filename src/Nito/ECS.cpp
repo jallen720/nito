@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Fn.hpp"
 
 
 using std::string;
@@ -16,6 +17,9 @@ using Cpp_Utils::JSON;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/Fn.hpp
+using Cpp_Utils::filter;
 
 
 namespace Nito
@@ -100,6 +104,27 @@ void set_system_subscribe_handler(const string & name, const System_Subscribe_Ha
 void subscribe_to_system(const Entity entity, const string & system_name)
 {
     system_subscribe_handlers.at(system_name)(entity);
+}
+
+
+Entity get_entity(const string & id)
+{
+    const vector<Entity> entities_with_ids = filter(entities, [](const Entity entity) -> bool
+    {
+        return has_component(entity, "id");
+    });
+
+    for (const Entity entity : entities_with_ids)
+    {
+        auto entity_id = (string *)get_component(entity, "id");
+
+        if (*entity_id == id)
+        {
+            return entity;
+        }
+    }
+
+    throw runtime_error("No entity found with id: " + id);
 }
 
 

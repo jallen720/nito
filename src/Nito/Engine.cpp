@@ -101,6 +101,13 @@ static map<string, const Component_Handler> default_component_handlers
             return sprite;
         }
     },
+    {
+        "id",
+        [](const JSON & component_data) -> Component
+        {
+            return new string(component_data.get<string>());
+        }
+    },
 };
 
 

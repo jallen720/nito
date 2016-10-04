@@ -23,6 +23,7 @@
 #include "Nito/Graphics.hpp"
 #include "Nito/ECS.hpp"
 #include "Nito/Components.hpp"
+#include "Nito/Utilities.hpp"
 #include "Nito/Systems/Renderer.hpp"
 
 
@@ -103,10 +104,7 @@ static map<string, const Component_Handler> default_component_handlers
     },
     {
         "id",
-        [](const JSON & component_data) -> Component
-        {
-            return new string(component_data.get<string>());
-        }
+        string_component_handler
     },
 };
 

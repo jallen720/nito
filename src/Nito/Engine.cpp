@@ -211,8 +211,8 @@ int run_engine()
             },
             {
                 blending["is_enabled"],
-                blending["s_factor"],
-                blending["d_factor"],
+                blending["source_factor"],
+                blending["destination_factor"],
             },
         });
 

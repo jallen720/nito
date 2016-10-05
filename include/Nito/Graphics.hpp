@@ -38,8 +38,8 @@ struct OpenGL_Config
     const struct Blending
     {
         const bool is_enabled;
-        const std::string s_factor;
-        const std::string d_factor;
+        const std::string source_factor;
+        const std::string destination_factor;
     }
     blending;
 };

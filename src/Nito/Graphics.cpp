@@ -274,12 +274,12 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
-    static const map<string, const GLenum> blend_func_s_factors
+    static const map<string, const GLenum> source_blending_factors
     {
         { "source_alpha", GL_SRC_ALPHA },
     };
 
-    static const map<string, const GLenum> blend_func_d_factors
+    static const map<string, const GLenum> destination_blending_factors
     {
         { "one_minus_source_alpha", GL_ONE_MINUS_SRC_ALPHA },
     };
@@ -312,11 +312,23 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     if (opengl_config.blending.is_enabled)
     {
         const OpenGL_Config::Blending & blending = opengl_config.blending;
+
+        // Validate s & d factor options
+        if (!contains_key(source_blending_factors, blending.source_factor))
+        {
+            throw runtime_error("\"" + blending.source_factor + "\" is not a valid source blending factor!");
+        }
+
+        if (!contains_key(destination_blending_factors, blending.destination_factor))
+        {
+            throw runtime_error("\"" + blending.destination_factor + "\" is not a valid destination blending factor!");
+        }
+
         glEnable(GL_BLEND);
 
         glBlendFunc(
-            blend_func_s_factors.at(blending.s_factor),
-            blend_func_d_factors.at(blending.d_factor));
+            source_blending_factors.at(blending.source_factor),
+            destination_blending_factors.at(blending.destination_factor));
     }
 
 

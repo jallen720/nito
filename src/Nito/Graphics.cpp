@@ -99,6 +99,7 @@ static map<string, GLuint> shader_programs;
 static mat4 projection_matrix;
 static mat4 view_matrix;
 static vec3 unit_scale;
+static GLbitfield clear_flags;
 
 
 Vertex_Attribute::Types Vertex_Attribute::types
@@ -297,28 +298,13 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         { "one_minus_src1_alpha"     , GL_ONE_MINUS_SRC1_ALPHA     },
     };
 
-
-    // Configure viewport.
-    glViewport(0, 0, opengl_config.window_width, opengl_config.window_height);
-
-    projection_matrix =
-        ortho(
-            0.0f,                               // Left
-            (float)opengl_config.window_width,  // Right
-            0.0f,                               // Top
-            (float)opengl_config.window_height, // Bottom
-            opengl_config.z_near,               // Z near
-            opengl_config.z_far);               // Z far
-
-
-    // Configure clear color.
-    const OpenGL_Config::Clear_Color & clear_color = opengl_config.clear_color;
-
-    glClearColor(
-        clear_color.red,
-        clear_color.green,
-        clear_color.blue,
-        clear_color.alpha);
+    static const map<string, const GLbitfield> clear_flag_masks
+    {
+        { "color_buffer_bit"   , GL_COLOR_BUFFER_BIT   },
+        { "depth_buffer_bit"   , GL_DEPTH_BUFFER_BIT   },
+        { "accum_buffer_bit"   , GL_ACCUM_BUFFER_BIT   },
+        { "stencil_buffer_bit" , GL_STENCIL_BUFFER_BIT },
+    };
 
 
     // Configure blending.
@@ -348,6 +334,41 @@ void configure_opengl(const OpenGL_Config & opengl_config)
             blending_factors.at(blending.source_factor),
             blending_factors.at(blending.destination_factor));
     }
+
+
+    // Validate and configure clear flags.
+    if (opengl_config.clear_flags.size() == 0)
+    {
+        throw runtime_error("ERROR: no clear flags set in OpenGL config!");
+    }
+
+    for (const string & clear_flag : opengl_config.clear_flags)
+    {
+        clear_flags |= clear_flag_masks.at(clear_flag);
+    }
+
+
+    // Configure viewport.
+    glViewport(0, 0, opengl_config.window_width, opengl_config.window_height);
+
+    projection_matrix =
+        ortho(
+            0.0f,                               // Left
+            (float)opengl_config.window_width,  // Right
+            0.0f,                               // Top
+            (float)opengl_config.window_height, // Bottom
+            opengl_config.z_near,               // Z near
+            opengl_config.z_far);               // Z far
+
+
+    // Configure clear color.
+    const OpenGL_Config::Clear_Color & clear_color = opengl_config.clear_color;
+
+    glClearColor(
+        clear_color.red,
+        clear_color.green,
+        clear_color.blue,
+        clear_color.alpha);
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
@@ -600,8 +621,8 @@ void load_vertex_data(
 
 void init_rendering()
 {
-    // Clear color buffer.
-    glClear(GL_COLOR_BUFFER_BIT);
+    // Clear buffers specified by clear_flags.
+    glClear(clear_flags);
 
 
     // Bind sprite vertex array.

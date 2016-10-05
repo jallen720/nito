@@ -203,6 +203,7 @@ int run_engine()
             opengl_config["z_near"],
             opengl_config["z_far"],
             opengl_config["pixels_per_unit"],
+            opengl_config["clear_flags"],
             {
                 clear_color["red"],
                 clear_color["green"],

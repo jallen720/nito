@@ -64,7 +64,7 @@ void add_component(const Entity entity, const string & type, const JSON & data)
 {
     if (!contains_key(component_handlers, type))
     {
-        throw runtime_error("\"" + type + "\" is not a supported component type!");
+        throw runtime_error("ERROR: \"" + type + "\" is not a supported component type!");
     }
 
     components[type][entity] = component_handlers.at(type)(data);
@@ -82,7 +82,7 @@ Component get_component(const Entity entity, const string & type)
 {
     if (!has_component(entity, type))
     {
-        throw runtime_error("Entity does not have a component of type \"" + type + "\"!");
+        throw runtime_error("ERROR: Entity does not have a component of type \"" + type + "\"!");
     }
 
     return components.at(type).at(entity);
@@ -124,7 +124,7 @@ Entity get_entity(const string & id)
         }
     }
 
-    throw runtime_error("No entity found with id: " + id);
+    throw runtime_error("ERROR: No entity found with id: " + id);
 }
 
 

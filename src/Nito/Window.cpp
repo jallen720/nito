@@ -48,7 +48,7 @@ static vector<GLFWwindow *> windows;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void error_callback(int error, const char * description)
 {
-    throw runtime_error((string)"GLFW ERROR [" + to_string(error) + "]: " + description + "!");
+    throw runtime_error("GLFW ERROR [" + to_string(error) + "]: " + description + "!");
 }
 
 

@@ -375,6 +375,13 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
 
 
+    // Check enabling depth testing.
+    if (opengl_config.depth_testing_is_enabled)
+    {
+        glEnable(GL_DEPTH_TEST);
+    }
+
+
     // Validate no OpenGL errors occurred.
     validate_no_opengl_error("configure_opengl()");
 }

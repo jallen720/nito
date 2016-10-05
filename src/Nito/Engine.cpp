@@ -306,25 +306,33 @@ int run_engine()
 
 
     // Load entities.
-    const JSON entities_data            = read_json_file("resources/data/entities.json");
-    const JSON required_components_data = read_json_file("resources/data/required_components.json");
+    const vector<JSON> entities_data = read_json_file("resources/data/entities.json");
 
-    for (const JSON & entity_data : entities_data)
+    const vector<Entity> entities = transform<Entity>(entities_data, [](const JSON & /*entity_data*/) -> Entity
     {
-        Entity entity = create_entity();
+        return create_entity();
+    });
 
 
-        // Load components for entity.
-        const JSON & components_data = entity_data["components"];
+    // Add components to entities.
+    for (auto i = 0u; i < entities.size(); i++)
+    {
+        const JSON & components_data = entities_data[i]["components"];
 
         for (const JSON & component_data : components_data)
         {
-            add_component(entity, component_data["type"], component_data["data"]);
+            add_component(entities[i], component_data["type"], component_data["data"]);
         }
+    }
 
 
-        // Subscribe entity to systems.
-        const JSON & entity_systems = entity_data["systems"];
+    // Subscribe entities to systems.
+    const JSON required_components_data = read_json_file("resources/data/required_components.json");
+
+    for (auto i = 0u; i < entities.size(); i++)
+    {
+        const Entity entity = entities[i];
+        const JSON & entity_systems = entities_data[i]["systems"];
 
         for (const string & system_name : entity_systems)
         {
@@ -342,6 +350,7 @@ int run_engine()
             }
 
 
+            // If entity has all components required by system, subscribe entity to that system.
             subscribe_to_system(entity, system_name);
         }
     }

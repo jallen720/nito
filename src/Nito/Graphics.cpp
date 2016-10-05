@@ -548,7 +548,7 @@ void load_vertex_data(
 
 
     // Define pointers to vertex attributes.
-    size_t previous_attribute_size = 0;
+    size_t current_attribute_offset = 0;
 
     for (GLuint attribute_index = 0u; attribute_index < vertex_attributes.size(); attribute_index++)
     {
@@ -556,14 +556,14 @@ void load_vertex_data(
         glEnableVertexAttribArray(attribute_index);
 
         glVertexAttribPointer(
-            attribute_index,                    // Index of attribute
-            vertex_attribute.element_count,     // Number of attribute elements
-            vertex_attribute.type.gl_type,      // Type of attribute elements
-            vertex_attribute.is_normalized,     // Should attribute elements be normalized?
-            vertex_stride,                      // Stride between attributes
-            (GLvoid *)previous_attribute_size); // Pointer to first element of attribute
+            attribute_index,                     // Index of attribute
+            vertex_attribute.element_count,      // Number of attribute elements
+            vertex_attribute.type.gl_type,       // Type of attribute elements
+            vertex_attribute.is_normalized,      // Should attribute elements be normalized?
+            vertex_stride,                       // Stride between attributes
+            (GLvoid *)current_attribute_offset); // Pointer offset to first element of attribute
 
-        previous_attribute_size = vertex_attribute.size;
+        current_attribute_offset += vertex_attribute.size;
     }
 
 

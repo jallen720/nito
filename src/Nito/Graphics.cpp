@@ -274,14 +274,27 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
-    static const map<string, const GLenum> source_blending_factors
+    static const map<string, const GLenum> blending_factors
     {
-        { "source_alpha", GL_SRC_ALPHA },
-    };
-
-    static const map<string, const GLenum> destination_blending_factors
-    {
-        { "one_minus_source_alpha", GL_ONE_MINUS_SRC_ALPHA },
+        { "zero"                     , GL_ZERO                     },
+        { "one"                      , GL_ONE                      },
+        { "src_color"                , GL_SRC_COLOR                },
+        { "one_minus_src_color"      , GL_ONE_MINUS_SRC_COLOR      },
+        { "dst_color"                , GL_DST_COLOR                },
+        { "one_minus_dst_color"      , GL_ONE_MINUS_DST_COLOR      },
+        { "src_alpha"                , GL_SRC_ALPHA                },
+        { "one_minus_src_alpha"      , GL_ONE_MINUS_SRC_ALPHA      },
+        { "dst_alpha"                , GL_DST_ALPHA                },
+        { "one_minus_dst_alpha"      , GL_ONE_MINUS_DST_ALPHA      },
+        { "constant_color"           , GL_CONSTANT_COLOR           },
+        { "one_minus_constant_color" , GL_ONE_MINUS_CONSTANT_COLOR },
+        { "constant_alpha"           , GL_CONSTANT_ALPHA           },
+        { "one_minus_constant_alpha" , GL_ONE_MINUS_CONSTANT_ALPHA },
+        { "src_alpha_saturate"       , GL_SRC_ALPHA_SATURATE       },
+        { "src1_color"               , GL_SRC1_COLOR               },
+        { "one_minus_src1_color"     , GL_ONE_MINUS_SRC1_COLOR     },
+        { "src1_alpha"               , GL_SRC1_ALPHA               },
+        { "one_minus_src1_alpha"     , GL_ONE_MINUS_SRC1_ALPHA     },
     };
 
 
@@ -315,12 +328,12 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
         // Validate source & destination blending factor options.
-        if (!contains_key(source_blending_factors, blending.source_factor))
+        if (!contains_key(blending_factors, blending.source_factor))
         {
             throw runtime_error("\"" + blending.source_factor + "\" is not a valid source blending factor!");
         }
 
-        if (!contains_key(destination_blending_factors, blending.destination_factor))
+        if (!contains_key(blending_factors, blending.destination_factor))
         {
             throw runtime_error("\"" + blending.destination_factor + "\" is not a valid destination blending factor!");
         }
@@ -329,8 +342,8 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         glEnable(GL_BLEND);
 
         glBlendFunc(
-            source_blending_factors.at(blending.source_factor),
-            destination_blending_factors.at(blending.destination_factor));
+            blending_factors.at(blending.source_factor),
+            blending_factors.at(blending.destination_factor));
     }
 
 

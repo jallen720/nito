@@ -330,12 +330,15 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         // Validate source & destination blending factor options.
         if (!contains_key(blending_factors, blending.source_factor))
         {
-            throw runtime_error("\"" + blending.source_factor + "\" is not a valid source blending factor!");
+            throw runtime_error(
+                "ERROR: source blending factor \"" + blending.source_factor + "\" is not a valid blending factor!");
         }
 
         if (!contains_key(blending_factors, blending.destination_factor))
         {
-            throw runtime_error("\"" + blending.destination_factor + "\" is not a valid destination blending factor!");
+            throw runtime_error(
+                "ERROR: destination blending factor \"" + blending.destination_factor + "\" is not a valid blending " +
+                "factor!");
         }
 
 

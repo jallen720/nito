@@ -159,7 +159,12 @@ int run_engine()
 
     // Create window.
     const JSON window_config = read_json_file("resources/configs/window.json");
-    const JSON & glfw_context_version = window_config["glfw_context_version"];
+    map<string, int> window_hints;
+
+    for_each(window_config["hints"], [&](const string & hint_key, const int hint_value) -> void
+    {
+        window_hints[hint_key] = hint_value;
+    });
 
     window =
         create_window(
@@ -168,10 +173,7 @@ int run_engine()
                 window_config["height"],
                 window_config["title"],
                 window_config["refresh_rate"],
-                {
-                    glfw_context_version["major"],
-                    glfw_context_version["minor"],
-                },
+                window_hints,
             });
 
 

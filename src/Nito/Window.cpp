@@ -1,6 +1,5 @@
 #include "Nito/Window.hpp"
 
-#include <map>
 #include <vector>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
@@ -76,16 +75,22 @@ GLFWwindow * create_window(const Window_Config & window_config)
         { "every_other_update" , 2 },
     };
 
-    if (!contains_key(swap_intervals, window_config.refresh_rate))
+    static const map<string, const int> hint_keys
     {
-        throw runtime_error("ERROR: \"" + window_config.refresh_rate + "\" is not a valid refresh rate!");
-    }
+        // Window related hints
+        { "resizable", GLFW_RESIZABLE },
+
+        // Context related hints
+        { "context_version_major" , GLFW_CONTEXT_VERSION_MAJOR },
+        { "context_version_minor" , GLFW_CONTEXT_VERSION_MINOR },
+    };
 
 
-    // Window pre-configuration
-    const Window_Config::Context_Version & context_version = window_config.context_version;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, context_version.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, context_version.minor);
+    // Configure window hints.
+    for_each(window_config.hints, [&](const string & hint_key, const int hint_value) -> void
+    {
+        glfwWindowHint(hint_keys.at(hint_key), hint_value);
+    });
 
 
     // Window creation
@@ -106,6 +111,11 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
 
     // Window post-configuration
+    if (!contains_key(swap_intervals, window_config.refresh_rate))
+    {
+        throw runtime_error("ERROR: \"" + window_config.refresh_rate + "\" is not a valid refresh rate!");
+    }
+
     glfwMakeContextCurrent(window);
     glfwSwapInterval(swap_intervals.at(window_config.refresh_rate));
     glfwSetKeyCallback(window, key_callback);

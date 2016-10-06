@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <map>
 
 
 struct GLFWwindow;
@@ -22,13 +23,7 @@ struct Window_Config
     const int height;
     const std::string title;
     const std::string refresh_rate;
-
-    const struct Context_Version
-    {
-        const int major;
-        const int minor;
-    }
-    context_version;
+    const std::map<std::string, int> hints;
 };
 
 

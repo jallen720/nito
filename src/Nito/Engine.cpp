@@ -219,10 +219,10 @@ int run_engine()
 
 
     // Load shader pipelines.
-    const JSON shader_pipelines_data      = read_json_file("resources/data/shader_pipelines.json");
-    const JSON shader_config              = read_json_file("resources/configs/shaders.json");
-    const JSON shader_extensions          = shader_config["extensions"];
-    const string version_source           = read_file("resources/shaders/shared/version.glsl");
+    const JSON shader_pipelines_data = read_json_file("resources/data/shader_pipelines.json");
+    const JSON shader_config = read_json_file("resources/configs/shaders.json");
+    const JSON shader_extensions = shader_config["extensions"];
+    const string version_source = read_file("resources/shaders/shared/version.glsl");
     const string vertex_attributes_source = read_file("resources/shaders/shared/vertex_attributes.glsl");
     vector<Shader_Pipeline> shader_pipelines;
 
@@ -358,7 +358,11 @@ int run_engine()
 
 
     // Main loop
+
+
+    // TODO: actually calculate delta time.
     static const float delta_time = 0.02f;
+
 
     while (!glfwWindowShouldClose(window))
     {

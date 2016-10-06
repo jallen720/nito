@@ -191,15 +191,12 @@ int run_engine()
     const JSON opengl_config = read_json_file("resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
-    int window_width;
-    int window_height;
-    glfwGetFramebufferSize(window, &window_width, &window_height);
     init_glew();
 
     configure_opengl(
         {
-            window_width,
-            window_height,
+            window_config["width"],
+            window_config["height"],
             opengl_config["z_near"],
             opengl_config["z_far"],
             opengl_config["pixels_per_unit"],

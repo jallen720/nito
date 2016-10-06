@@ -8,7 +8,7 @@
 #include <Magick++.h>
 #include "Cpp_Utils/Fn.hpp"
 #include "Cpp_Utils/Map.hpp"
-#include "Cpp_Utils/Container.hpp"
+#include "Cpp_Utils/Collection.hpp"
 
 
 using std::map;

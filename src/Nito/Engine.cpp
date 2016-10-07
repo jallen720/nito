@@ -166,15 +166,14 @@ int run_engine()
         window_hints[hint_key] = hint_value;
     });
 
-    window =
-        create_window(
-            {
-                window_config["width"],
-                window_config["height"],
-                window_config["title"],
-                window_config["refresh_rate"],
-                window_hints,
-            });
+    window = create_window(
+        {
+            window_config["width"],
+            window_config["height"],
+            window_config["title"],
+            window_config["refresh_rate"],
+            window_hints,
+        });
 
 
     // Load control bindings.

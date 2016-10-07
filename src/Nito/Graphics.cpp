@@ -275,6 +275,21 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
+    static const map<string, const GLenum> capabilities
+    {
+        { "blend"        , GL_BLEND        },
+        { "depth_test"   , GL_DEPTH_TEST   },
+        { "scissor_test" , GL_SCISSOR_TEST },
+    };
+
+    static const map<string, const GLbitfield> clear_flag_masks
+    {
+        { "color_buffer_bit"   , GL_COLOR_BUFFER_BIT   },
+        { "depth_buffer_bit"   , GL_DEPTH_BUFFER_BIT   },
+        { "accum_buffer_bit"   , GL_ACCUM_BUFFER_BIT   },
+        { "stencil_buffer_bit" , GL_STENCIL_BUFFER_BIT },
+    };
+
     static const map<string, const GLenum> blending_factors
     {
         { "zero"                     , GL_ZERO                     },
@@ -298,17 +313,28 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         { "one_minus_src1_alpha"     , GL_ONE_MINUS_SRC1_ALPHA     },
     };
 
-    static const map<string, const GLbitfield> clear_flag_masks
+
+    // Configure capabilities.
+    for (const string & capability : opengl_config.capabilities)
     {
-        { "color_buffer_bit"   , GL_COLOR_BUFFER_BIT   },
-        { "depth_buffer_bit"   , GL_DEPTH_BUFFER_BIT   },
-        { "accum_buffer_bit"   , GL_ACCUM_BUFFER_BIT   },
-        { "stencil_buffer_bit" , GL_STENCIL_BUFFER_BIT },
-    };
+        glEnable(capabilities.at(capability));
+    }
 
 
-    // Configure blending.
-    if (opengl_config.blending.is_enabled)
+    // Validate and configure clear flags.
+    if (opengl_config.clear_flags.size() == 0)
+    {
+        throw runtime_error("ERROR: no clear flags set in OpenGL config!");
+    }
+
+    for (const string & clear_flag : opengl_config.clear_flags)
+    {
+        clear_flags |= clear_flag_masks.at(clear_flag);
+    }
+
+
+    // Configure blending if enabled.
+    if (glIsEnabled(capabilities.at("blend")))
     {
         const OpenGL_Config::Blending & blending = opengl_config.blending;
 
@@ -328,23 +354,9 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         }
 
 
-        glEnable(GL_BLEND);
-
         glBlendFunc(
             blending_factors.at(blending.source_factor),
             blending_factors.at(blending.destination_factor));
-    }
-
-
-    // Validate and configure clear flags.
-    if (opengl_config.clear_flags.size() == 0)
-    {
-        throw runtime_error("ERROR: no clear flags set in OpenGL config!");
-    }
-
-    for (const string & clear_flag : opengl_config.clear_flags)
-    {
-        clear_flags |= clear_flag_masks.at(clear_flag);
     }
 
 
@@ -375,17 +387,9 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
 
 
-    // Check enabling depth testing.
-    if (opengl_config.depth_testing_is_enabled)
+    // Configure scissor test if enabled
+    if (glIsEnabled(capabilities.at("scissor_test")))
     {
-        glEnable(GL_DEPTH_TEST);
-    }
-
-
-    // Check enabling scissor testing.
-    if (opengl_config.scissor_testing_is_enabled)
-    {
-        glEnable(GL_SCISSOR_TEST);
         glScissor(0, 0, opengl_config.window_width, opengl_config.window_height);
     }
 

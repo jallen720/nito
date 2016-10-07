@@ -202,8 +202,7 @@ int run_engine()
             opengl_config["z_near"],
             opengl_config["z_far"],
             opengl_config["pixels_per_unit"],
-            opengl_config["depth_testing_is_enabled"],
-            opengl_config["scissor_testing_is_enabled"],
+            opengl_config["capabilities"],
             opengl_config["clear_flags"],
             {
                 clear_color["red"],
@@ -212,7 +211,6 @@ int run_engine()
                 clear_color["alpha"],
             },
             {
-                blending["is_enabled"],
                 blending["source_factor"],
                 blending["destination_factor"],
             },

@@ -26,6 +26,7 @@ struct OpenGL_Config
     const float z_far;
     const unsigned int pixels_per_unit;
     const bool depth_testing_is_enabled;
+    const bool scissor_testing_is_enabled;
     const std::vector<std::string> clear_flags;
 
     const struct Clear_Color

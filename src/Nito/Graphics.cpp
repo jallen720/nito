@@ -382,6 +382,14 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     }
 
 
+    // Check enabling scissor testing.
+    if (opengl_config.scissor_testing_is_enabled)
+    {
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(0, 0, opengl_config.window_width, opengl_config.window_height);
+    }
+
+
     // Validate no OpenGL errors occurred.
     validate_no_opengl_error("configure_opengl()");
 }

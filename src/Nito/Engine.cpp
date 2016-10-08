@@ -50,7 +50,7 @@ using Cpp_Utils::for_each;
 // Cpp_Utils/Fn.hpp
 using Cpp_Utils::transform;
 
-// Cpp_Utils/Map.hpp
+// Cpp_Utils/Map.hpp && Cpp_Utils/JSON.hpp
 using Cpp_Utils::contains_key;
 
 // Cpp_Utils/String.hpp
@@ -85,11 +85,19 @@ static map<string, const Component_Handler> default_component_handlers
         {
             const JSON & position = component_data["position"];
             const JSON & scale = component_data["scale"];
+            vec3 origin;
+
+            if (contains_key(component_data, "origin"))
+            {
+                const JSON & origin_data = component_data["origin"];
+                origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
+            }
 
             return new Transform
             {
                 vec3(position["x"], position["y"], 0.0f),
                 vec3(scale["x"], scale["y"], 1.0f),
+                origin,
             };
         }
     },

@@ -645,7 +645,9 @@ void render(const Transform * view_transform, const Viewport * viewport)
 {
     // Calculate view and projection matrices from view transform and viewport.
     mat4 view_matrix;
-    view_matrix = translate(view_matrix, -view_transform->position * unit_scale);
+    vec3 view_origin_offset = view_transform->origin * vec3(viewport->width, viewport->height, 0.0f);
+    vec3 view_position = (view_transform->position * unit_scale) - view_origin_offset;
+    view_matrix = translate(view_matrix, -view_position);
     view_matrix = scale(view_matrix, view_transform->scale);
 
     mat4 projection_matrix = ortho(
@@ -696,29 +698,28 @@ void render(const Transform * view_transform, const Viewport * viewport)
         const Sprite * rendering_sprite = rendering_sprites[i];
 
 
-        // Create model matrix from render data transformations.
-        mat4 model_matrix;
-        model_matrix = translate(model_matrix, rendering_transform->position * unit_scale);
-        model_matrix = scale(model_matrix, rendering_transform->scale);
-
-
         // Bind texture to texture unit 0.
         bind_texture(texture_objects.at(rendering_sprite->texture_path), 0u);
 
 
-        // Create matrix to scale model matrix to texture's dimensions.
+        // Create model matrix from render data transformations and bound texture dimensions.
+        mat4 model_matrix;
         int texture_width;
         int texture_height;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-        mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
+        vec3 model_origin_offset = rendering_transform->origin * vec3(texture_width, texture_height, 0.0f);
+        vec3 model_position = (rendering_transform->position * unit_scale) - model_origin_offset;
+        model_matrix = translate(model_matrix, model_position);
+        model_matrix = scale(model_matrix, rendering_transform->scale);
+        model_matrix = scale(model_matrix, vec3(texture_width, texture_height, 1.0f));
 
 
         // Bind shader pipeline and set its uniforms.
         const GLuint shader_program = shader_programs.at(rendering_sprite->shader_pipeline_name);
         glUseProgram(shader_program);
         set_uniform(shader_program, "texture0", 0);
-        set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
+        set_uniform(shader_program, "model", model_matrix);
 
 
         // Draw data.

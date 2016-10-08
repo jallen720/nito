@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <cstddef>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <Magick++.h>
@@ -24,6 +23,7 @@ using glm::mat4;
 
 // glm/gtc/matrix_transform.hpp
 using glm::translate;
+using glm::scale;
 using glm::ortho;
 
 // glm/gtc/type_ptr.hpp
@@ -96,16 +96,27 @@ static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
-static mat4 projection_matrix;
-static mat4 view_matrix;
 static vec3 unit_scale;
 static GLbitfield clear_flags;
+
+// Rendering data
+static vector<const Sprite *> rendering_sprites;
+static vector<const Transform *> rendering_transforms;
 
 
 Vertex_Attribute::Types Vertex_Attribute::types
 {
     { "float", { GL_FLOAT, sizeof(GLfloat) } },
 };
+
+
+static const map<string, const GLenum> capabilities
+{
+    { "blend"        , GL_BLEND        },
+    { "depth_test"   , GL_DEPTH_TEST   },
+    { "scissor_test" , GL_SCISSOR_TEST },
+};
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,13 +286,6 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
-    static const map<string, const GLenum> capabilities
-    {
-        { "blend"        , GL_BLEND        },
-        { "depth_test"   , GL_DEPTH_TEST   },
-        { "scissor_test" , GL_SCISSOR_TEST },
-    };
-
     static const map<string, const GLbitfield> clear_flag_masks
     {
         { "color_buffer_bit"   , GL_COLOR_BUFFER_BIT   },
@@ -360,19 +364,6 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     }
 
 
-    // Configure viewport.
-    glViewport(0, 0, opengl_config.window_width, opengl_config.window_height);
-
-    projection_matrix =
-        ortho(
-            0.0f,                               // Left
-            (float)opengl_config.window_width,  // Right
-            0.0f,                               // Top
-            (float)opengl_config.window_height, // Bottom
-            opengl_config.z_near,               // Z near
-            opengl_config.z_far);               // Z far
-
-
     // Configure clear color.
     const OpenGL_Config::Clear_Color & clear_color = opengl_config.clear_color;
 
@@ -385,13 +376,6 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
     unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
-
-
-    // Configure scissor test if enabled
-    if (glIsEnabled(capabilities.at("scissor_test")))
-    {
-        glScissor(0, 0, opengl_config.window_width, opengl_config.window_height);
-    }
 
 
     // Validate no OpenGL errors occurred.
@@ -640,10 +624,6 @@ void load_vertex_data(
 
 void init_rendering()
 {
-    // Clear buffers specified by clear_flags.
-    glClear(clear_flags);
-
-
     // Bind sprite vertex array.
     glBindVertexArray(vertex_array_objects[0]);
 
@@ -654,41 +634,100 @@ void init_rendering()
 }
 
 
-void render(const Sprite * sprite, const Transform * transform)
+void load_rendering_data(const Sprite * sprite, const Transform * transform)
 {
-    // Create model matrix from renderable's transformations.
-    mat4 model_matrix = scale(translate(mat4(),
-        transform->position * unit_scale),
-        transform->scale);
+    rendering_sprites.push_back(sprite);
+    rendering_transforms.push_back(transform);
+}
 
 
-    // Bind texture to texture unit 0.
-    bind_texture(texture_objects.at(sprite->texture_path), 0u);
+void render(const Transform * view_transform, const Viewport * viewport)
+{
+    // Calculate view and projection matrices from view transform and viewport.
+    mat4 view_matrix;
+    view_matrix = translate(view_matrix, -view_transform->position * unit_scale);
+    view_matrix = scale(view_matrix, view_transform->scale);
+
+    mat4 projection_matrix = ortho(
+        0.0f,                    // Left
+        (float)viewport->width,  // Right
+        0.0f,                    // Top
+        (float)viewport->height, // Bottom
+        viewport->z_near,        // Z near
+        viewport->z_far);        // Z far
 
 
-    // Create matrix to scale model matrix to texture's dimensions.
-    int texture_width;
-    int texture_height;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-    mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
+    // Configure OpenGL viewport.
+    glViewport(
+        viewport->x,
+        viewport->y,
+        viewport->width,
+        viewport->height);
 
 
-    // Bind shader pipeline and set its uniforms.
-    const GLuint shader_program = shader_programs.at(sprite->shader_pipeline_name);
-    glUseProgram(shader_program);
-    set_uniform(shader_program, "texture0", 0);
-    set_uniform(shader_program, "projection", projection_matrix);
-    set_uniform(shader_program, "view", view_matrix);
-    set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
+    // Configure scissor test if enabled.
+    if (glIsEnabled(capabilities.at("scissor_test")))
+    {
+        glScissor(
+            viewport->x,
+            viewport->y,
+            viewport->width,
+            viewport->height);
+    }
 
 
-    // Draw data.
-    glDrawElements(
-        GL_TRIANGLES,    // Render mode
-        6,               // Index count
-        GL_UNSIGNED_INT, // Index type
-        (GLvoid *)0);    // Pointer to start of index array
+    // Clear buffers specified by clear_flags.
+    glClear(clear_flags);
+
+
+    // Set projection and view matrices for all shader programs.
+    for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void
+    {
+        glUseProgram(shader_program);
+        set_uniform(shader_program, "projection", projection_matrix);
+        set_uniform(shader_program, "view", view_matrix);
+    });
+
+
+    // Render all rendering data.
+    for (auto i = 0u; i < rendering_sprites.size(); i++)
+    {
+        const Transform * rendering_transform = rendering_transforms[i];
+        const Sprite * rendering_sprite = rendering_sprites[i];
+
+
+        // Create model matrix from render data transformations.
+        mat4 model_matrix;
+        model_matrix = translate(model_matrix, rendering_transform->position * unit_scale);
+        model_matrix = scale(model_matrix, rendering_transform->scale);
+
+
+        // Bind texture to texture unit 0.
+        bind_texture(texture_objects.at(rendering_sprite->texture_path), 0u);
+
+
+        // Create matrix to scale model matrix to texture's dimensions.
+        int texture_width;
+        int texture_height;
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
+        mat4 texture_scale_matrix = scale(mat4(), vec3(texture_width, texture_height, 1.0f));
+
+
+        // Bind shader pipeline and set its uniforms.
+        const GLuint shader_program = shader_programs.at(rendering_sprite->shader_pipeline_name);
+        glUseProgram(shader_program);
+        set_uniform(shader_program, "texture0", 0);
+        set_uniform(shader_program, "model", model_matrix * texture_scale_matrix);
+
+
+        // Draw data.
+        glDrawElements(
+            GL_TRIANGLES,    // Render mode
+            6,               // Index count
+            GL_UNSIGNED_INT, // Index type
+            (GLvoid *)0);    // Pointer to start of index array
+    }
 
 
 #ifdef DEBUG
@@ -703,6 +742,11 @@ void cleanup_rendering()
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
+
+
+    // Clear rendering data.
+    rendering_sprites.clear();
+    rendering_transforms.clear();
 
 
 #ifdef DEBUG

@@ -25,6 +25,7 @@
 #include "Nito/Components.hpp"
 #include "Nito/Utilities.hpp"
 #include "Nito/Systems/Renderer.hpp"
+#include "Nito/Systems/Camera.hpp"
 
 
 using std::string;
@@ -72,6 +73,7 @@ static vector<Update_Handler> update_handlers;
 static vector<Update_Handler> default_update_handlers
 {
     renderer_update,
+    camera_update,
 };
 
 
@@ -106,12 +108,28 @@ static map<string, const Component_Handler> default_component_handlers
         "id",
         string_component_handler
     },
+    {
+        "viewport",
+        [](const JSON & component_data) -> Component
+        {
+            return new Viewport
+            {
+                component_data["x"],
+                component_data["y"],
+                component_data["width"],
+                component_data["height"],
+                component_data["z_near"],
+                component_data["z_far"],
+            };
+        }
+    },
 };
 
 
 static map<string, const System_Subscribe_Handler> default_system_subscribe_handlers
 {
-    { "renderer", renderer_subscribe },
+    { "renderer" , renderer_subscribe },
+    { "camera"   , camera_subscribe   },
 };
 
 
@@ -196,10 +214,6 @@ int run_engine()
 
     configure_opengl(
         {
-            window_config["width"],
-            window_config["height"],
-            opengl_config["z_near"],
-            opengl_config["z_far"],
             opengl_config["pixels_per_unit"],
             opengl_config["capabilities"],
             opengl_config["clear_flags"],

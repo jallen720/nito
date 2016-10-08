@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 
@@ -20,6 +21,17 @@ struct Sprite
 {
     std::string texture_path;
     std::string shader_pipeline_name;
+};
+
+
+struct Viewport
+{
+    GLint x;
+    GLint y;
+    GLsizei width;
+    GLsizei height;
+    float z_near;
+    float z_far;
 };
 
 

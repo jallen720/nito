@@ -1,8 +1,9 @@
-#include "Nito/Systems/Renderer.hpp"
+#include "Nito/Systems/Camera.hpp"
 
 #include <vector>
 
 #include "Nito/Components.hpp"
+#include "Nito/ECS.hpp"
 #include "Nito/Graphics.hpp"
 
 
@@ -18,8 +19,8 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Sprite *> entity_sprites;
 static vector<Transform *> entity_transforms;
+static vector<Viewport *> entity_viewports;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,19 +28,23 @@ static vector<Transform *> entity_transforms;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void renderer_subscribe(const Entity entity)
+void camera_subscribe(const Entity entity)
 {
-    entity_sprites.push_back((Sprite *)get_component(entity, "sprite"));
     entity_transforms.push_back((Transform *)get_component(entity, "transform"));
+    entity_viewports.push_back((Viewport *)get_component(entity, "viewport"));
 }
 
 
-void renderer_update(const float /*delta_time*/)
+void camera_update(const float /*delta_time*/)
 {
-    for (auto i = 0u; i < entity_sprites.size(); i++)
+    init_rendering();
+
+    for (auto i = 0u; i < entity_transforms.size(); i++)
     {
-        load_rendering_data(entity_sprites[i], entity_transforms[i]);
+        render(entity_transforms[i], entity_viewports[i]);
     }
+
+    cleanup_rendering();
 }
 
 

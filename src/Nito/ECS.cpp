@@ -103,6 +103,11 @@ void set_system_subscribe_handler(const string & name, const System_Subscribe_Ha
 
 void subscribe_to_system(const Entity entity, const string & system_name)
 {
+    if (!contains_key(system_subscribe_handlers, system_name))
+    {
+        throw runtime_error("ERROR: no subscription handler loaded for system named \"" + system_name + "\"!");
+    }
+
     system_subscribe_handlers.at(system_name)(entity);
 }
 

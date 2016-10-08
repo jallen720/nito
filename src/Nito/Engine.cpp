@@ -346,7 +346,6 @@ int run_engine()
         }
     }
 
-
     // Subscribe entities to systems.
     const JSON required_components_data = read_json_file("resources/data/required_components.json");
 
@@ -357,16 +356,19 @@ int run_engine()
 
         for (const string & system_name : entity_systems)
         {
-            // Validate entity has components required by system.
-            const JSON & required_components = required_components_data[system_name];
-
-            for (const string & required_component : required_components)
+            // Validate entity has components required by system if system's required components are specified.
+            if (contains_key(required_components_data, system_name))
             {
-                if (!has_component(entity, required_component))
+                const JSON & required_components = required_components_data[system_name];
+
+                for (const string & required_component : required_components)
                 {
-                    throw runtime_error(
-                        "ERROR: Entity " + to_string(entity) + " does not contain a " + required_component + " " +
-                        "component required by the " + system_name + " system!");
+                    if (!has_component(entity, required_component))
+                    {
+                        throw runtime_error(
+                            "ERROR: Entity " + to_string(entity) + " does not contain a " + required_component + " " +
+                            "component required by the " + system_name + " system!");
+                    }
                 }
             }
 

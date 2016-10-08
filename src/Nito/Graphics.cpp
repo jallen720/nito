@@ -279,7 +279,7 @@ void init_glew()
     // Validate GLEW initialized properly.
     if (glewInit() != GLEW_OK)
     {
-        throw runtime_error("GLEW ERROR: Failed to initialize GLEW!");
+        throw runtime_error("GLEW ERROR: failed to initialize GLEW!");
     }
 }
 

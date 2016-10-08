@@ -366,7 +366,7 @@ int run_engine()
                     if (!has_component(entity, required_component))
                     {
                         throw runtime_error(
-                            "ERROR: Entity " + to_string(entity) + " does not contain a " + required_component + " " +
+                            "ERROR: entity " + to_string(entity) + " does not contain a " + required_component + " " +
                             "component required by the " + system_name + " system!");
                     }
                 }

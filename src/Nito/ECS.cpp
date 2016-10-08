@@ -82,7 +82,7 @@ Component get_component(const Entity entity, const string & type)
 {
     if (!has_component(entity, type))
     {
-        throw runtime_error("ERROR: Entity does not have a component of type \"" + type + "\"!");
+        throw runtime_error("ERROR: entity does not have a component of type \"" + type + "\"!");
     }
 
     return components.at(type).at(entity);
@@ -129,7 +129,7 @@ Entity get_entity(const string & id)
         }
     }
 
-    throw runtime_error("ERROR: No entity found with id: " + id);
+    throw runtime_error("ERROR: no entity found with id: " + id);
 }
 
 

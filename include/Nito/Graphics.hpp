@@ -76,8 +76,9 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
+void load_render_layer(const std::string & name, const std::string & render_space);
+void load_render_data(const std::string * layer_name, const Sprite * sprite, const Transform * transform);
 void init_rendering();
-void load_rendering_data(const Sprite * sprite, const Transform * transform);
 void render(const Transform * view_transform, const Viewport * viewport);
 void cleanup_rendering();
 void destroy_graphics();

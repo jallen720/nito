@@ -1,5 +1,6 @@
 #include "Nito/Graphics.hpp"
 
+#include <unordered_map>
 #include <stdexcept>
 #include <cstddef>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,6 +12,7 @@
 
 
 using std::map;
+using std::unordered_map;
 using std::vector;
 using std::string;
 using std::runtime_error;
@@ -83,6 +85,20 @@ struct Texture_Format
 };
 
 
+struct Render_Layer
+{
+    vector<const Sprite *> sprites;
+    vector<const Transform *> transforms;
+
+    enum class Render_Space
+    {
+        WORLD,
+        SCREEN,
+    }
+    render_space;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data
@@ -98,10 +114,7 @@ static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
 static vec3 unit_scale;
 static GLbitfield clear_flags;
-
-// Rendering data
-static vector<const Sprite *> rendering_sprites;
-static vector<const Transform *> rendering_transforms;
+static unordered_map<string, Render_Layer> render_layers;
 
 
 Vertex_Attribute::Types Vertex_Attribute::types
@@ -622,6 +635,26 @@ void load_vertex_data(
 }
 
 
+void load_render_layer(const string & name, const string & render_space)
+{
+    static const map<string, const Render_Layer::Render_Space> render_spaces
+    {
+        { "world"  , Render_Layer::Render_Space::WORLD  },
+        { "screen" , Render_Layer::Render_Space::SCREEN },
+    };
+
+    render_layers[name].render_space = render_spaces.at(render_space);
+}
+
+
+void load_render_data(const string * layer_name, const Sprite * sprite, const Transform * transform)
+{
+    Render_Layer & render_layer = render_layers[*layer_name];
+    render_layer.sprites.push_back(sprite);
+    render_layer.transforms.push_back(transform);
+}
+
+
 void init_rendering()
 {
     // Bind sprite vertex array.
@@ -631,13 +664,6 @@ void init_rendering()
 #ifdef DEBUG
     validate_no_opengl_error("init_rendering()");
 #endif
-}
-
-
-void load_rendering_data(const Sprite * sprite, const Transform * transform)
-{
-    rendering_sprites.push_back(sprite);
-    rendering_transforms.push_back(transform);
 }
 
 
@@ -682,53 +708,69 @@ void render(const Transform * view_transform, const Viewport * viewport)
     glClear(clear_flags);
 
 
-    // Set projection and view matrices for all shader programs.
+    // Set projection matrices for all shader programs.
     for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void
     {
         glUseProgram(shader_program);
         set_uniform(shader_program, "projection", projection_matrix);
-        set_uniform(shader_program, "view", view_matrix);
     });
 
 
-    // Render all rendering data.
-    for (auto i = 0u; i < rendering_sprites.size(); i++)
+    // Render all layers.
+    for_each(render_layers, [&](const string & /*layer_name*/, const Render_Layer & render_layer) -> void
     {
-        const Transform * rendering_transform = rendering_transforms[i];
-        const Sprite * rendering_sprite = rendering_sprites[i];
+        // Set view matrices for all shader programs.
+        auto layer_view_matrix =
+            render_layer.render_space == Render_Layer::Render_Space::WORLD
+            ? view_matrix
+            : mat4();
+
+        for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void
+        {
+            glUseProgram(shader_program);
+            set_uniform(shader_program, "view", layer_view_matrix);
+        });
 
 
-        // Bind texture to texture unit 0.
-        bind_texture(texture_objects.at(rendering_sprite->texture_path), 0u);
+        // Render all rendering data in layer.
+        for (auto i = 0u; i < render_layer.sprites.size(); i++)
+        {
+            const Transform * transform = render_layer.transforms[i];
+            const Sprite * sprite = render_layer.sprites[i];
 
 
-        // Create model matrix from render data transformations and bound texture dimensions.
-        mat4 model_matrix;
-        int texture_width;
-        int texture_height;
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
-        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-        vec3 model_origin_offset = rendering_transform->origin * vec3(texture_width, texture_height, 0.0f);
-        vec3 model_position = (rendering_transform->position * unit_scale) - model_origin_offset;
-        model_matrix = translate(model_matrix, model_position);
-        model_matrix = scale(model_matrix, rendering_transform->scale);
-        model_matrix = scale(model_matrix, vec3(texture_width, texture_height, 1.0f));
+            // Bind texture to texture unit 0.
+            bind_texture(texture_objects.at(sprite->texture_path), 0u);
 
 
-        // Bind shader pipeline and set its uniforms.
-        const GLuint shader_program = shader_programs.at(rendering_sprite->shader_pipeline_name);
-        glUseProgram(shader_program);
-        set_uniform(shader_program, "texture0", 0);
-        set_uniform(shader_program, "model", model_matrix);
+            // Create model matrix from render data transformations and bound texture dimensions.
+            mat4 model_matrix;
+            int texture_width;
+            int texture_height;
+            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
+            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
+            vec3 model_origin_offset = transform->origin * vec3(texture_width, texture_height, 0.0f);
+            vec3 model_position = (transform->position * unit_scale) - model_origin_offset;
+            model_matrix = translate(model_matrix, model_position);
+            model_matrix = scale(model_matrix, transform->scale);
+            model_matrix = scale(model_matrix, vec3(texture_width, texture_height, 1.0f));
 
 
-        // Draw data.
-        glDrawElements(
-            GL_TRIANGLES,    // Render mode
-            6,               // Index count
-            GL_UNSIGNED_INT, // Index type
-            (GLvoid *)0);    // Pointer to start of index array
-    }
+            // Bind shader pipeline and set its uniforms.
+            const GLuint shader_program = shader_programs.at(sprite->shader_pipeline_name);
+            glUseProgram(shader_program);
+            set_uniform(shader_program, "texture0", 0);
+            set_uniform(shader_program, "model", model_matrix);
+
+
+            // Draw data.
+            glDrawElements(
+                GL_TRIANGLES,    // Render mode
+                6,               // Index count
+                GL_UNSIGNED_INT, // Index type
+                (GLvoid *)0);    // Pointer to start of index array
+        }
+    });
 
 
 #ifdef DEBUG
@@ -746,8 +788,11 @@ void cleanup_rendering()
 
 
     // Clear rendering data.
-    rendering_sprites.clear();
-    rendering_transforms.clear();
+    for_each(render_layers, [](const string & /*layer_name*/, Render_Layer & render_layer) -> void
+    {
+        render_layer.sprites.clear();
+        render_layer.transforms.clear();
+    });
 
 
 #ifdef DEBUG

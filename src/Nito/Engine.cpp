@@ -117,6 +117,10 @@ static map<string, const Component_Handler> default_component_handlers
         string_component_handler
     },
     {
+        "render_layer",
+        string_component_handler
+    },
+    {
         "viewport",
         [](const JSON & component_data) -> Component
         {
@@ -236,6 +240,15 @@ int run_engine()
                 blending["destination_factor"],
             },
         });
+
+
+    // Load render layers
+    const JSON render_layers_config = read_json_file("resources/configs/render_layers.json");
+
+    for (const JSON & render_layer : render_layers_config)
+    {
+        load_render_layer(render_layer["name"], render_layer["render_space"]);
+    }
 
 
     // Load shader pipelines.
@@ -381,10 +394,8 @@ int run_engine()
 
     // Main loop
 
-
     // TODO: actually calculate delta time.
     static const float delta_time = 0.02f;
-
 
     while (!glfwWindowShouldClose(window))
     {

@@ -351,13 +351,12 @@ int run_engine()
     // Add components to entities.
     for (auto i = 0u; i < entities.size(); i++)
     {
-        const JSON & components_data = entities_data[i]["components"];
-
-        for (const JSON & component_data : components_data)
+        for_each(entities_data[i]["components"], [&](const string & component, const JSON & data) -> void
         {
-            add_component(entities[i], component_data["type"], component_data["data"]);
-        }
+            add_component(entities[i], component, data);
+        });
     }
+
 
     // Subscribe entities to systems.
     const JSON required_components_data = read_json_file("resources/data/required_components.json");

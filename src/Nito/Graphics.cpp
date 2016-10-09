@@ -671,10 +671,11 @@ void render(const Transform * view_transform, const Viewport * viewport)
 {
     // Calculate view and projection matrices from view transform and viewport.
     mat4 view_matrix;
+    vec3 view_scale = view_transform->scale;
     vec3 view_origin_offset = view_transform->origin * vec3(viewport->width, viewport->height, 0.0f);
-    vec3 view_position = (view_transform->position * unit_scale) - view_origin_offset;
+    vec3 view_position = (view_transform->position * view_scale * unit_scale) - view_origin_offset;
     view_matrix = translate(view_matrix, -view_position);
-    view_matrix = scale(view_matrix, view_transform->scale);
+    view_matrix = scale(view_matrix, view_scale);
 
     mat4 projection_matrix = ortho(
         0.0f,                    // Left

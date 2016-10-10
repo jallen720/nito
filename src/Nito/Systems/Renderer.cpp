@@ -38,7 +38,7 @@ void renderer_subscribe(const Entity entity)
 }
 
 
-void renderer_update(const float /*delta_time*/)
+void renderer_update()
 {
     for (auto i = 0u; i < entity_sprites.size(); i++)
     {

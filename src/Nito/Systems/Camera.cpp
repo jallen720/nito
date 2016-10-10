@@ -35,7 +35,7 @@ void camera_subscribe(const Entity entity)
 }
 
 
-void camera_update(const float /*delta_time*/)
+void camera_update()
 {
     init_rendering();
 

@@ -67,6 +67,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static GLFWwindow * window;
+static float delta_time;
 static vector<Update_Handler> update_handlers;
 
 
@@ -165,6 +166,12 @@ static map<string, const Control_Handler> default_control_handlers
 GLFWwindow ** get_window()
 {
     return &window;
+}
+
+
+float get_delta_time()
+{
+    return delta_time;
 }
 
 
@@ -394,7 +401,7 @@ int run_engine()
     // Main loop
 
     // TODO: actually calculate delta time.
-    static const float delta_time = 0.02f;
+    delta_time = 0.02f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -402,7 +409,7 @@ int run_engine()
 
         for (const Update_Handler & update_handler : update_handlers)
         {
-            update_handler(delta_time);
+            update_handler();
         }
 
         glfwSwapBuffers(window);

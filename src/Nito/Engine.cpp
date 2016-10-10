@@ -86,19 +86,11 @@ static map<string, const Component_Handler> default_component_handlers
         {
             const JSON & position = component_data["position"];
             const JSON & scale = component_data["scale"];
-            vec3 origin;
-
-            if (contains_key(component_data, "origin"))
-            {
-                const JSON & origin_data = component_data["origin"];
-                origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
-            }
 
             return new Transform
             {
                 vec3(position["x"], position["y"], 0.0f),
                 vec3(scale["x"], scale["y"], 1.0f),
-                origin,
             };
         }
     },
@@ -110,6 +102,7 @@ static map<string, const Component_Handler> default_component_handlers
             {
                 component_data["texture_path"],
                 component_data["shader_pipeline_name"],
+                component_data["use_texture_dimensions"],
             };
         }
     },
@@ -129,10 +122,28 @@ static map<string, const Component_Handler> default_component_handlers
             {
                 component_data["x"],
                 component_data["y"],
-                component_data["width"],
-                component_data["height"],
                 component_data["z_near"],
                 component_data["z_far"],
+            };
+        }
+    },
+    {
+        "dimensions",
+        [](const JSON & component_data) -> Component
+        {
+            vec3 origin;
+
+            if (contains_key(component_data, "origin"))
+            {
+                const JSON & origin_data = component_data["origin"];
+                origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
+            }
+
+            return new Dimensions
+            {
+                component_data["width"],
+                component_data["height"],
+                origin,
             };
         }
     },

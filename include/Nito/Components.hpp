@@ -14,7 +14,6 @@ struct Transform
 {
     glm::vec3 position;
     glm::vec3 scale;
-    glm::vec3 origin;
 };
 
 
@@ -22,6 +21,7 @@ struct Sprite
 {
     std::string texture_path;
     std::string shader_pipeline_name;
+    bool use_texture_dimensions;
 };
 
 
@@ -29,10 +29,16 @@ struct Viewport
 {
     GLint x;
     GLint y;
-    GLsizei width;
-    GLsizei height;
     float z_near;
     float z_far;
+};
+
+
+struct Dimensions
+{
+    float width;
+    float height;
+    glm::vec3 origin;
 };
 
 

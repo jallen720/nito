@@ -87,6 +87,9 @@ struct Texture_Format
 
 struct Render_Layer
 {
+    vector<float> widths;
+    vector<float> heights;
+    vector<const vec3 *> origins;
     vector<const Sprite *> sprites;
     vector<const Transform *> transforms;
 
@@ -111,6 +114,7 @@ static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
 static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
+static map<string, Dimensions> texture_dimensions;
 static map<string, GLuint> shader_programs;
 static vec3 unit_scale;
 static GLbitfield clear_flags;
@@ -529,12 +533,19 @@ void load_textures(const vector<Texture> & textures)
         image.flip();
         image.write(&blob, texture_format.image);
 
+        const Dimensions dimensions
+        {
+            (float)image.columns(),
+            (float)image.rows(),
+            vec3(),
+        };
+
         glTexImage2D(
             GL_TEXTURE_2D,           // Target
             0,                       // Level of detail (0 is base image LOD)
             texture_format.internal, // Internal format
-            image.columns(),         // Image width
-            image.rows(),            // Image height
+            dimensions.width,        // Image width
+            dimensions.height,       // Image height
             0,                       // Border width (must be 0 apparently?)
             texture_format.internal, // Texel data format (must match internal format)
             GL_UNSIGNED_BYTE,        // Texel data type
@@ -545,8 +556,9 @@ void load_textures(const vector<Texture> & textures)
         glBindTexture(GL_TEXTURE_2D, 0);
 
 
-        // Track texture by its path.
+        // Track texture object and dimensions by its path.
         texture_objects[texture.path] = texture_object;
+        texture_dimensions[texture.path] = dimensions;
     }
 
 
@@ -647,9 +659,25 @@ void load_render_layer(const string & name, const string & render_space)
 }
 
 
-void load_render_data(const string * layer_name, const Sprite * sprite, const Transform * transform)
+void load_render_data(
+    const string * layer_name,
+    const Dimensions * dimensions,
+    const Sprite * sprite,
+    const Transform * transform)
 {
     Render_Layer & render_layer = render_layers[*layer_name];
+
+    // Select dimension to use for size (width & height) based on sprite's use_texture_dimensions flag.
+    const Dimensions * size_dimensions =
+        sprite->use_texture_dimensions
+        ? &texture_dimensions[sprite->texture_path]
+        : dimensions;
+
+    // Always use sprite's origin.
+    render_layer.origins.push_back(&dimensions->origin);
+
+    render_layer.widths.push_back(size_dimensions->width);
+    render_layer.heights.push_back(size_dimensions->height);
     render_layer.sprites.push_back(sprite);
     render_layer.transforms.push_back(transform);
 }
@@ -667,21 +695,21 @@ void init_rendering()
 }
 
 
-void render(const Transform * view_transform, const Viewport * viewport)
+void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform)
 {
     // Calculate view and projection matrices from view transform and viewport.
     mat4 view_matrix;
     vec3 view_scale = view_transform->scale;
-    vec3 view_origin_offset = view_transform->origin * vec3(viewport->width, viewport->height, 0.0f);
+    vec3 view_origin_offset = view_dimensions->origin * vec3(view_dimensions->width, view_dimensions->height, 0.0f);
     vec3 view_position = (view_transform->position * view_scale * unit_scale) - view_origin_offset;
     view_matrix = translate(view_matrix, -view_position);
     view_matrix = scale(view_matrix, view_scale);
 
     mat4 projection_matrix = ortho(
         0.0f,                    // Left
-        (float)viewport->width,  // Right
+        view_dimensions->width,  // Right
         0.0f,                    // Top
-        (float)viewport->height, // Bottom
+        view_dimensions->height, // Bottom
         viewport->z_near,        // Z near
         viewport->z_far);        // Z far
 
@@ -690,8 +718,8 @@ void render(const Transform * view_transform, const Viewport * viewport)
     glViewport(
         viewport->x,
         viewport->y,
-        viewport->width,
-        viewport->height);
+        view_dimensions->width,
+        view_dimensions->height);
 
 
     // Configure scissor test if enabled.
@@ -700,8 +728,8 @@ void render(const Transform * view_transform, const Viewport * viewport)
         glScissor(
             viewport->x,
             viewport->y,
-            viewport->width,
-            viewport->height);
+            view_dimensions->width,
+            view_dimensions->height);
     }
 
 
@@ -736,8 +764,10 @@ void render(const Transform * view_transform, const Viewport * viewport)
         // Render all rendering data in layer.
         for (auto i = 0u; i < render_layer.sprites.size(); i++)
         {
-            const Transform * transform = render_layer.transforms[i];
+            const float width = render_layer.widths[i];
+            const float height = render_layer.heights[i];
             const Sprite * sprite = render_layer.sprites[i];
+            const Transform * transform = render_layer.transforms[i];
 
 
             // Bind texture to texture unit 0.
@@ -746,15 +776,11 @@ void render(const Transform * view_transform, const Viewport * viewport)
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
-            int texture_width;
-            int texture_height;
-            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texture_width);
-            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texture_height);
-            vec3 model_origin_offset = transform->origin * vec3(texture_width, texture_height, 0.0f);
+            vec3 model_origin_offset = *render_layer.origins[i] * vec3(width, height, 0.0f);
             vec3 model_position = (transform->position * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
             model_matrix = scale(model_matrix, transform->scale);
-            model_matrix = scale(model_matrix, vec3(texture_width, texture_height, 1.0f));
+            model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
 
 
             // Bind shader pipeline and set its uniforms.
@@ -791,6 +817,9 @@ void cleanup_rendering()
     // Clear rendering data.
     for_each(render_layers, [](const string & /*layer_name*/, Render_Layer & render_layer) -> void
     {
+        render_layer.widths.clear();
+        render_layer.heights.clear();
+        render_layer.origins.clear();
         render_layer.sprites.clear();
         render_layer.transforms.clear();
     });

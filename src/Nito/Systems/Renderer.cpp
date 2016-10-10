@@ -21,6 +21,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static vector<string *> entity_render_layers;
+static vector<Dimensions *> entity_dimensions;
 static vector<Sprite *> entity_sprites;
 static vector<Transform *> entity_transforms;
 
@@ -33,6 +34,7 @@ static vector<Transform *> entity_transforms;
 void renderer_subscribe(const Entity entity)
 {
     entity_render_layers.push_back((string *)get_component(entity, "render_layer"));
+    entity_dimensions.push_back((Dimensions *)get_component(entity, "dimensions"));
     entity_sprites.push_back((Sprite *)get_component(entity, "sprite"));
     entity_transforms.push_back((Transform *)get_component(entity, "transform"));
 }
@@ -44,6 +46,7 @@ void renderer_update()
     {
         load_render_data(
             entity_render_layers[i],
+            entity_dimensions[i],
             entity_sprites[i],
             entity_transforms[i]);
     }

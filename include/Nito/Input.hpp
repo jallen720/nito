@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 
 namespace Nito
@@ -26,6 +27,8 @@ using Control_Handler = std::function<void(GLFWwindow *, const int, const int)>;
 void add_control_binding(const std::string & key, const std::string & action, const std::string & handler);
 void set_control_handler(const std::string & name, const Control_Handler & control_handler);
 void key_callback(GLFWwindow * window, int key, int scan_code, int action, int mods);
+void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double y_position);
+const glm::dvec2 & get_mouse_position();
 
 
 } // namespace Nito

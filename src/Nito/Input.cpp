@@ -5,11 +5,16 @@
 #include <stdexcept>
 #include "Cpp_Utils/Map.hpp"
 
+#include "Nito/Window.hpp"
+
 
 using std::string;
 using std::vector;
 using std::map;
 using std::runtime_error;
+
+// glm/glm.hpp
+using glm::dvec2;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
@@ -39,6 +44,7 @@ struct Control_Binding
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static vector<Control_Binding> control_bindings;
 static map<string, Control_Handler> control_handlers;
+static dvec2 mouse_position;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +228,21 @@ void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, i
             control_binding.handler(window, key, action);
         }
     }
+}
+
+
+void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double y_position)
+{
+    mouse_position.x = x_position;
+
+    // Invert y position to match coordinate system.
+    mouse_position.y = get_window_size().y - y_position;
+}
+
+
+const dvec2 & get_mouse_position()
+{
+    return mouse_position;
 }
 
 

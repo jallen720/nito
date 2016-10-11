@@ -15,6 +15,9 @@ using std::map;
 using std::vector;
 using std::runtime_error;
 
+// glm/glm.hpp
+using glm::ivec2;
+
 // Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
 
@@ -26,6 +29,7 @@ using Cpp_Utils::for_each;
 
 // Nito/Input.hpp
 using Nito::key_callback;
+using Nito::mouse_position_callback;
 
 
 namespace Nito
@@ -39,6 +43,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static GLFWwindow * window;
 static float delta_time;
+static ivec2 window_size;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +54,13 @@ static float delta_time;
 static void error_callback(int error, const char * description)
 {
     throw runtime_error("GLFW ERROR [" + to_string(error) + "]: " + description + "!");
+}
+
+
+static void window_size_callback(GLFWwindow * /*window*/, int width, int height)
+{
+    window_size.x = width;
+    window_size.y = height;
 }
 
 
@@ -104,9 +116,12 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
 
     // Window creation
+    int window_width = window_config.width;
+    int window_height = window_config.height;
+
     window = glfwCreateWindow(
-        window_config.width,
-        window_config.height,
+        window_width,
+        window_height,
         window_config.title.c_str(),
         nullptr,
         nullptr);
@@ -115,6 +130,9 @@ GLFWwindow * create_window(const Window_Config & window_config)
     {
         throw runtime_error("GLFW ERROR: failed to create window!");
     }
+
+    window_size.x = window_width;
+    window_size.y = window_height;
 
 
     // Window post-configuration
@@ -126,6 +144,8 @@ GLFWwindow * create_window(const Window_Config & window_config)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(swap_intervals.at(window_config.refresh_rate));
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_position_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
 
 
     return window;
@@ -141,6 +161,12 @@ GLFWwindow ** get_window()
 float get_delta_time()
 {
     return delta_time;
+}
+
+
+const ivec2 & get_window_size()
+{
+    return window_size;
 }
 
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <functional>
+#include <glm/glm.hpp>
 
 
 struct GLFWwindow;
@@ -40,6 +41,7 @@ void init_glfw();
 GLFWwindow * create_window(const Window_Config & window_config);
 GLFWwindow ** get_window();
 float get_delta_time();
+const glm::ivec2 & get_window_size();
 void run_window_loop(const Window_Loop_Callback & callback);
 void terminate_glfw();
 

@@ -758,8 +758,8 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
-            vec3 model_origin_offset = dimensions.origin * vec3(width, height, 0.0f);
-            vec3 model_position = (transform->position * unit_scale) - model_origin_offset;
+            const vec3 model_origin_offset = dimensions.origin * vec3(width, height, 0.0f);
+            const vec3 model_position = (transform->position * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
             model_matrix = scale(model_matrix, transform->scale);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));

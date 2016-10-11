@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Fn.hpp"
+#include "Cpp_Utils/String.hpp"
 
 
 using std::string;
@@ -20,6 +21,9 @@ using Cpp_Utils::contains_key;
 
 // Cpp_Utils/Fn.hpp
 using Cpp_Utils::filter;
+
+// Cpp_Utils/String.hpp
+using Cpp_Utils::to_string;
 
 
 namespace Nito
@@ -82,7 +86,8 @@ Component get_component(const Entity entity, const string & type)
 {
     if (!has_component(entity, type))
     {
-        throw runtime_error("ERROR: entity does not have a component of type \"" + type + "\"!");
+        throw runtime_error(
+            "ERROR: entity " + to_string(entity) + " does not have a component of type \"" + type + "\"!");
     }
 
     return components.at(type).at(entity);

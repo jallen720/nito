@@ -17,14 +17,6 @@ struct Transform
 };
 
 
-struct Sprite
-{
-    std::string texture_path;
-    std::string shader_pipeline_name;
-    bool use_texture_dimensions;
-};
-
-
 struct Viewport
 {
     GLint x;
@@ -39,6 +31,14 @@ struct Dimensions
     float width;
     float height;
     glm::vec3 origin;
+};
+
+
+struct Sprite
+{
+    std::string texture_path;
+    std::string shader_pipeline_name;
+    Dimensions dimensions;
 };
 
 

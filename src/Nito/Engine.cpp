@@ -98,11 +98,46 @@ static map<string, const Component_Handler> default_component_handlers
         "sprite",
         [](const JSON & component_data) -> Component
         {
+            Dimensions dimensions;
+            const string texture_path = component_data["texture_path"];
+            const Dimensions & texture_dimensions = get_texture_dimensions(texture_path);
+
+            // If no dimensions field is present, load the texture's dimensions.
+            if (!contains_key(component_data, "dimensions"))
+            {
+                dimensions = texture_dimensions;
+            }
+            // For each field in dimensions, use the given value or the texture's value by default.
+            else
+            {
+                const JSON & dimensions_data = component_data["dimensions"];
+
+                dimensions.width =
+                    contains_key(dimensions_data, "width")
+                    ? dimensions_data["width"].get<float>()
+                    : texture_dimensions.width;
+
+                dimensions.height =
+                    contains_key(dimensions_data, "height")
+                    ? dimensions_data["height"].get<float>()
+                    : texture_dimensions.height;
+
+                if (contains_key(dimensions_data, "origin"))
+                {
+                    const JSON & origin = dimensions_data["origin"];
+                    dimensions.origin = vec3(origin["x"], origin["y"], 0.0f);
+                }
+                else
+                {
+                    dimensions.origin = texture_dimensions.origin;
+                }
+            }
+
             return new Sprite
             {
-                component_data["texture_path"],
+                texture_path,
                 component_data["shader_pipeline_name"],
-                component_data["use_texture_dimensions"],
+                dimensions,
             };
         }
     },

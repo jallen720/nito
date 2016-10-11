@@ -4,9 +4,6 @@
 #include <functional>
 
 
-struct GLFWwindow;
-
-
 namespace Nito
 {
 
@@ -24,8 +21,6 @@ using Update_Handler = std::function<void()>;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-GLFWwindow ** get_window();
-float get_delta_time();
 void add_update_handler(const Update_Handler & update_handler);
 int run_engine();
 

@@ -37,7 +37,8 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<GLFWwindow *> windows;
+static GLFWwindow * window;
+static float delta_time;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +87,15 @@ GLFWwindow * create_window(const Window_Config & window_config)
     };
 
 
+    // TODO: Add support for multiple windows.
+    // Ensure a window does not already exist.
+    if (window != nullptr)
+    {
+        throw runtime_error(
+            "ERROR: a window has already been created, and support for multiple windows has not been implemented!");
+    }
+
+
     // Configure window hints.
     for_each(window_config.hints, [&](const string & hint_key, const int hint_value) -> void
     {
@@ -94,20 +104,17 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
 
     // Window creation
-    GLFWwindow * window =
-        glfwCreateWindow(
-            window_config.width,
-            window_config.height,
-            window_config.title.c_str(),
-            nullptr,
-            nullptr);
+    window = glfwCreateWindow(
+        window_config.width,
+        window_config.height,
+        window_config.title.c_str(),
+        nullptr,
+        nullptr);
 
     if (window == nullptr)
     {
         throw runtime_error("GLFW ERROR: failed to create window!");
     }
-
-    windows.push_back(window);
 
 
     // Window post-configuration
@@ -125,13 +132,35 @@ GLFWwindow * create_window(const Window_Config & window_config)
 }
 
 
+GLFWwindow ** get_window()
+{
+    return &window;
+}
+
+
+float get_delta_time()
+{
+    return delta_time;
+}
+
+
+void run_window_loop(const Window_Loop_Callback & callback)
+{
+    // TODO: actually calculate delta time.
+    delta_time = 0.02f;
+
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
+        callback();
+        glfwSwapBuffers(window);
+    }
+}
+
+
 void terminate_glfw()
 {
-    // Destroy all windows.
-    for_each(windows, glfwDestroyWindow);
-    windows.clear();
-
-
+    glfwDestroyWindow(window);
     glfwTerminate();
 }
 

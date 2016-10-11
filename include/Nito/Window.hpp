@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 
 struct GLFWwindow;
@@ -27,6 +28,9 @@ struct Window_Config
 };
 
 
+using Window_Loop_Callback = std::function<void()>;
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -34,6 +38,9 @@ struct Window_Config
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void init_glfw();
 GLFWwindow * create_window(const Window_Config & window_config);
+GLFWwindow ** get_window();
+float get_delta_time();
+void run_window_loop(const Window_Loop_Callback & callback);
 void terminate_glfw();
 
 

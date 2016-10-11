@@ -62,7 +62,7 @@ void init_glfw()
 
     if (!glfwInit())
     {
-        throw runtime_error("ERROR: failed to initialize GLFW!");
+        throw runtime_error("GLFW ERROR: failed to initialize GLFW!");
     }
 }
 
@@ -104,7 +104,7 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
     if (window == nullptr)
     {
-        throw runtime_error("GLFW ERROR: failed to create GLFW window!");
+        throw runtime_error("GLFW ERROR: failed to create window!");
     }
 
     windows.push_back(window);

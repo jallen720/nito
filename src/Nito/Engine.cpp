@@ -231,6 +231,10 @@ int run_engine()
     for_each(default_control_handlers, set_control_handler);
 
 
+    // Initialize modules.
+    input_init();
+
+
     // Initialize systems.
     ui_mouse_event_dispatcher_init();
 

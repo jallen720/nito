@@ -7,8 +7,6 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
-#include "Nito/Input.hpp"
-
 
 using std::string;
 using std::map;
@@ -27,10 +25,6 @@ using Cpp_Utils::contains_key;
 // Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
 
-// Nito/Input.hpp
-using Nito::key_callback;
-using Nito::mouse_position_callback;
-
 
 namespace Nito
 {
@@ -41,6 +35,7 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static vector<Window_Created_Handler> window_created_handlers;
 static GLFWwindow * window;
 static float delta_time;
 static ivec2 window_size;
@@ -143,9 +138,14 @@ GLFWwindow * create_window(const Window_Config & window_config)
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(swap_intervals.at(window_config.refresh_rate));
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_position_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
+
+
+    // Trigger window created handlers.
+    for (const Window_Created_Handler & window_created_handler : window_created_handlers)
+    {
+        window_created_handler();
+    }
 
 
     return window;
@@ -167,6 +167,24 @@ float get_delta_time()
 const ivec2 & get_window_size()
 {
     return window_size;
+}
+
+
+void add_window_created_handler(const Window_Created_Handler & window_created_handler)
+{
+    window_created_handlers.push_back(window_created_handler);
+}
+
+
+void set_window_key_handler(const Window_Key_Handler window_key_handler)
+{
+    glfwSetKeyCallback(window, window_key_handler);
+}
+
+
+void set_window_mouse_position_handler(const Window_Mouse_Position_Handler window_mouse_position_handler)
+{
+    glfwSetCursorPosCallback(window, window_mouse_position_handler);
 }
 
 

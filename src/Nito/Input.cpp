@@ -56,9 +56,55 @@ static map<string, Mouse_Move_Handler> mouse_move_handlers;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Utilities
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, int /*mods*/)
+{
+    for (const Control_Binding & control_binding : control_bindings)
+    {
+        if (control_binding.key == key &&
+            control_binding.action == action)
+        {
+            control_binding.handler(window, key, action);
+        }
+    }
+}
+
+
+void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double y_position)
+{
+    mouse_position.x = x_position;
+
+    // Invert y position to match coordinate system.
+    mouse_position.y = get_window_size().y - y_position;
+
+    // Trigger mouse move handlers with newly updated mouse position.
+    for_each(mouse_move_handlers, [&](const string & /*name*/, const Mouse_Move_Handler & mouse_move_handler) -> void
+    {
+        mouse_move_handler(mouse_position);
+    });
+}
+
+
+void window_created_handler()
+{
+    set_window_key_handler(key_callback);
+    set_window_mouse_position_handler(mouse_position_callback);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void input_init()
+{
+    add_window_created_handler(window_created_handler);
+}
+
+
 void add_control_binding(const string & key, const string & action, const string & handler)
 {
     static const map<string, const int> glfw_key_codes
@@ -222,34 +268,6 @@ void add_control_binding(const string & key, const string & action, const string
 void set_control_handler(const string & name, const Control_Handler & control_handler)
 {
     control_handlers[name] = control_handler;
-}
-
-
-void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, int /*mods*/)
-{
-    for (const Control_Binding & control_binding : control_bindings)
-    {
-        if (control_binding.key == key &&
-            control_binding.action == action)
-        {
-            control_binding.handler(window, key, action);
-        }
-    }
-}
-
-
-void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double y_position)
-{
-    mouse_position.x = x_position;
-
-    // Invert y position to match coordinate system.
-    mouse_position.y = get_window_size().y - y_position;
-
-    // Trigger mouse move handlers with newly updated mouse position.
-    for_each(mouse_move_handlers, [&](const string & /*name*/, const Mouse_Move_Handler & mouse_move_handler) -> void
-    {
-        mouse_move_handler(mouse_position);
-    });
 }
 
 

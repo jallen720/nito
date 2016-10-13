@@ -83,6 +83,7 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 void cleanup_rendering();
 void destroy_graphics();
 const Dimensions & get_texture_dimensions(const std::string & texture_path);
+const glm::vec3 & get_unit_scale();
 
 
 } // namespace Nito

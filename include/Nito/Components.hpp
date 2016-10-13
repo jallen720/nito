@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <functional>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
@@ -39,6 +40,15 @@ struct Sprite
     std::string texture_path;
     std::string shader_pipeline_name;
     Dimensions dimensions;
+};
+
+
+struct UI_Mouse_Event_Handlers
+{
+    using Event_Handler = std::function<void()>;
+
+    Event_Handler mouse_enter_handler;
+    Event_Handler mouse_exit_handler;
 };
 
 

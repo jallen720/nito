@@ -26,6 +26,7 @@
 #include "Nito/Utilities.hpp"
 #include "Nito/Systems/Renderer.hpp"
 #include "Nito/Systems/Camera.hpp"
+#include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 
 
 using std::string;
@@ -73,6 +74,7 @@ static vector<Update_Handler> default_update_handlers
 {
     renderer_update,
     camera_update,
+    ui_mouse_event_dispatcher_update,
 };
 
 
@@ -180,13 +182,21 @@ static map<string, const Component_Handler> default_component_handlers
             };
         }
     },
+    {
+        "ui_mouse_event_handlers",
+        [](const JSON & /*component_data*/) -> Component
+        {
+            return new UI_Mouse_Event_Handlers;
+        }
+    }
 };
 
 
 static map<string, const System_Subscribe_Handler> default_system_subscribe_handlers
 {
-    { "renderer" , renderer_subscribe },
-    { "camera"   , camera_subscribe   },
+    { "renderer"                  , renderer_subscribe                  },
+    { "camera"                    , camera_subscribe                    },
+    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
 };
 
 

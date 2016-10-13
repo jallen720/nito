@@ -834,4 +834,10 @@ const Dimensions & get_texture_dimensions(const string & texture_path)
 }
 
 
+const vec3 & get_unit_scale()
+{
+    return unit_scale;
+}
+
+
 } // namespace Nito

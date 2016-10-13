@@ -13,8 +13,8 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ui_mouse_event_dispatcher_init();
 void ui_mouse_event_dispatcher_subscribe(const Entity entity);
-void ui_mouse_event_dispatcher_update();
 
 
 } // namespace Nito

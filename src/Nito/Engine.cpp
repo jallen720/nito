@@ -74,7 +74,6 @@ static vector<Update_Handler> default_update_handlers
 {
     renderer_update,
     camera_update,
-    ui_mouse_event_dispatcher_update,
 };
 
 
@@ -230,6 +229,10 @@ int run_engine()
     for_each(default_component_handlers, set_component_handler);
     for_each(default_system_subscribe_handlers, set_system_subscribe_handler);
     for_each(default_control_handlers, set_control_handler);
+
+
+    // Initialize systems.
+    ui_mouse_event_dispatcher_init();
 
 
     // Initalize GLFW.

@@ -4,6 +4,7 @@
 #include <map>
 #include <stdexcept>
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Window.hpp"
 
@@ -18,6 +19,9 @@ using glm::dvec2;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/Collection.hpp
+using Cpp_Utils::for_each;
 
 
 namespace Nito
@@ -45,6 +49,9 @@ struct Control_Binding
 static vector<Control_Binding> control_bindings;
 static map<string, Control_Handler> control_handlers;
 static dvec2 mouse_position;
+
+// Event handlers
+static map<string, Mouse_Move_Handler> mouse_move_handlers;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,12 +244,18 @@ void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double 
 
     // Invert y position to match coordinate system.
     mouse_position.y = get_window_size().y - y_position;
+
+    // Trigger mouse move handlers with newly updated mouse position.
+    for_each(mouse_move_handlers, [&](const string & /*name*/, const Mouse_Move_Handler & mouse_move_handler) -> void
+    {
+        mouse_move_handler(mouse_position);
+    });
 }
 
 
-const dvec2 & get_mouse_position()
+void set_mouse_move_handler(const string & name, const Mouse_Move_Handler & mouse_move_handler)
 {
-    return mouse_position;
+    mouse_move_handlers[name] = mouse_move_handler;
 }
 
 

@@ -54,27 +54,8 @@ bool is_mouse_over(const dvec2 & mouse_position, const Sprite * sprite, const Tr
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Interface
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ui_mouse_event_dispatcher_subscribe(const Entity entity)
+void mouse_move_handler(const dvec2 & mouse_position)
 {
-    entity_sprites.push_back((Sprite *)get_component(entity, "sprite"));
-    entity_transforms.push_back((Transform *)get_component(entity, "transform"));
-
-    entity_ui_mouse_event_handlers.push_back(
-        (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers"));
-
-    is_mouse_over_flags.push_back(false);
-}
-
-
-void ui_mouse_event_dispatcher_update()
-{
-    const dvec2 & mouse_position = get_mouse_position();
-
     for (auto i = 0u; i < is_mouse_over_flags.size(); i++)
     {
         bool is_mouse_over_entity = is_mouse_over(mouse_position, entity_sprites[i], entity_transforms[i]);
@@ -113,6 +94,29 @@ void ui_mouse_event_dispatcher_update()
             }
         }
     }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Interface
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ui_mouse_event_dispatcher_init()
+{
+    set_mouse_move_handler("ui_mouse_event_dispatcher", mouse_move_handler);
+}
+
+
+void ui_mouse_event_dispatcher_subscribe(const Entity entity)
+{
+    entity_sprites.push_back((Sprite *)get_component(entity, "sprite"));
+    entity_transforms.push_back((Transform *)get_component(entity, "transform"));
+
+    entity_ui_mouse_event_handlers.push_back(
+        (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers"));
+
+    is_mouse_over_flags.push_back(false);
 }
 
 

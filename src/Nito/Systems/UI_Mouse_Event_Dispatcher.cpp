@@ -54,6 +54,17 @@ bool is_mouse_over(const dvec2 & mouse_position, const Sprite * sprite, const Tr
 }
 
 
+void update_mouse_over_flag(unsigned int i, bool value, const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
+{
+    is_mouse_over_flags[i] = value;
+
+    if (event_handler)
+    {
+        event_handler();
+    }
+}
+
+
 void mouse_move_handler(const dvec2 & mouse_position)
 {
     for (auto i = 0u; i < is_mouse_over_flags.size(); i++)
@@ -67,30 +78,14 @@ void mouse_move_handler(const dvec2 & mouse_position)
         {
             if (!is_mouse_over_entity)
             {
-                is_mouse_over_flags[i] = false;
-
-                const UI_Mouse_Event_Handlers::Event_Handler & event_handler =
-                    ui_mouse_event_handlers->mouse_exit_handler;
-
-                if (event_handler)
-                {
-                    event_handler();
-                }
+                update_mouse_over_flag(i, false, ui_mouse_event_handlers->mouse_exit_handler);
             }
         }
         else
         {
             if (is_mouse_over_entity)
             {
-                is_mouse_over_flags[i] = true;
-
-                const UI_Mouse_Event_Handlers::Event_Handler & event_handler =
-                    ui_mouse_event_handlers->mouse_enter_handler;
-
-                if (event_handler)
-                {
-                    event_handler();
-                }
+                update_mouse_over_flag(i, true, ui_mouse_event_handlers->mouse_enter_handler);
             }
         }
     }

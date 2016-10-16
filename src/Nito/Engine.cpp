@@ -231,6 +231,22 @@ static map<string, const Control_Handler> default_control_handlers
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Utilities
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+string get_system_requirement_message(
+    const Entity entity,
+    const string & system_name,
+    const string & requirement_name,
+    const string & requirement_type)
+{
+    return "ERROR: entity " + to_string(entity) + " does not contain a " + requirement_name + " " +
+           requirement_type + " required by the " + system_name + " system!";
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -457,8 +473,7 @@ int run_engine()
                         if (!has_component(entity, required_component))
                         {
                             throw runtime_error(
-                                "ERROR: entity " + to_string(entity) + " does not contain a " + required_component + " " +
-                                "component required by the " + system_name + " system!");
+                                get_system_requirement_message(entity, system_name, required_component, "component"));
                         }
                     }
                 }
@@ -470,8 +485,7 @@ int run_engine()
                         if (!contains(entity_systems, required_system))
                         {
                             throw runtime_error(
-                                "ERROR: entity " + to_string(entity) + " does not contain a " + required_system + " " +
-                                "system required by the " + system_name + " system!");
+                                get_system_requirement_message(entity, system_name, required_system, "system"));
                         }
                     }
                 }

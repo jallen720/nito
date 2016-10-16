@@ -27,6 +27,7 @@
 #include "Nito/Systems/Renderer.hpp"
 #include "Nito/Systems/Camera.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
+#include "Nito/Systems/Button.hpp"
 
 
 using std::string;
@@ -187,6 +188,18 @@ static map<string, const Component_Handler> default_component_handlers
         {
             return new UI_Mouse_Event_Handlers;
         }
+    },
+    {
+        "button",
+        [](const JSON & component_data) -> Component
+        {
+            return new Button
+            {
+                component_data["hover_texture_path"],
+                component_data["pressed_texture_path"],
+                {},
+            };
+        }
     }
 };
 
@@ -196,6 +209,7 @@ static map<string, const System_Subscribe_Handler> default_system_subscribe_hand
     { "renderer"                  , renderer_subscribe                  },
     { "camera"                    , camera_subscribe                    },
     { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
+    { "button"                    , button_subscribe                    },
 };
 
 

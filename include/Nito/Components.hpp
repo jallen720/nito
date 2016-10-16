@@ -59,4 +59,12 @@ struct UI_Mouse_Event_Handlers
 };
 
 
+struct Button
+{
+    std::string hover_texture_path;
+    std::string pressed_texture_path;
+    std::function<void()> click_handler;
+};
+
+
 } // namespace Nito

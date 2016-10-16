@@ -4,6 +4,7 @@
 #include <map>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Collection.hpp"
+#include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Components.hpp"
 #include "Nito/Graphics.hpp"
@@ -15,6 +16,9 @@ using std::map;
 
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
+
+// Cpp_Utils/Map.hpp
+using Cpp_Utils::contains_key;
 
 // glm/glm.hpp
 using glm::vec3;
@@ -92,6 +96,30 @@ void mouse_move_handler(const dvec2 & mouse_position)
 }
 
 
+void mouse_button_handler(const Mouse_Buttons mouse_button, const Key_Actions key_action)
+{
+    for (auto i = 0u; i < is_mouse_over_flags.size(); i++)
+    {
+        // Only handle mouse button events if mouse is over entity.
+        if (is_mouse_over_flags[i])
+        {
+            const UI_Mouse_Event_Handlers::Button_Handlers & button_handlers =
+                entity_ui_mouse_event_handlers[i]->mouse_button_handlers;
+
+            if (contains_key(button_handlers, mouse_button))
+            {
+                const auto & mouse_button_handlers = button_handlers.at(mouse_button);
+
+                if (contains_key(mouse_button_handlers, key_action))
+                {
+                    mouse_button_handlers.at(key_action)();
+                }
+            }
+        }
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -100,6 +128,7 @@ void mouse_move_handler(const dvec2 & mouse_position)
 void ui_mouse_event_dispatcher_init()
 {
     set_mouse_move_handler("ui_mouse_event_dispatcher", mouse_move_handler);
+    set_mouse_button_handler("ui_mouse_event_dispatcher", mouse_button_handler);
 }
 
 

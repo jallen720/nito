@@ -32,6 +32,7 @@ struct Window_Config
 using Window_Created_Handler = std::function<void()>;
 using Window_Key_Handler = void (*)(GLFWwindow *, int, int, int, int);
 using Window_Mouse_Position_Handler = void (*)(GLFWwindow *, double, double);
+using Window_Mouse_Button_Handler = void (*)(GLFWwindow *, int, int, int);
 using Window_Loop_Callback = std::function<void()>;
 
 
@@ -48,6 +49,7 @@ const glm::ivec2 & get_window_size();
 void add_window_created_handler(const Window_Created_Handler & window_created_handler);
 void set_window_key_handler(const Window_Key_Handler window_key_handler);
 void set_window_mouse_position_handler(const Window_Mouse_Position_Handler window_mouse_position_handler);
+void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_mouse_button_handler);
 void run_window_loop(const Window_Loop_Callback & callback);
 void terminate_glfw();
 

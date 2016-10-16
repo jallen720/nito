@@ -188,6 +188,12 @@ void set_window_mouse_position_handler(const Window_Mouse_Position_Handler windo
 }
 
 
+void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_mouse_button_handler)
+{
+    glfwSetMouseButtonCallback(window, window_mouse_button_handler);
+}
+
+
 void run_window_loop(const Window_Loop_Callback & callback)
 {
     // TODO: actually calculate delta time.

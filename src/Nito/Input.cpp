@@ -52,6 +52,7 @@ static dvec2 mouse_position;
 
 // Event handlers
 static map<string, Mouse_Move_Handler> mouse_move_handlers;
+static map<string, Mouse_Button_Handler> mouse_button_handlers;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +60,7 @@ static map<string, Mouse_Move_Handler> mouse_move_handlers;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, int /*mods*/)
+void window_key_handler(GLFWwindow * window, int key, int /*scan_code*/, int action, int /*mods*/)
 {
     for (const Control_Binding & control_binding : control_bindings)
     {
@@ -72,7 +73,7 @@ void key_callback(GLFWwindow * window, int key, int /*scan_code*/, int action, i
 }
 
 
-void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double y_position)
+void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, double y_position)
 {
     mouse_position.x = x_position;
 
@@ -87,10 +88,36 @@ void mouse_position_callback(GLFWwindow * /*window*/, double x_position, double 
 }
 
 
+void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
+{
+    static map<int, const Mouse_Buttons> mouse_buttons
+    {
+        { GLFW_MOUSE_BUTTON_RIGHT  , Mouse_Buttons::RIGHT  },
+        { GLFW_MOUSE_BUTTON_MIDDLE , Mouse_Buttons::MIDDLE },
+        { GLFW_MOUSE_BUTTON_LEFT   , Mouse_Buttons::LEFT   },
+    };
+
+    static map<int, const Key_Actions> key_actions
+    {
+        { GLFW_PRESS   , Key_Actions::PRESS   },
+        { GLFW_RELEASE , Key_Actions::RELEASE },
+        { GLFW_REPEAT  , Key_Actions::REPEAT  },
+    };
+
+    for_each(mouse_button_handlers, [&](
+        const string & /*name*/,
+        const Mouse_Button_Handler & mouse_button_handler) -> void
+    {
+        mouse_button_handler(mouse_buttons.at(button), key_actions.at(action));
+    });
+}
+
+
 void window_created_handler()
 {
-    set_window_key_handler(key_callback);
-    set_window_mouse_position_handler(mouse_position_callback);
+    set_window_key_handler(window_key_handler);
+    set_window_mouse_position_handler(window_mouse_position_handler);
+    set_window_mouse_button_handler(window_mouse_button_handler);
 }
 
 
@@ -274,6 +301,12 @@ void set_control_handler(const string & name, const Control_Handler & control_ha
 void set_mouse_move_handler(const string & name, const Mouse_Move_Handler & mouse_move_handler)
 {
     mouse_move_handlers[name] = mouse_move_handler;
+}
+
+
+void set_mouse_button_handler(const string & name, const Mouse_Button_Handler & mouse_button_handler)
+{
+    mouse_button_handlers[name] = mouse_button_handler;
 }
 
 

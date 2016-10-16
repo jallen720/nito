@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <map>
 #include <functional>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -9,6 +10,10 @@
 
 namespace Nito
 {
+
+
+enum class Mouse_Buttons;
+enum class Key_Actions;
 
 
 struct Transform
@@ -46,9 +51,11 @@ struct Sprite
 struct UI_Mouse_Event_Handlers
 {
     using Event_Handler = std::function<void()>;
+    using Button_Handlers = std::map<Mouse_Buttons, std::map<Key_Actions, Event_Handler>>;
 
     Event_Handler mouse_enter_handler;
     Event_Handler mouse_exit_handler;
+    Button_Handlers mouse_button_handlers;
 };
 
 

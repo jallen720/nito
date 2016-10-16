@@ -16,6 +16,7 @@
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Fn.hpp"
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Vector.hpp"
 #include "Cpp_Utils/String.hpp"
 
 #include "Nito/Window.hpp"
@@ -54,6 +55,9 @@ using Cpp_Utils::transform;
 
 // Cpp_Utils/Map.hpp && Cpp_Utils/JSON.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/Vector.hpp
+using Cpp_Utils::contains;
 
 // Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
@@ -429,33 +433,52 @@ int run_engine()
 
 
     // Subscribe entities to systems.
-    const JSON required_components_data = read_json_file("resources/data/required_components.json");
+    const JSON systems_data = read_json_file("resources/data/systems.json");
 
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
-        const JSON & entity_systems = entities_data[i]["systems"];
+        const vector<string> & entity_systems = entities_data[i]["systems"];
 
+
+        // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
         for (const string & system_name : entity_systems)
         {
-            // Validate entity has components required by system if system's required components are specified.
-            if (contains_key(required_components_data, system_name))
+            // Defining system and component requirements for systems is optional, so make sure requirements are defined
+            // before checking them.
+            if (contains_key(systems_data, system_name))
             {
-                const JSON & required_components = required_components_data[system_name];
+                const JSON & system_data = systems_data[system_name];
 
-                for (const string & required_component : required_components)
+                if (contains_key(system_data, "required_components"))
                 {
-                    if (!has_component(entity, required_component))
+                    for (const string & required_component : system_data["required_components"])
                     {
-                        throw runtime_error(
-                            "ERROR: entity " + to_string(entity) + " does not contain a " + required_component + " " +
-                            "component required by the " + system_name + " system!");
+                        if (!has_component(entity, required_component))
+                        {
+                            throw runtime_error(
+                                "ERROR: entity " + to_string(entity) + " does not contain a " + required_component + " " +
+                                "component required by the " + system_name + " system!");
+                        }
+                    }
+                }
+
+                if (contains_key(system_data, "required_systems"))
+                {
+                    for (const string & required_system : system_data["required_systems"])
+                    {
+                        if (!contains(entity_systems, required_system))
+                        {
+                            throw runtime_error(
+                                "ERROR: entity " + to_string(entity) + " does not contain a " + required_system + " " +
+                                "system required by the " + system_name + " system!");
+                        }
                     }
                 }
             }
 
 
-            // If entity has all components required by system, subscribe entity to that system.
+            // If entity meets all system and component requirements for this system, subscribe entity to it.
             subscribe_to_system(entity, system_name);
         }
     }

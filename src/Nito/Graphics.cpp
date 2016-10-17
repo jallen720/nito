@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <Magick++.h>
 #include "Cpp_Utils/Fn.hpp"
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
@@ -30,10 +29,6 @@ using glm::ortho;
 
 // glm/gtc/type_ptr.hpp
 using glm::value_ptr;
-
-// Magick++.h
-using Magick::Blob;
-using Magick::Image;
 
 // Cpp_Utils/Fn.hpp
 using Cpp_Utils::accumulate;
@@ -111,7 +106,6 @@ static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
 static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
-static map<string, Dimensions> texture_dimensions;
 static map<string, GLuint> shader_programs;
 static vec3 unit_scale;
 static GLbitfield clear_flags;
@@ -468,7 +462,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 }
 
 
-void load_textures(const vector<Texture> & textures)
+void load_texture_data(const vector<Texture> & textures)
 {
     static const map<string, const GLint> texture_option_keys
     {
@@ -490,10 +484,10 @@ void load_textures(const vector<Texture> & textures)
         { "nearest" , GL_NEAREST },
     };
 
-    static const map<string, const Texture_Format> texture_formats
+    static const map<string, const GLint> internal_formats
     {
-        { "rgba" , { GL_RGBA , "RGBA" } },
-        { "rgb"  , { GL_RGB  , "RGB"  } },
+        { "rgba" , GL_RGBA },
+        { "rgb"  , GL_RGB  },
     };
 
 
@@ -508,6 +502,8 @@ void load_textures(const vector<Texture> & textures)
     for (auto i = 0u; i < texture_count; i++)
     {
         const Texture & texture = textures[i];
+        const Dimensions & dimensions = texture.dimensions;
+        const GLuint internal_format = internal_formats.at(texture.format);
         const GLuint texture_object = texture_object_ids[i];
         glBindTexture(GL_TEXTURE_2D, texture_object);
 
@@ -522,31 +518,17 @@ void load_textures(const vector<Texture> & textures)
         });
 
 
-        // Load texture data from image at path.
-        const Texture_Format texture_format = texture_formats.at(texture.format);
-        Blob blob;
-        Image image;
-        image.read(texture.path);
-        image.flip();
-        image.write(&blob, texture_format.image);
-
-        const Dimensions dimensions
-        {
-            (float)image.columns(),
-            (float)image.rows(),
-            vec3(),
-        };
-
+        // Load texture data.
         glTexImage2D(
-            GL_TEXTURE_2D,           // Target
-            0,                       // Level of detail (0 is base image LOD)
-            texture_format.internal, // Internal format
-            dimensions.width,        // Image width
-            dimensions.height,       // Image height
-            0,                       // Border width (must be 0 apparently?)
-            texture_format.internal, // Texel data format (must match internal format)
-            GL_UNSIGNED_BYTE,        // Texel data type
-            blob.data());            // Pointer to image data
+            GL_TEXTURE_2D,        // Target
+            0,                    // Level of detail (0 is base image LOD)
+            internal_format,      // Internal format
+            dimensions.width,     // Image width
+            dimensions.height,    // Image height
+            0,                    // Border width (must be 0 apparently?)
+            internal_format,      // Texel data format (must match internal format)
+            GL_UNSIGNED_BYTE,     // Texel data type
+            texture.blob.data()); // Pointer to image data
 
 
         // Unbind texture now that its data has been loaded.
@@ -555,7 +537,6 @@ void load_textures(const vector<Texture> & textures)
 
         // Track texture object and dimensions by its path.
         texture_objects[texture.path] = texture_object;
-        texture_dimensions[texture.path] = dimensions;
     }
 
 
@@ -825,12 +806,6 @@ void destroy_graphics()
 
     // Validate no OpenGL errors occurred.
     validate_no_opengl_error("destroy_graphics()");
-}
-
-
-const Dimensions & get_texture_dimensions(const string & texture_path)
-{
-    return texture_dimensions.at(texture_path);
 }
 
 

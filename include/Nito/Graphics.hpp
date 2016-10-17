@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include "Nito/Resources.hpp"
 #include "Nito/Components.hpp"
 
 
@@ -50,16 +51,6 @@ struct Shader_Pipeline
 };
 
 
-struct Texture
-{
-    using Options = std::map<std::string, std::string>;
-
-    std::string path;
-    std::string format;
-    Options options;
-};
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -68,7 +59,7 @@ struct Texture
 void init_glew();
 void configure_opengl(const OpenGL_Config & opengl_config);
 void load_shader_pipelines(const std::vector<Shader_Pipeline> & shader_pipelines);
-void load_textures(const std::vector<Texture> & textures);
+void load_texture_data(const std::vector<Texture> & textures);
 
 void load_vertex_data(
     const GLvoid * vertex_data,
@@ -82,7 +73,6 @@ void init_rendering();
 void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform);
 void cleanup_rendering();
 void destroy_graphics();
-const Dimensions & get_texture_dimensions(const std::string & texture_path);
 const glm::vec3 & get_unit_scale();
 
 

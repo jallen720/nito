@@ -23,6 +23,7 @@
 #include "Nito/Input.hpp"
 #include "Nito/Graphics.hpp"
 #include "Nito/ECS.hpp"
+#include "Nito/Resources.hpp"
 #include "Nito/Components.hpp"
 #include "Nito/Utilities.hpp"
 #include "Nito/Systems/Renderer.hpp"
@@ -104,7 +105,7 @@ static map<string, const Component_Handler> default_component_handlers
         {
             Dimensions dimensions;
             const string texture_path = component_data["texture_path"];
-            const Dimensions & texture_dimensions = get_texture_dimensions(texture_path);
+            const Dimensions & texture_dimensions = get_loaded_texture(texture_path).dimensions;
 
             // If no dimensions field is present, load the texture's dimensions.
             if (!contains_key(component_data, "dimensions"))
@@ -385,25 +386,12 @@ int run_engine()
     // Load texture data.
     const JSON textures_data = read_json_file("resources/data/textures.json");
 
-    const vector<Texture> textures =
-        transform<Texture>(textures_data, [](const JSON & texture_data) -> Texture
-        {
-            Texture::Options options;
+    for (const JSON & texture_config : textures_data)
+    {
+        load_texture(texture_config);
+    }
 
-            for_each(texture_data["options"], [&](const string & option_key, const string & option_value) -> void
-            {
-                options[option_key] = option_value;
-            });
-
-            return
-            {
-                "resources/textures/" + texture_data["path"].get<string>(),
-                texture_data["format"],
-                options,
-            };
-        });
-
-    load_textures(textures);
+    load_texture_data(get_loaded_textures());
 
 
     // Load vertex data.

@@ -17,16 +17,6 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Data
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Button *> entity_buttons;
-static vector<Sprite *> entity_sprites;
-static vector<UI_Mouse_Event_Handlers *> entity_ui_mouse_event_handlers;
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,9 +26,6 @@ void button_subscribe(const Entity entity)
     auto sprite = (Sprite *)get_component(entity, "sprite");
     auto ui_mouse_event_handlers = (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers");
     const string default_button_texture_path = sprite->texture_path;
-    entity_buttons.push_back(button);
-    entity_sprites.push_back(sprite);
-    entity_ui_mouse_event_handlers.push_back(ui_mouse_event_handlers);
 
 
     // Settup ui_mouse_event_handlers to update sprite texture path from button; make left mouse release event trigger

@@ -1,6 +1,5 @@
 #include "Nito/Resources.hpp"
 
-#include <vector>
 #include <stdexcept>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Collection.hpp"

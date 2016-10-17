@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <GL/glew.h>
 #include <Magick++.h>
 #include "Cpp_Utils/JSON.hpp"

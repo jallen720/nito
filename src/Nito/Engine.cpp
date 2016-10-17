@@ -103,38 +103,31 @@ static map<string, const Component_Handler> default_component_handlers
         "sprite",
         [](const JSON & component_data) -> Component
         {
-            Dimensions dimensions;
             const string texture_path = component_data["texture_path"];
-            const Dimensions & texture_dimensions = get_loaded_texture(texture_path).dimensions;
 
-            // If no dimensions field is present, load the texture's dimensions.
-            if (!contains_key(component_data, "dimensions"))
-            {
-                dimensions = texture_dimensions;
-            }
-            // For each field in dimensions, use the given value or the texture's value by default.
-            else
+            // Use texture dimensions as default dimensions for sprite.
+            Dimensions dimensions = get_loaded_texture(texture_path).dimensions;
+
+            // If dimensions field is present, overwrite texture dimensions with provided fields.
+            if (contains_key(component_data, "dimensions"))
             {
                 const JSON & dimensions_data = component_data["dimensions"];
 
-                dimensions.width =
-                    contains_key(dimensions_data, "width")
-                    ? dimensions_data["width"].get<float>()
-                    : texture_dimensions.width;
+                if (contains_key(dimensions_data, "width"))
+                {
+                    dimensions.width = dimensions_data["width"].get<float>();
+                }
 
-                dimensions.height =
-                    contains_key(dimensions_data, "height")
-                    ? dimensions_data["height"].get<float>()
-                    : texture_dimensions.height;
+                if (contains_key(dimensions_data, "height"))
+                {
+                    dimensions.height = dimensions_data["height"].get<float>();
+                }
 
                 if (contains_key(dimensions_data, "origin"))
                 {
                     const JSON & origin = dimensions_data["origin"];
-                    dimensions.origin = vec3(origin["x"], origin["y"], 0.0f);
-                }
-                else
-                {
-                    dimensions.origin = texture_dimensions.origin;
+                    dimensions.origin.x = origin["x"];
+                    dimensions.origin.y = origin["y"];
                 }
             }
 

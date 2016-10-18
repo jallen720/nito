@@ -89,13 +89,27 @@ static map<string, const Component_Handler> default_component_handlers
         "transform",
         [](const JSON & component_data) -> Component
         {
-            const JSON & position = component_data["position"];
-            const JSON & scale = component_data["scale"];
+            vec3 position;
+            vec3 scale(1.0f);
+
+            if (contains_key(component_data, "position"))
+            {
+                const JSON & position_data = component_data["position"];
+                position.x = position_data["x"];
+                position.y = position_data["y"];
+            }
+
+            if (contains_key(component_data, "scale"))
+            {
+                const JSON & scale_data = component_data["scale"];
+                scale.x = scale_data["x"];
+                scale.y = scale_data["y"];
+            }
 
             return new Transform
             {
-                vec3(position["x"], position["y"], 0.0f),
-                vec3(scale["x"], scale["y"], 1.0f),
+                position,
+                scale,
             };
         }
     },

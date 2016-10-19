@@ -28,6 +28,7 @@
 #include "Nito/Utilities.hpp"
 #include "Nito/Systems/Renderer.hpp"
 #include "Nito/Systems/Camera.hpp"
+#include "Nito/Systems/UI_Transform.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/Button.hpp"
 
@@ -76,6 +77,16 @@ namespace Nito
 static vector<Update_Handler> update_handlers;
 
 
+static map<string, const System_Subscribe_Handler> default_system_subscribe_handlers
+{
+    { "renderer"                  , renderer_subscribe                  },
+    { "camera"                    , camera_subscribe                    },
+    { "ui_transform"              , ui_transform_subscribe              },
+    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
+    { "button"                    , button_subscribe                    },
+};
+
+
 static vector<Update_Handler> default_update_handlers
 {
     renderer_update,
@@ -110,6 +121,34 @@ static map<string, const Component_Handler> default_component_handlers
             {
                 position,
                 scale,
+            };
+        }
+    },
+    {
+        "ui_transform",
+        [](const JSON & component_data) -> Component
+        {
+            vec3 position;
+            vec3 anchor;
+
+            if (contains_key(component_data, "position"))
+            {
+                const JSON & position_data = component_data["position"];
+                position.x = position_data["x"];
+                position.y = position_data["y"];
+            }
+
+            if (contains_key(component_data, "anchor"))
+            {
+                const JSON & anchor_data = component_data["anchor"];
+                anchor.x = anchor_data["x"];
+                anchor.y = anchor_data["y"];
+            }
+
+            return new UI_Transform
+            {
+                position,
+                anchor,
             };
         }
     },
@@ -213,15 +252,6 @@ static map<string, const Component_Handler> default_component_handlers
             };
         }
     }
-};
-
-
-static map<string, const System_Subscribe_Handler> default_system_subscribe_handlers
-{
-    { "renderer"                  , renderer_subscribe                  },
-    { "camera"                    , camera_subscribe                    },
-    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
-    { "button"                    , button_subscribe                    },
 };
 
 
@@ -338,6 +368,10 @@ int run_engine()
                 blending["destination_factor"],
             },
         });
+
+
+    // !!! MUST COME AFTER GRAPHICS ENGINE AND WINDOW INITIALIZATION !!!
+    ui_transform_init();
 
 
     // Load render layers

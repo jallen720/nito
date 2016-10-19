@@ -14,7 +14,7 @@ using std::vector;
 using std::runtime_error;
 
 // glm/glm.hpp
-using glm::ivec2;
+using glm::vec3;
 
 // Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
@@ -38,7 +38,7 @@ namespace Nito
 static vector<Window_Created_Handler> window_created_handlers;
 static GLFWwindow * window;
 static float delta_time;
-static ivec2 window_size;
+static vec3 window_size;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ float get_delta_time()
 }
 
 
-const ivec2 & get_window_size()
+const vec3 & get_window_size()
 {
     return window_size;
 }

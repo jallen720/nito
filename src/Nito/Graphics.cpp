@@ -535,7 +535,7 @@ void load_texture_data(const vector<Texture> & textures)
         glBindTexture(GL_TEXTURE_2D, 0);
 
 
-        // Track texture object and dimensions by its path.
+        // Track texture object by its path.
         texture_objects[texture.path] = texture_object;
     }
 
@@ -574,7 +574,7 @@ void load_vertex_data(
     glGenBuffers(INDEX_BUFFER_COUNT, index_buffer_objects);
 
 
-    // Bind the Vertex Array Object first, then bind and set vertex & index buffer data.
+    // Bind the vertex array object first, then bind and set vertex & index buffer data.
     glBindVertexArray(vertex_array_objects[0]);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_objects[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_objects[0]);

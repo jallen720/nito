@@ -311,7 +311,7 @@ int run_engine()
     ui_mouse_event_dispatcher_init();
 
 
-    // Initalize GLFW.
+    // Initalize 3rd-party libraries.
     init_glfw();
 
 
@@ -334,23 +334,14 @@ int run_engine()
         });
 
 
-    // Load control bindings.
-    const JSON controls = read_json_file("resources/data/controls.json");
-
-    for (const JSON & control_binding : controls)
-    {
-        add_control_binding(
-            control_binding["key"],
-            control_binding["action"],
-            control_binding["handler"]);
-    }
+    // Initialize GLEW after OpenGL context is created (when window is created).
+    init_glew();
 
 
     // Initialize graphics engine.
     const JSON opengl_config = read_json_file("resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
-    init_glew();
 
     configure_opengl(
         {
@@ -456,6 +447,18 @@ int run_engine()
         sizeof(sprite_vertex_data),
         sprite_index_data,
         sizeof(sprite_index_data));
+
+
+    // Load control bindings.
+    const JSON controls = read_json_file("resources/data/controls.json");
+
+    for (const JSON & control_binding : controls)
+    {
+        add_control_binding(
+            control_binding["key"],
+            control_binding["action"],
+            control_binding["handler"]);
+    }
 
 
     // Load entities.

@@ -98,21 +98,21 @@ static map<string, const Component_Handler> default_component_handlers
 {
     {
         "transform",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
             vec3 position;
             vec3 scale(1.0f);
 
-            if (contains_key(component_data, "position"))
+            if (contains_key(data, "position"))
             {
-                const JSON & position_data = component_data["position"];
+                const JSON & position_data = data["position"];
                 position.x = position_data["x"];
                 position.y = position_data["y"];
             }
 
-            if (contains_key(component_data, "scale"))
+            if (contains_key(data, "scale"))
             {
-                const JSON & scale_data = component_data["scale"];
+                const JSON & scale_data = data["scale"];
                 scale.x = scale_data["x"];
                 scale.y = scale_data["y"];
             }
@@ -126,21 +126,21 @@ static map<string, const Component_Handler> default_component_handlers
     },
     {
         "ui_transform",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
             vec3 position;
             vec3 anchor;
 
-            if (contains_key(component_data, "position"))
+            if (contains_key(data, "position"))
             {
-                const JSON & position_data = component_data["position"];
+                const JSON & position_data = data["position"];
                 position.x = position_data["x"];
                 position.y = position_data["y"];
             }
 
-            if (contains_key(component_data, "anchor"))
+            if (contains_key(data, "anchor"))
             {
-                const JSON & anchor_data = component_data["anchor"];
+                const JSON & anchor_data = data["anchor"];
                 anchor.x = anchor_data["x"];
                 anchor.y = anchor_data["y"];
             }
@@ -154,17 +154,17 @@ static map<string, const Component_Handler> default_component_handlers
     },
     {
         "sprite",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
-            const string texture_path = component_data["texture_path"];
+            const string texture_path = data["texture_path"];
 
             // Use texture dimensions as default dimensions for sprite.
             Dimensions dimensions = get_loaded_texture(texture_path).dimensions;
 
             // If dimensions field is present, overwrite texture dimensions with provided fields.
-            if (contains_key(component_data, "dimensions"))
+            if (contains_key(data, "dimensions"))
             {
-                const JSON & dimensions_data = component_data["dimensions"];
+                const JSON & dimensions_data = data["dimensions"];
 
                 if (contains_key(dimensions_data, "width"))
                 {
@@ -187,7 +187,7 @@ static map<string, const Component_Handler> default_component_handlers
             return new Sprite
             {
                 texture_path,
-                component_data["shader_pipeline_name"],
+                data["shader_pipeline_name"],
                 dimensions,
             };
         }
@@ -202,52 +202,52 @@ static map<string, const Component_Handler> default_component_handlers
     },
     {
         "viewport",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
             return new Viewport
             {
-                component_data["x"],
-                component_data["y"],
-                component_data["z_near"],
-                component_data["z_far"],
+                data["x"],
+                data["y"],
+                data["z_near"],
+                data["z_far"],
             };
         }
     },
     {
         "dimensions",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
             vec3 origin;
 
-            if (contains_key(component_data, "origin"))
+            if (contains_key(data, "origin"))
             {
-                const JSON & origin_data = component_data["origin"];
+                const JSON & origin_data = data["origin"];
                 origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
             }
 
             return new Dimensions
             {
-                component_data["width"],
-                component_data["height"],
+                data["width"],
+                data["height"],
                 origin,
             };
         }
     },
     {
         "ui_mouse_event_handlers",
-        [](const JSON & /*component_data*/) -> Component
+        [](const JSON & /*data*/) -> Component
         {
             return new UI_Mouse_Event_Handlers;
         }
     },
     {
         "button",
-        [](const JSON & component_data) -> Component
+        [](const JSON & data) -> Component
         {
             return new Button
             {
-                component_data["hover_texture_path"],
-                component_data["pressed_texture_path"],
+                data["hover_texture_path"],
+                data["pressed_texture_path"],
                 {},
             };
         }

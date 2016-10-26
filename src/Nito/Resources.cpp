@@ -1,8 +1,14 @@
+#include <GL/glew.h>
 #include "Nito/Resources.hpp"
 
 #include <stdexcept>
+#include <Magick++.h>
 #include <glm/glm.hpp>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include "Cpp_Utils/Collection.hpp"
+
+#include "Nito/Graphics.hpp"
 
 
 using std::string;
@@ -33,7 +39,8 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Texture> textures;
+static map<string, Texture> textures;
+static FT_Library ft;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +48,15 @@ static vector<Texture> textures;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void init_freetype()
+{
+    if (FT_Init_FreeType(&ft))
+    {
+        throw runtime_error("FREETYPE ERROR: could not initialize FreeType!");
+    }
+}
+
+
 void load_texture(const JSON & config)
 {
     static const map<string, const string> image_formats
@@ -54,7 +70,6 @@ void load_texture(const JSON & config)
 
     // Create and configure new texture.
     Texture texture;
-    texture.path = TEXTURES_RESOURCE_PATH + config["path"].get<string>();
     texture.format = config["format"];
 
     for_each(config["options"], [&](const string & option_key, const string & option_value) -> void
@@ -64,10 +79,12 @@ void load_texture(const JSON & config)
 
 
     // Load texture data from image at path.
+    const string texture_path = TEXTURES_RESOURCE_PATH + config["path"].get<string>();
     Image image;
-    image.read(texture.path);
+    Blob blob;
+    image.read(texture_path);
     image.flip();
-    image.write(&texture.blob, image_formats.at(texture.format));
+    image.write(&blob, image_formats.at(texture.format));
 
 
     // Load texture dimensions from image.
@@ -79,28 +96,69 @@ void load_texture(const JSON & config)
     };
 
 
-    // Track texture.
-    textures.push_back(texture);
+    // Track texture and pass its data to Graphics.
+    textures[texture_path] = texture;
+    load_texture_data(texture, blob.data(), texture_path);
+}
+
+
+void load_font(const JSON & config)
+{
+    static const map<string, string> font_texture_options
+    {
+        { "wrap_s"     , "clamp_to_edge" },
+        { "wrap_t"     , "clamp_to_edge" },
+        { "min_filter" , "linear"        },
+        { "mag_filter" , "linear"        },
+    };
+
+
+    // Attempt to load font face.
+    FT_Face face;
+    string font_face_path = config["path"];
+
+    if (FT_New_Face(ft, font_face_path.c_str(), 0, &face))
+    {
+        throw runtime_error("FREETYPE ERROR: failed to load font face from \"" + font_face_path + "\"!");
+    }
+
+    // Setting the width to 0 lets the face dynamically calculate the width based on the given height.
+    FT_Set_Pixel_Sizes(face, 0, config["height"]);
+
+
+    // Load ASCII characters.
+    for (auto character = 0u; character < 128; character++)
+    {
+        if (FT_Load_Char(face, character, FT_LOAD_RENDER))
+        {
+            throw runtime_error("FREETYPE ERROR: failed to load glyph!");
+        }
+
+
+        // Create texture from font face.
+        Texture texture;
+        texture.format = "r";
+        texture.options = font_texture_options;
+
+        texture.dimensions =
+        {
+            (float)face->glyph->bitmap.width,
+            (float)face->glyph->bitmap.rows,
+            vec3(/*face->glyph->bitmap_left, face->glyph->bitmap_top, */0.0f),
+        };
+
+
+        // Load texture data and use the path of the font face with the appended character as its identifier.
+        string glyph_identifier = font_face_path + " : " + ((char)character);
+        textures[glyph_identifier] = texture;
+        load_texture_data(texture, face->glyph->bitmap.buffer, glyph_identifier);
+    }
 }
 
 
 const Texture & get_loaded_texture(const string & path)
 {
-    for (const Texture & texture : textures)
-    {
-        if (texture.path == path)
-        {
-            return texture;
-        }
-    }
-
-    throw runtime_error("ERROR: could not find loaded texture for path \"" + path + "\"!");
-}
-
-
-const vector<Texture> & get_loaded_textures()
-{
-    return textures;
+    return textures.at(path);
 }
 
 

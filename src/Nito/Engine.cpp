@@ -313,6 +313,7 @@ int run_engine()
 
     // Initalize 3rd-party libraries.
     init_glfw();
+    init_freetype();
 
 
     // Create window.
@@ -416,14 +417,11 @@ int run_engine()
 
 
     // Load texture data.
-    const JSON textures_data = read_json_file("resources/data/textures.json");
+    for_each(read_json_file("resources/data/textures.json").get<vector<JSON>>(), load_texture);
 
-    for (const JSON & texture_config : textures_data)
-    {
-        load_texture(texture_config);
-    }
 
-    load_texture_data(get_loaded_textures());
+    // Load font data.
+    for_each(read_json_file("resources/data/fonts.json").get<vector<JSON>>(), load_font);
 
 
     // Load vertex data.

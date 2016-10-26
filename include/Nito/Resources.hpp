@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 #include <GL/glew.h>
-#include <Magick++.h>
 #include "Cpp_Utils/JSON.hpp"
 
 #include "Nito/Components.hpp"
@@ -24,10 +23,8 @@ struct Texture
 {
     using Options = std::map<std::string, std::string>;
 
-    std::string path;
     std::string format;
     Options options;
-    Magick::Blob blob;
     Dimensions dimensions;
 };
 
@@ -37,9 +34,10 @@ struct Texture
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void init_freetype();
 void load_texture(const Cpp_Utils::JSON & config);
+void load_font(const Cpp_Utils::JSON & config);
 const Texture & get_loaded_texture(const std::string & path);
-const std::vector<Texture> & get_loaded_textures();
 
 
 } // namespace Nito

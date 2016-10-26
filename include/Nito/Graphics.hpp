@@ -59,7 +59,7 @@ struct Shader_Pipeline
 void init_glew();
 void configure_opengl(const OpenGL_Config & opengl_config);
 void load_shader_pipelines(const std::vector<Shader_Pipeline> & shader_pipelines);
-void load_texture_data(const std::vector<Texture> & textures);
+void load_texture_data(const Texture & texture, const void * data, const std::string & identifier);
 
 void load_vertex_data(
     const GLvoid * vertex_data,

@@ -9,6 +9,8 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
+#include "Nito/Resources.hpp"
+
 
 using std::map;
 using std::unordered_map;
@@ -382,6 +384,10 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         clear_color.alpha);
 
 
+    // Disable byte-alignment restriction (required for font rendering).
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
     unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
 
@@ -462,7 +468,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 }
 
 
-void load_texture_data(const vector<Texture> & textures)
+void load_texture_data(const Texture & texture, const void * data, const string & identifier)
 {
     static const map<string, const GLint> texture_option_keys
     {
@@ -488,56 +494,47 @@ void load_texture_data(const vector<Texture> & textures)
     {
         { "rgba" , GL_RGBA },
         { "rgb"  , GL_RGB  },
+        { "r"    , GL_RED  },
     };
 
 
-    // Allocate memory to hold texture objects.
-    const size_t texture_count = textures.size();
-    vector<GLuint> texture_object_ids;
-    texture_object_ids.reserve(texture_count);
-    glGenTextures(texture_object_ids.capacity(), &texture_object_ids[0]);
+    // Create new texture object that will be used to load texture data.
+    const Dimensions & dimensions = texture.dimensions;
+    const GLuint internal_format = internal_formats.at(texture.format);
+    GLuint texture_object;
+    glGenTextures(1, &texture_object);
+    glBindTexture(GL_TEXTURE_2D, texture_object);
 
 
-    // Load data and configure options for textures.
-    for (auto i = 0u; i < texture_count; i++)
+    // Configure options for the texture object.
+    for_each(texture.options, [&](const string & option_key, const string & option_value) -> void
     {
-        const Texture & texture = textures[i];
-        const Dimensions & dimensions = texture.dimensions;
-        const GLuint internal_format = internal_formats.at(texture.format);
-        const GLuint texture_object = texture_object_ids[i];
-        glBindTexture(GL_TEXTURE_2D, texture_object);
+        glTexParameteri(
+            GL_TEXTURE_2D,
+            texture_option_keys.at(option_key),
+            texture_option_values.at(option_value));
+    });
 
 
-        // Configure options for the texture object.
-        for_each(texture.options, [&](const string & option_key, const string & option_value) -> void
-        {
-            glTexParameteri(
-                GL_TEXTURE_2D,
-                texture_option_keys.at(option_key),
-                texture_option_values.at(option_value));
-        });
+    // Load texture data.
+    glTexImage2D(
+        GL_TEXTURE_2D,     // Target
+        0,                 // Level of detail (0 is base image LOD)
+        internal_format,   // Internal format
+        dimensions.width,  // Image width
+        dimensions.height, // Image height
+        0,                 // Border width (must be 0 apparently?)
+        internal_format,   // Texel data format (must match internal format)
+        GL_UNSIGNED_BYTE,  // Texel data type
+        data);             // Pointer to image data
 
 
-        // Load texture data.
-        glTexImage2D(
-            GL_TEXTURE_2D,        // Target
-            0,                    // Level of detail (0 is base image LOD)
-            internal_format,      // Internal format
-            dimensions.width,     // Image width
-            dimensions.height,    // Image height
-            0,                    // Border width (must be 0 apparently?)
-            internal_format,      // Texel data format (must match internal format)
-            GL_UNSIGNED_BYTE,     // Texel data type
-            texture.blob.data()); // Pointer to image data
+    // Unbind texture object now that its data has been loaded.
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 
-        // Unbind texture now that its data has been loaded.
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-
-        // Track texture object by its path.
-        texture_objects[texture.path] = texture_object;
-    }
+    // Track texture object by its identifier.
+    texture_objects[identifier] = texture_object;
 
 
     // Validate no OpenGL errors occurred.

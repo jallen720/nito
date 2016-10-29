@@ -68,7 +68,15 @@ void load_vertex_data(
     const GLsizeiptr index_data_size);
 
 void load_render_layer(const std::string & name, const std::string & render_space);
-void load_render_data(const std::string * layer_name, const Sprite * sprite, const Transform * transform);
+
+void load_render_data(
+    const std::string * layer_name,
+    const std::string * texture_path,
+    const std::string * shader_pipeline_name,
+    const Dimensions * dimensions,
+    const glm::vec3 * position,
+    const glm::vec3 * scale);
+
 void init_rendering();
 void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform);
 void cleanup_rendering();

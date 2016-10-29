@@ -61,10 +61,16 @@ void renderer_update()
 
     for (const int index : render_order)
     {
+        const Sprite * entity_sprite = entity_sprites[index];
+        const Transform * entity_transform = entity_transforms[index];
+
         load_render_data(
             entity_render_layers[index],
-            entity_sprites[index],
-            entity_transforms[index]);
+            &entity_sprite->texture_path,
+            &entity_sprite->shader_pipeline_name,
+            &entity_sprite->dimensions,
+            &entity_transform->position,
+            &entity_transform->scale);
     }
 }
 

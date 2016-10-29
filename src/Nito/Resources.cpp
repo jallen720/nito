@@ -139,19 +139,35 @@ void load_font(const JSON & config)
         Texture texture;
         texture.format = "r";
         texture.options = font_texture_options;
+        const FT_Bitmap & bitmap = face->glyph->bitmap;
+        unsigned int width = bitmap.width;
+        unsigned int height = bitmap.rows;
 
         texture.dimensions =
         {
-            (float)face->glyph->bitmap.width,
-            (float)face->glyph->bitmap.rows,
-            vec3(/*face->glyph->bitmap_left, face->glyph->bitmap_top, */0.0f),
+            (float)width,
+            (float)height,
+            vec3(0.0f),
         };
+
+
+        // Data is loaded upside down, so invert data on the y-axis.
+        unsigned char * buffer = bitmap.buffer;
+        unsigned char * data = new unsigned char[width * height];
+
+        for (unsigned char row = 0; row < height; row++)
+        {
+            memcpy(
+                data + (width * row),
+                buffer + (width * (height - row - 1)),
+                sizeof(unsigned char) * width);
+        }
 
 
         // Load texture data and use the path of the font face with the appended character as its identifier.
         string glyph_identifier = font_face_path + " : " + ((char)character);
         textures[glyph_identifier] = texture;
-        load_texture_data(texture, face->glyph->bitmap.buffer, glyph_identifier);
+        load_texture_data(texture, data, glyph_identifier);
     }
 }
 

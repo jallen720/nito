@@ -31,6 +31,7 @@
 #include "Nito/Systems/UI_Transform.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/Button.hpp"
+#include "Nito/Systems/Text_Renderer.hpp"
 
 
 using std::string;
@@ -84,12 +85,14 @@ static map<string, const System_Subscribe_Handler> default_system_subscribe_hand
     { "ui_transform"              , ui_transform_subscribe              },
     { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
     { "button"                    , button_subscribe                    },
+    { "text_renderer"             , text_renderer_subscribe             },
 };
 
 
 static vector<Update_Handler> default_update_handlers
 {
     renderer_update,
+    text_renderer_update,
     camera_update,
 };
 
@@ -249,6 +252,17 @@ static map<string, const Component_Handler> default_component_handlers
                 data["hover_texture_path"],
                 data["pressed_texture_path"],
                 {},
+            };
+        }
+    },
+    {
+        "text",
+        [](const JSON & data) -> Component
+        {
+            return new Text
+            {
+                data["font"],
+                data["value"],
             };
         }
     }

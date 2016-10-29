@@ -74,4 +74,11 @@ struct Button
 };
 
 
+struct Text
+{
+    std::string font;
+    std::string value;
+};
+
+
 } // namespace Nito

@@ -84,8 +84,11 @@ struct Texture_Format
 
 struct Render_Layer
 {
-    vector<const Sprite *> sprites;
-    vector<const Transform *> transforms;
+    vector<const string *> texture_paths;
+    vector<const string *> shader_pipeline_names;
+    vector<const Dimensions *> dimensions;
+    vector<const vec3 *> positions;
+    vector<const vec3 *> scales;
 
     enum class Render_Space
     {
@@ -634,11 +637,20 @@ void load_render_layer(const string & name, const string & render_space)
 }
 
 
-void load_render_data(const string * layer_name, const Sprite * sprite, const Transform * transform)
+void load_render_data(
+    const string * layer_name,
+    const string * texture_path,
+    const string * shader_pipeline_name,
+    const Dimensions * dimensions,
+    const vec3 * position,
+    const vec3 * scale)
 {
     Render_Layer & render_layer = render_layers[*layer_name];
-    render_layer.sprites.push_back(sprite);
-    render_layer.transforms.push_back(transform);
+    render_layer.texture_paths.push_back(texture_path);
+    render_layer.shader_pipeline_names.push_back(shader_pipeline_name);
+    render_layer.dimensions.push_back(dimensions);
+    render_layer.positions.push_back(position);
+    render_layer.scales.push_back(scale);
 }
 
 
@@ -721,30 +733,28 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 
 
         // Render all rendering data in layer.
-        for (auto i = 0u; i < render_layer.sprites.size(); i++)
+        for (auto i = 0u; i < render_layer.texture_paths.size(); i++)
         {
-            const Sprite * sprite = render_layer.sprites[i];
-            const Transform * transform = render_layer.transforms[i];
-            const Dimensions & dimensions = sprite->dimensions;
-            const float width = dimensions.width;
-            const float height = dimensions.height;
+            const Dimensions * dimensions = render_layer.dimensions[i];
+            const float width = dimensions->width;
+            const float height = dimensions->height;
 
 
             // Bind texture to texture unit 0.
-            bind_texture(texture_objects.at(sprite->texture_path), 0u);
+            bind_texture(texture_objects.at(*render_layer.texture_paths[i]), 0u);
 
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
-            const vec3 model_origin_offset = dimensions.origin * vec3(width, height, 0.0f);
-            const vec3 model_position = (transform->position * unit_scale) - model_origin_offset;
+            const vec3 model_origin_offset = dimensions->origin * vec3(width, height, 0.0f);
+            const vec3 model_position = (*render_layer.positions[i] * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
-            model_matrix = scale(model_matrix, transform->scale);
+            model_matrix = scale(model_matrix, *render_layer.scales[i]);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
 
 
             // Bind shader pipeline and set its uniforms.
-            const GLuint shader_program = shader_programs.at(sprite->shader_pipeline_name);
+            const GLuint shader_program = shader_programs.at(*render_layer.shader_pipeline_names[i]);
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
             set_uniform(shader_program, "model", model_matrix);
@@ -777,8 +787,11 @@ void cleanup_rendering()
     // Clear rendering data.
     for_each(render_layers, [](const string & /*layer_name*/, Render_Layer & render_layer) -> void
     {
-        render_layer.sprites.clear();
-        render_layer.transforms.clear();
+        render_layer.texture_paths.clear();
+        render_layer.shader_pipeline_names.clear();
+        render_layer.dimensions.clear();
+        render_layer.positions.clear();
+        render_layer.scales.clear();
     });
 
 

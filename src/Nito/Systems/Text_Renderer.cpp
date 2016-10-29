@@ -49,18 +49,18 @@ void text_renderer_subscribe(const Entity entity)
     vector<string> entity_character_texture_paths;
     vector<vec3> entity_character_positions;
     vector<const Dimensions *> entity_character_dimensions;
-    const string & font = entity_text->font;
+    const string font_prefix = entity_text->font + " : ";
     vec3 character_position_offset = vec3(0.0f);
     const float unit_scale_x = get_unit_scale().x;
 
     for (const char character : entity_text->value)
     {
-        const string character_texture_path = font + " : " + character;
+        const string character_texture_path = font_prefix + character;
         const Dimensions * character_dimensions = &get_loaded_texture(character_texture_path).dimensions;
         entity_character_texture_paths.push_back(character_texture_path);
         entity_character_positions.push_back(entity_transform->position + character_position_offset);
         entity_character_dimensions.push_back(character_dimensions);
-        character_position_offset.x += character_dimensions->width / unit_scale_x;
+        character_position_offset.x += get_loaded_glyph_advance(character_texture_path) / unit_scale_x;
     }
 
     character_texture_paths.push_back(entity_character_texture_paths);

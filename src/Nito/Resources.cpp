@@ -4,8 +4,6 @@
 #include <stdexcept>
 #include <Magick++.h>
 #include <glm/glm.hpp>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Graphics.hpp"
@@ -40,6 +38,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static map<string, Texture> textures;
+static map<string, FT_Pos> glyph_advances;
 static FT_Library ft;
 
 
@@ -139,15 +138,30 @@ void load_font(const JSON & config)
         Texture texture;
         texture.format = "r";
         texture.options = font_texture_options;
-        const FT_Bitmap & bitmap = face->glyph->bitmap;
+        FT_GlyphSlot glyph = face->glyph;
+        const FT_Bitmap & bitmap = glyph->bitmap;
         unsigned int width = bitmap.width;
         unsigned int height = bitmap.rows;
+
+
+        // Calculate origin from glyph metrics.
+        vec3 origin;
+
+        if (glyph->bitmap_left != 0 && width != 0)
+        {
+            origin.x = -((float)glyph->bitmap_left / width);
+        }
+
+        if (glyph->bitmap_top != 0 && height != 0)
+        {
+            origin.y = -(((float)glyph->bitmap_top / height) - 1);
+        }
 
         texture.dimensions =
         {
             (float)width,
             (float)height,
-            vec3(0.0f),
+            origin,
         };
 
 
@@ -167,6 +181,7 @@ void load_font(const JSON & config)
         // Load texture data and use the path of the font face with the appended character as its identifier.
         string glyph_identifier = font_face_path + " : " + ((char)character);
         textures[glyph_identifier] = texture;
+        glyph_advances[glyph_identifier] = face->glyph->advance.x >> 6;
         load_texture_data(texture, data, glyph_identifier);
     }
 }
@@ -175,6 +190,12 @@ void load_font(const JSON & config)
 const Texture & get_loaded_texture(const string & path)
 {
     return textures.at(path);
+}
+
+
+FT_Pos get_loaded_glyph_advance(const string & identifier)
+{
+    return glyph_advances.at(identifier);
 }
 
 

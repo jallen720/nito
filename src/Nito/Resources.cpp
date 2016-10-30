@@ -147,12 +147,12 @@ void load_font(const JSON & config)
         // Calculate origin from glyph metrics.
         vec3 origin;
 
-        if (glyph->bitmap_left != 0 && width != 0)
+        if (width != 0)
         {
             origin.x = -((float)glyph->bitmap_left / width);
         }
 
-        if (glyph->bitmap_top != 0 && height != 0)
+        if (height != 0)
         {
             origin.y = -(((float)glyph->bitmap_top / height) - 1);
         }
@@ -181,7 +181,7 @@ void load_font(const JSON & config)
         // Load texture data and use the path of the font face with the appended character as its identifier.
         string glyph_identifier = font_face_path + " : " + ((char)character);
         textures[glyph_identifier] = texture;
-        glyph_advances[glyph_identifier] = face->glyph->advance.x >> 6;
+        glyph_advances[glyph_identifier] = glyph->advance.x >> 6;
         load_texture_data(texture, data, glyph_identifier);
     }
 }

@@ -77,6 +77,7 @@ struct Button
 struct Text
 {
     std::string font;
+    glm::vec3 color;
     std::string value;
 };
 

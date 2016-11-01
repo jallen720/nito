@@ -259,9 +259,28 @@ static map<string, const Component_Handler> default_component_handlers
         "text",
         [](const JSON & data) -> Component
         {
+            const JSON & color_data = data["color"];
+            vec3 color;
+
+            if (contains_key(color_data, "r"))
+            {
+                color.x = color_data["r"];
+            }
+
+            if (contains_key(color_data, "g"))
+            {
+                color.y = color_data["g"];
+            }
+
+            if (contains_key(color_data, "b"))
+            {
+                color.z = color_data["b"];
+            }
+
             return new Text
             {
                 data["font"],
+                color,
                 data["value"],
             };
         }

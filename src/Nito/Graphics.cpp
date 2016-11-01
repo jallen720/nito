@@ -86,6 +86,7 @@ struct Render_Layer
 {
     vector<const string *> texture_paths;
     vector<const string *> shader_pipeline_names;
+    vector<const Shader_Pipeline_Uniforms *> shader_pipeline_uniforms;
     vector<const Dimensions *> dimensions;
     vector<const vec3 *> positions;
     vector<const vec3 *> scales;
@@ -207,26 +208,19 @@ static void compile_shader_object(const GLuint shader_object, const vector<strin
 }
 
 
-static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
+static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec3 & uniform_value)
 {
-    glUniform4f(
+    glUniform3f(
         glGetUniformLocation(shader_program, uniform_name),
         uniform_value.x,
         uniform_value.y,
-        uniform_value.z,
-        uniform_value.w);
+        uniform_value.z);
 }
 
 
 static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLint uniform_value)
 {
     glUniform1i(glGetUniformLocation(shader_program, uniform_name), uniform_value);
-}
-
-
-static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLfloat uniform_value)
-{
-    glUniform1f(glGetUniformLocation(shader_program, uniform_name), uniform_value);
 }
 
 
@@ -275,6 +269,34 @@ static void bind_texture(const GLuint texture_object, const GLuint texture_unit)
 {
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, texture_object);
+}
+
+
+static void set_shader_pipeline_uniforms(
+    const GLuint shader_program,
+    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms)
+{
+    for_each(*shader_pipeline_uniforms, [&](const string & uniform_name, const Uniform & uniform) -> void
+    {
+        switch (uniform.type)
+        {
+            case Uniform::Types::INT:
+            {
+                set_uniform(shader_program, uniform_name.c_str(), *((GLint *)uniform.data));
+                break;
+            }
+            case Uniform::Types::VEC3:
+            {
+                set_uniform(shader_program, uniform_name.c_str(), *((vec3 *)uniform.data));
+                break;
+            }
+            case Uniform::Types::MAT4:
+            {
+                set_uniform(shader_program, uniform_name.c_str(), *((mat4 *)uniform.data));
+                break;
+            }
+        };
+    });
 }
 
 
@@ -641,6 +663,7 @@ void load_render_data(
     const string * layer_name,
     const string * texture_path,
     const string * shader_pipeline_name,
+    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms,
     const Dimensions * dimensions,
     const vec3 * position,
     const vec3 * scale)
@@ -648,6 +671,7 @@ void load_render_data(
     Render_Layer & render_layer = render_layers[*layer_name];
     render_layer.texture_paths.push_back(texture_path);
     render_layer.shader_pipeline_names.push_back(shader_pipeline_name);
+    render_layer.shader_pipeline_uniforms.push_back(shader_pipeline_uniforms);
     render_layer.dimensions.push_back(dimensions);
     render_layer.positions.push_back(position);
     render_layer.scales.push_back(scale);
@@ -732,12 +756,13 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
         });
 
 
-        // Render all rendering data in layer.
+        // Render all data in layer.
         for (auto i = 0u; i < render_layer.texture_paths.size(); i++)
         {
             const Dimensions * dimensions = render_layer.dimensions[i];
             const float width = dimensions->width;
             const float height = dimensions->height;
+            const Shader_Pipeline_Uniforms * shader_pipeline_uniforms = render_layer.shader_pipeline_uniforms[i];
 
 
             // Bind texture to texture unit 0.
@@ -758,6 +783,12 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
             set_uniform(shader_program, "model", model_matrix);
+
+            // Set custom shader pipeline uniforms if any were passed.
+            if (shader_pipeline_uniforms != nullptr)
+            {
+                set_shader_pipeline_uniforms(shader_program, shader_pipeline_uniforms);
+            }
 
 
             // Draw data.

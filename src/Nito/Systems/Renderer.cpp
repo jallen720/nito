@@ -68,6 +68,7 @@ void renderer_update()
             entity_render_layers[index],
             &entity_sprite->texture_path,
             &entity_sprite->shader_pipeline_name,
+            nullptr,
             &entity_sprite->dimensions,
             &entity_transform->position,
             &entity_transform->scale);

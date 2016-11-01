@@ -51,6 +51,23 @@ struct Shader_Pipeline
 };
 
 
+struct Uniform
+{
+    enum class Types
+    {
+        INT,
+        VEC3,
+        MAT4,
+    }
+    type;
+
+    void * data;
+};
+
+
+using Shader_Pipeline_Uniforms = std::map<std::string, Uniform>;
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -73,6 +90,7 @@ void load_render_data(
     const std::string * layer_name,
     const std::string * texture_path,
     const std::string * shader_pipeline_name,
+    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms,
     const Dimensions * dimensions,
     const glm::vec3 * position,
     const glm::vec3 * scale);

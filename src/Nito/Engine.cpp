@@ -383,10 +383,10 @@ int run_engine()
             opengl_config["capabilities"],
             opengl_config["clear_flags"],
             {
-                clear_color["red"],
-                clear_color["green"],
-                clear_color["blue"],
-                clear_color["alpha"],
+                clear_color["r"],
+                clear_color["g"],
+                clear_color["b"],
+                clear_color["a"],
             },
             {
                 blending["source_factor"],

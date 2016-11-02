@@ -130,7 +130,7 @@ static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
-static vec3 unit_scale;
+static float unit_scale;
 static GLbitfield clear_flags;
 static unordered_map<string, Render_Layer> render_layers;
 
@@ -450,7 +450,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
-    unit_scale = vec3(opengl_config.pixels_per_unit, opengl_config.pixels_per_unit, 1.0f);
+    unit_scale = opengl_config.pixels_per_unit;
 
 
     // Validate no OpenGL errors occurred.
@@ -903,7 +903,7 @@ void destroy_graphics()
 }
 
 
-const vec3 & get_unit_scale()
+float get_unit_scale()
 {
     return unit_scale;
 }

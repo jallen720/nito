@@ -106,7 +106,7 @@ void init_rendering();
 void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform);
 void cleanup_rendering();
 void destroy_graphics();
-const glm::vec3 & get_unit_scale();
+float get_unit_scale();
 
 
 } // namespace Nito

@@ -2,12 +2,14 @@
 
 #include <unordered_map>
 #include <stdexcept>
+#include <functional>
 #include <cstddef>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Cpp_Utils/Fn.hpp"
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
+#include "Cpp_Utils/Vector.hpp"
 
 #include "Nito/Resources.hpp"
 
@@ -17,6 +19,7 @@ using std::unordered_map;
 using std::vector;
 using std::string;
 using std::runtime_error;
+using std::function;
 using std::size_t;
 
 // glm/glm.hpp
@@ -42,6 +45,9 @@ using Cpp_Utils::get_values;
 
 // Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
+
+// Cpp_Utils/Vector.hpp
+using Cpp_Utils::sort;
 
 
 #define DEBUG
@@ -90,14 +96,25 @@ struct Render_Layer
     vector<const Dimensions *> dimensions;
     vector<const vec3 *> positions;
     vector<const vec3 *> scales;
+    vector<unsigned int> order;
 
-    enum class Render_Space
+    enum class Space
     {
         WORLD,
         SCREEN,
     }
-    render_space;
+    space;
+
+    enum class Sorting
+    {
+        NONE,
+        HIGHEST_Y,
+    }
+    sorting;
 };
+
+
+using Sorting_Function = function<bool(unsigned int, unsigned int)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,6 +314,25 @@ static void set_shader_pipeline_uniforms(
             }
         };
     });
+}
+
+
+static const Sorting_Function & get_sorting_function(const Render_Layer & render_layer)
+{
+    static const Render_Layer & _render_layer = render_layer;
+
+    static const map<Render_Layer::Sorting, const Sorting_Function> sorting_functions
+    {
+        {
+            Render_Layer::Sorting::HIGHEST_Y,
+            [&](unsigned int a, unsigned int b) -> bool
+            {
+                return _render_layer.positions[a]->y > _render_layer.positions[b]->y;
+            }
+        },
+    };
+
+    return sorting_functions.at(render_layer.sorting);
 }
 
 
@@ -647,15 +683,23 @@ void load_vertex_data(
 }
 
 
-void load_render_layer(const string & name, const string & render_space)
+void load_render_layer(const string & name, const string & render_space, const string & render_sorting)
 {
-    static const map<string, const Render_Layer::Render_Space> render_spaces
+    static const map<string, const Render_Layer::Space> render_spaces
     {
-        { "world"  , Render_Layer::Render_Space::WORLD  },
-        { "screen" , Render_Layer::Render_Space::SCREEN },
+        { "world"  , Render_Layer::Space::WORLD  },
+        { "screen" , Render_Layer::Space::SCREEN },
     };
 
-    render_layers[name].render_space = render_spaces.at(render_space);
+    static const map<string, const Render_Layer::Sorting> render_sortings
+    {
+        { "none"      , Render_Layer::Sorting::NONE      },
+        { "highest_y" , Render_Layer::Sorting::HIGHEST_Y },
+    };
+
+    Render_Layer & render_layer = render_layers[name];
+    render_layer.space = render_spaces.at(render_space);
+    render_layer.sorting = render_sortings.at(render_sorting);
 }
 
 
@@ -675,6 +719,7 @@ void load_render_data(
     render_layer.dimensions.push_back(dimensions);
     render_layer.positions.push_back(position);
     render_layer.scales.push_back(scale);
+    render_layer.order.push_back(render_layer.order.size());
 }
 
 
@@ -741,11 +786,18 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 
 
     // Render all layers.
-    for_each(render_layers, [&](const string & /*layer_name*/, const Render_Layer & render_layer) -> void
+    for_each(render_layers, [&](const string & /*layer_name*/, Render_Layer & render_layer) -> void
     {
+        // Sort render layer order.
+        if (render_layer.sorting != Render_Layer::Sorting::NONE)
+        {
+            sort(render_layer.order, get_sorting_function(render_layer));
+        }
+
+
         // Set view matrices for all shader programs.
         auto layer_view_matrix =
-            render_layer.render_space == Render_Layer::Render_Space::WORLD
+            render_layer.space == Render_Layer::Space::WORLD
             ? view_matrix
             : mat4();
 
@@ -757,29 +809,29 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 
 
         // Render all data in layer.
-        for (auto i = 0u; i < render_layer.texture_paths.size(); i++)
+        for (unsigned int index : render_layer.order)
         {
-            const Dimensions * dimensions = render_layer.dimensions[i];
+            const Dimensions * dimensions = render_layer.dimensions[index];
             const float width = dimensions->width;
             const float height = dimensions->height;
-            const Shader_Pipeline_Uniforms * shader_pipeline_uniforms = render_layer.shader_pipeline_uniforms[i];
+            const Shader_Pipeline_Uniforms * shader_pipeline_uniforms = render_layer.shader_pipeline_uniforms[index];
 
 
             // Bind texture to texture unit 0.
-            bind_texture(texture_objects.at(*render_layer.texture_paths[i]), 0u);
+            bind_texture(texture_objects.at(*render_layer.texture_paths[index]), 0u);
 
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
             const vec3 model_origin_offset = dimensions->origin * vec3(width, height, 0.0f);
-            const vec3 model_position = (*render_layer.positions[i] * unit_scale) - model_origin_offset;
+            const vec3 model_position = (*render_layer.positions[index] * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
-            model_matrix = scale(model_matrix, *render_layer.scales[i]);
+            model_matrix = scale(model_matrix, *render_layer.scales[index]);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
 
 
             // Bind shader pipeline and set its uniforms.
-            const GLuint shader_program = shader_programs.at(*render_layer.shader_pipeline_names[i]);
+            const GLuint shader_program = shader_programs.at(*render_layer.shader_pipeline_names[index]);
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
             set_uniform(shader_program, "model", model_matrix);
@@ -823,6 +875,7 @@ void cleanup_rendering()
         render_layer.dimensions.clear();
         render_layer.positions.clear();
         render_layer.scales.clear();
+        render_layer.order.clear();
     });
 
 

@@ -68,6 +68,13 @@ struct Uniform
 using Shader_Pipeline_Uniforms = std::map<std::string, Uniform>;
 
 
+enum class Render_Sorting
+{
+    HIGHEST_Y,
+    NONE,
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -84,7 +91,7 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
-void load_render_layer(const std::string & name, const std::string & render_space);
+void load_render_layer(const std::string & name, const std::string & render_space, const std::string & render_sorting);
 
 void load_render_data(
     const std::string * layer_name,

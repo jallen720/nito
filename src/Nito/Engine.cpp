@@ -411,8 +411,6 @@ int run_engine()
 
     // Load shader pipelines.
     const JSON shader_pipelines_data = read_json_file("resources/data/shader_pipelines.json");
-    const JSON shader_config = read_json_file("resources/configs/shaders.json");
-    const JSON shader_extensions = shader_config["extensions"];
     const string version_source = read_file("resources/shaders/shared/version.glsl");
     const string vertex_attributes_source = read_file("resources/shaders/shared/vertex_attributes.glsl");
     vector<Shader_Pipeline> shader_pipelines;
@@ -421,28 +419,24 @@ int run_engine()
     {
         Shader_Pipeline shader_pipeline;
         shader_pipeline.name = shader_pipeline_data["name"];
-        const JSON shaders = shader_pipeline_data["shaders"];
+        const JSON & shaders = shader_pipeline_data["shaders"];
 
-        for (const JSON & shader : shaders)
+        for_each(shaders, [&](const string & type, const string & path) -> void
         {
-            const string shader_type = shader["type"];
-            vector<string> & shader_sources = shader_pipeline.shader_sources[shader_type];
+            vector<string> & shader_sources = shader_pipeline.shader_sources[type];
 
 
             // Load sources for shader into pipeline, starting with the version.glsl source, then the
             // vertex_attributes.glsl source if this is a vertex shader, then finally the shader source itself.
             shader_sources.push_back(version_source);
 
-            if (shader_type == "vertex")
+            if (type == "vertex")
             {
                 shader_sources.push_back(vertex_attributes_source);
             }
 
-            shader_sources.push_back(read_file(
-                "resources/shaders/" +
-                shader["source_path"].get<string>() +
-                shader_extensions[shader_type].get<string>()));
-        }
+            shader_sources.push_back(read_file(path));
+        });
 
         shader_pipelines.push_back(shader_pipeline);
     }

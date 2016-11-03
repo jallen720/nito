@@ -78,7 +78,7 @@ namespace Nito
 static vector<Update_Handler> update_handlers;
 
 
-static map<string, const System_Subscribe_Handler> default_system_subscribe_handlers
+static map<string, const System_Subscribe_Handler> engine_system_subscribe_handlers
 {
     { "renderer"                  , renderer_subscribe                  },
     { "camera"                    , camera_subscribe                    },
@@ -89,7 +89,7 @@ static map<string, const System_Subscribe_Handler> default_system_subscribe_hand
 };
 
 
-static vector<Update_Handler> default_update_handlers
+static vector<Update_Handler> engine_update_handlers
 {
     renderer_update,
     text_renderer_update,
@@ -97,7 +97,7 @@ static vector<Update_Handler> default_update_handlers
 };
 
 
-static map<string, const Component_Handler> default_component_handlers
+static map<string, const Component_Handler> engine_component_handlers
 {
     {
         "transform",
@@ -288,7 +288,7 @@ static map<string, const Component_Handler> default_component_handlers
 };
 
 
-static map<string, const Control_Handler> default_control_handlers
+static map<string, const Control_Handler> engine_control_handlers
 {
     {
         "exit",
@@ -329,11 +329,11 @@ void add_update_handler(const Update_Handler & update_handler)
 
 int run_engine()
 {
-    // Load default handlers.
-    for_each(default_update_handlers, add_update_handler);
-    for_each(default_component_handlers, set_component_handler);
-    for_each(default_system_subscribe_handlers, set_system_subscribe_handler);
-    for_each(default_control_handlers, set_control_handler);
+    // Load engine handlers.
+    for_each(engine_update_handlers, add_update_handler);
+    for_each(engine_component_handlers, set_component_handler);
+    for_each(engine_system_subscribe_handlers, set_system_subscribe_handler);
+    for_each(engine_control_handlers, set_control_handler);
 
 
     // Initialize modules.

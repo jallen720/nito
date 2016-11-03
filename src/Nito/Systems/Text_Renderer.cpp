@@ -26,9 +26,9 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const string TEXT_SHADER_PIPELINE_NAME = "text";
-static const vec3 TEXT_SCALE = vec3(1.0f);
 static vector<string *> entity_render_layers;
 static vector<Text *> entity_texts;
+static vector<const vec3 *> text_scales;
 static vector<vector<string>> character_texture_paths;
 static vector<vector<vec3>> character_positions;
 static vector<vector<const Dimensions *>> character_dimensions;
@@ -49,6 +49,7 @@ void text_renderer_subscribe(const Entity entity)
 
     // Load character data for entity.
     auto entity_transform = (Transform *)get_component(entity, "transform");
+    const vec3 * text_scale = &entity_transform->scale;
     vector<string> entity_character_texture_paths;
     vector<vec3> entity_character_positions;
     vector<const Dimensions *> entity_character_dimensions;
@@ -63,12 +64,13 @@ void text_renderer_subscribe(const Entity entity)
         entity_character_texture_paths.push_back(character_texture_path);
         entity_character_positions.push_back(entity_transform->position + character_position_offset);
         entity_character_dimensions.push_back(character_dimensions);
-        character_position_offset.x += get_loaded_glyph_advance(character_texture_path) / unit_scale;
+        character_position_offset.x += get_loaded_glyph_advance(character_texture_path) / unit_scale * text_scale->x;
     }
 
     character_texture_paths.push_back(entity_character_texture_paths);
     character_positions.push_back(entity_character_positions);
     character_dimensions.push_back(entity_character_dimensions);
+    text_scales.push_back(text_scale);
 
 
     // Set text color for this entity's shader pipeline uniforms.
@@ -90,6 +92,7 @@ void text_renderer_update()
     for (auto entity = 0u; entity < entity_render_layers.size(); entity++)
     {
         const string * entity_render_layer = entity_render_layers[entity];
+        const vec3 * text_scale = text_scales[entity];
         const vector<string> & entity_character_texture_paths = character_texture_paths[entity];
         const vector<vec3> & entity_character_positions = character_positions[entity];
         const vector<const Dimensions *> & entity_character_dimensions = character_dimensions[entity];
@@ -104,7 +107,7 @@ void text_renderer_update()
                 entity_text_uniforms,
                 entity_character_dimensions[character_index],
                 &entity_character_positions[character_index],
-                &TEXT_SCALE);
+                text_scale);
         }
     }
 }

@@ -134,7 +134,7 @@ Entity get_entity(const string & id)
         }
     }
 
-    throw runtime_error("ERROR: no entity found with id: " + id);
+    throw runtime_error("ERROR: no entity found with id \"" + id + "\"!");
 }
 
 

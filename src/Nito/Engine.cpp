@@ -26,12 +26,12 @@
 #include "Nito/Resources.hpp"
 #include "Nito/Components.hpp"
 #include "Nito/Utilities.hpp"
-#include "Nito/Systems/Renderer.hpp"
-#include "Nito/Systems/Camera.hpp"
-#include "Nito/Systems/UI_Transform.hpp"
-#include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/Button.hpp"
+#include "Nito/Systems/Camera.hpp"
+#include "Nito/Systems/Renderer.hpp"
 #include "Nito/Systems/Text_Renderer.hpp"
+#include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
+#include "Nito/Systems/UI_Transform.hpp"
 
 
 using std::string;
@@ -80,12 +80,12 @@ static vector<Update_Handler> update_handlers;
 
 static map<string, const System_Subscribe_Handler> engine_system_subscribe_handlers
 {
-    { "renderer"                  , renderer_subscribe                  },
-    { "camera"                    , camera_subscribe                    },
-    { "ui_transform"              , ui_transform_subscribe              },
-    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
     { "button"                    , button_subscribe                    },
+    { "camera"                    , camera_subscribe                    },
+    { "renderer"                  , renderer_subscribe                  },
     { "text_renderer"             , text_renderer_subscribe             },
+    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
+    { "ui_transform"              , ui_transform_subscribe              },
 };
 
 
@@ -309,7 +309,7 @@ static map<string, const Control_Handler> engine_control_handlers
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-string get_system_requirement_message(
+static string get_system_requirement_message(
     const Entity entity,
     const string & system_name,
     const string & requirement_name,

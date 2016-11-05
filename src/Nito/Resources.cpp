@@ -68,8 +68,6 @@ void load_texture(const JSON & config)
         { "rgb"  , "RGB"  },
     };
 
-    static const string TEXTURES_RESOURCE_PATH = "resources/textures/";
-
 
     // Create and configure new texture.
     Texture texture;
@@ -82,7 +80,7 @@ void load_texture(const JSON & config)
 
 
     // Load texture data from image at path.
-    const string texture_path = TEXTURES_RESOURCE_PATH + config["path"].get<string>();
+    const string texture_path = config["path"];
     Image image;
     Blob blob;
     image.read(texture_path);
@@ -118,7 +116,7 @@ void load_font(const JSON & config)
 
     // Attempt to load font face.
     FT_Face face;
-    string font_face_path = config["path"];
+    const string font_face_path = config["path"];
 
     if (FT_New_Face(ft, font_face_path.c_str(), 0, &face))
     {

@@ -28,6 +28,7 @@
 #include "Nito/Utilities.hpp"
 #include "Nito/Systems/Button.hpp"
 #include "Nito/Systems/Camera.hpp"
+#include "Nito/Systems/Local_Transform.hpp"
 #include "Nito/Systems/Renderer.hpp"
 #include "Nito/Systems/Text_Renderer.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
@@ -72,6 +73,14 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Forward Declarations
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static Component transform_component_handler(const JSON & data);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +91,7 @@ static map<string, const System_Subscribe_Handler> engine_system_subscribe_handl
 {
     { "button"                    , button_subscribe                    },
     { "camera"                    , camera_subscribe                    },
+    { "local_transform"           , local_transform_subscribe           },
     { "renderer"                  , renderer_subscribe                  },
     { "text_renderer"             , text_renderer_subscribe             },
     { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
@@ -91,6 +101,7 @@ static map<string, const System_Subscribe_Handler> engine_system_subscribe_handl
 
 static vector<Update_Handler> engine_update_handlers
 {
+    local_transform_update,
     renderer_update,
     text_renderer_update,
     camera_update,
@@ -101,31 +112,11 @@ static map<string, const Component_Handler> engine_component_handlers
 {
     {
         "transform",
-        [](const JSON & data) -> Component
-        {
-            vec3 position;
-            vec3 scale(1.0f);
-
-            if (contains_key(data, "position"))
-            {
-                const JSON & position_data = data["position"];
-                position.x = position_data["x"];
-                position.y = position_data["y"];
-            }
-
-            if (contains_key(data, "scale"))
-            {
-                const JSON & scale_data = data["scale"];
-                scale.x = scale_data["x"];
-                scale.y = scale_data["y"];
-            }
-
-            return new Transform
-            {
-                position,
-                scale,
-            };
-        }
+        transform_component_handler
+    },
+    {
+        "local_transform",
+        transform_component_handler
     },
     {
         "ui_transform",
@@ -288,6 +279,10 @@ static map<string, const Component_Handler> engine_component_handlers
                 data["value"],
             };
         }
+    },
+    {
+        "parent",
+        string_component_handler
     }
 };
 
@@ -317,6 +312,33 @@ static string get_system_requirement_message(
 {
     return "ERROR: entity " + to_string(entity) + " does not contain a " + requirement_name + " " +
            requirement_type + " required by the " + system_name + " system!";
+}
+
+
+static Component transform_component_handler(const JSON & data)
+{
+    vec3 position;
+    vec3 scale(1.0f);
+
+    if (contains_key(data, "position"))
+    {
+        const JSON & position_data = data["position"];
+        position.x = position_data["x"];
+        position.y = position_data["y"];
+    }
+
+    if (contains_key(data, "scale"))
+    {
+        const JSON & scale_data = data["scale"];
+        scale.x = scale_data["x"];
+        scale.y = scale_data["y"];
+    }
+
+    return new Transform
+    {
+        position,
+        scale,
+    };
 }
 
 

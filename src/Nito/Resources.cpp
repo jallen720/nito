@@ -5,6 +5,7 @@
 #include <Magick++.h>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Collection.hpp"
+#include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Graphics.hpp"
 
@@ -26,6 +27,9 @@ using Cpp_Utils::JSON;
 
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
+
+// Cpp_Utils/Map.hpp
+using Cpp_Utils::contains_key;
 
 
 namespace Nito
@@ -189,6 +193,11 @@ void load_font(const JSON & config)
 
 const Texture & get_loaded_texture(const string & path)
 {
+    if (!contains_key(textures, path))
+    {
+        throw runtime_error("ERROR: no texture with path \"" + path + "\" was loaded!");
+    }
+
     return textures.at(path);
 }
 

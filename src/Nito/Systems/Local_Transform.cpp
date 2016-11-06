@@ -77,7 +77,7 @@ void calculate_transform(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void local_transform_subscribe(const Entity entity)
 {
-    entity_parent_ids[entity] = (string *)get_component(entity, "parent");
+    entity_parent_ids[entity] = (string *)get_component(entity, "parent_id");
     entity_transforms[entity] = (Transform *)get_component(entity, "transform");
     entity_local_transforms[entity] = (Local_Transform *)get_component(entity, "local_transform");
 }

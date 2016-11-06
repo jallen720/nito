@@ -281,7 +281,7 @@ static map<string, const Component_Handler> engine_component_handlers
         }
     },
     {
-        "parent",
+        "parent_id",
         string_component_handler
     }
 };

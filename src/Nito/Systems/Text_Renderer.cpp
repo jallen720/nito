@@ -99,7 +99,7 @@ void text_renderer_update()
         vector<vec3> & entity_character_positions = character_positions[entity];
         const vector<float> & entity_character_advances = character_advances[entity];
         const Shader_Pipeline_Uniforms * entity_text_uniforms = &text_uniforms[entity];
-        vec3 character_position_offset = vec3(0.0f);
+        vec3 character_position_offset(0.0f);
 
         for (auto character_index = 0u; character_index < entity_character_texture_paths.size(); character_index++)
         {

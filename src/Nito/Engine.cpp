@@ -295,6 +295,139 @@ static map<string, const Control_Handler> engine_control_handlers
 };
 
 
+static const map<string, const Keys> key_mappings
+{
+    { "space"             , Keys::SPACE           },
+    { "apostrophe"        , Keys::APOSTROPHE      },
+    { "comma"             , Keys::COMMA           },
+    { "minus"             , Keys::MINUS           },
+    { "period"            , Keys::PERIOD          },
+    { "slash"             , Keys::SLASH           },
+    { "num_0"             , Keys::NUM_0           },
+    { "num_1"             , Keys::NUM_1           },
+    { "num_2"             , Keys::NUM_2           },
+    { "num_3"             , Keys::NUM_3           },
+    { "num_4"             , Keys::NUM_4           },
+    { "num_5"             , Keys::NUM_5           },
+    { "num_6"             , Keys::NUM_6           },
+    { "num_7"             , Keys::NUM_7           },
+    { "num_8"             , Keys::NUM_8           },
+    { "num_9"             , Keys::NUM_9           },
+    { "semicolon"         , Keys::SEMICOLON       },
+    { "equal"             , Keys::EQUAL           },
+    { "a"                 , Keys::A               },
+    { "b"                 , Keys::B               },
+    { "c"                 , Keys::C               },
+    { "d"                 , Keys::D               },
+    { "e"                 , Keys::E               },
+    { "f"                 , Keys::F               },
+    { "g"                 , Keys::G               },
+    { "h"                 , Keys::H               },
+    { "i"                 , Keys::I               },
+    { "j"                 , Keys::J               },
+    { "k"                 , Keys::K               },
+    { "l"                 , Keys::L               },
+    { "m"                 , Keys::M               },
+    { "n"                 , Keys::N               },
+    { "o"                 , Keys::O               },
+    { "p"                 , Keys::P               },
+    { "q"                 , Keys::Q               },
+    { "r"                 , Keys::R               },
+    { "s"                 , Keys::S               },
+    { "t"                 , Keys::T               },
+    { "u"                 , Keys::U               },
+    { "v"                 , Keys::V               },
+    { "w"                 , Keys::W               },
+    { "x"                 , Keys::X               },
+    { "y"                 , Keys::Y               },
+    { "z"                 , Keys::Z               },
+    { "left_bracket"      , Keys::LEFT_BRACKET    },
+    { "backslash"         , Keys::BACKSLASH       },
+    { "right_bracket"     , Keys::RIGHT_BRACKET   },
+    { "grave_accent"      , Keys::GRAVE_ACCENT    },
+    { "world_1"           , Keys::WORLD_1         },
+    { "world_2"           , Keys::WORLD_2         },
+    { "escape"            , Keys::ESCAPE          },
+    { "enter"             , Keys::ENTER           },
+    { "tab"               , Keys::TAB             },
+    { "backspace"         , Keys::BACKSPACE       },
+    { "insert"            , Keys::INSERT          },
+    { "delete"            , Keys::DELETE          },
+    { "right"             , Keys::RIGHT           },
+    { "left"              , Keys::LEFT            },
+    { "down"              , Keys::DOWN            },
+    { "up"                , Keys::UP              },
+    { "page_up"           , Keys::PAGE_UP         },
+    { "page_down"         , Keys::PAGE_DOWN       },
+    { "home"              , Keys::HOME            },
+    { "end"               , Keys::END             },
+    { "caps_lock"         , Keys::CAPS_LOCK       },
+    { "scroll_lock"       , Keys::SCROLL_LOCK     },
+    { "num_lock"          , Keys::NUM_LOCK        },
+    { "print_screen"      , Keys::PRINT_SCREEN    },
+    { "pause"             , Keys::PAUSE           },
+    { "f1"                , Keys::F1              },
+    { "f2"                , Keys::F2              },
+    { "f3"                , Keys::F3              },
+    { "f4"                , Keys::F4              },
+    { "f5"                , Keys::F5              },
+    { "f6"                , Keys::F6              },
+    { "f7"                , Keys::F7              },
+    { "f8"                , Keys::F8              },
+    { "f9"                , Keys::F9              },
+    { "f10"               , Keys::F10             },
+    { "f11"               , Keys::F11             },
+    { "f12"               , Keys::F12             },
+    { "f13"               , Keys::F13             },
+    { "f14"               , Keys::F14             },
+    { "f15"               , Keys::F15             },
+    { "f16"               , Keys::F16             },
+    { "f17"               , Keys::F17             },
+    { "f18"               , Keys::F18             },
+    { "f19"               , Keys::F19             },
+    { "f20"               , Keys::F20             },
+    { "f21"               , Keys::F21             },
+    { "f22"               , Keys::F22             },
+    { "f23"               , Keys::F23             },
+    { "f24"               , Keys::F24             },
+    { "f25"               , Keys::F25             },
+    { "numpad_0"          , Keys::NUMPAD_0        },
+    { "numpad_1"          , Keys::NUMPAD_1        },
+    { "numpad_2"          , Keys::NUMPAD_2        },
+    { "numpad_3"          , Keys::NUMPAD_3        },
+    { "numpad_4"          , Keys::NUMPAD_4        },
+    { "numpad_5"          , Keys::NUMPAD_5        },
+    { "numpad_6"          , Keys::NUMPAD_6        },
+    { "numpad_7"          , Keys::NUMPAD_7        },
+    { "numpad_8"          , Keys::NUMPAD_8        },
+    { "numpad_9"          , Keys::NUMPAD_9        },
+    { "numpad_decimal"    , Keys::NUMPAD_DECIMAL  },
+    { "numpad_divide"     , Keys::NUMPAD_DIVIDE   },
+    { "numpad_multiply"   , Keys::NUMPAD_MULTIPLY },
+    { "numpad_subtract"   , Keys::NUMPAD_SUBTRACT },
+    { "numpad_add"        , Keys::NUMPAD_ADD      },
+    { "numpad_enter"      , Keys::NUMPAD_ENTER    },
+    { "numpad_equal"      , Keys::NUMPAD_EQUAL    },
+    { "left_shift"        , Keys::LEFT_SHIFT      },
+    { "left_control"      , Keys::LEFT_CONTROL    },
+    { "left_alt"          , Keys::LEFT_ALT        },
+    { "left_super"        , Keys::LEFT_SUPER      },
+    { "right_shift"       , Keys::RIGHT_SHIFT     },
+    { "right_control"     , Keys::RIGHT_CONTROL   },
+    { "right_alt"         , Keys::RIGHT_ALT       },
+    { "right_super"       , Keys::RIGHT_SUPER     },
+    { "menu"              , Keys::MENU            },
+};
+
+
+static const map<string, const Key_Actions> key_action_mappings
+{
+    { "release" , Key_Actions::RELEASE },
+    { "press"   , Key_Actions::PRESS   },
+    { "repeat"  , Key_Actions::REPEAT  },
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Utilities
@@ -502,10 +635,21 @@ int run_engine()
 
     for (const JSON & control_binding : controls)
     {
-        add_control_binding(
-            control_binding["key"],
-            control_binding["action"],
-            control_binding["handler"]);
+        const string & key = control_binding["key"];
+        const string & action = control_binding["action"];
+        const string & handler = control_binding["handler"];
+
+        if (!contains_key(key_mappings, key))
+        {
+            throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
+        }
+
+        if (!contains_key(key_action_mappings, action))
+        {
+            throw runtime_error("ERROR: \"" + action + "\" is not a valid key action!");
+        }
+
+        add_control_binding(key_mappings.at(key), key_action_mappings.at(action), handler);
     }
 
 

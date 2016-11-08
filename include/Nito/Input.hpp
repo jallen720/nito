@@ -167,7 +167,7 @@ using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Key_A
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void input_init();
-void add_control_binding(const std::string & key, const std::string & action, const std::string & handler);
+void add_control_binding(const Keys key, const Key_Actions key_action, const std::string & handler);
 void set_control_handler(const std::string & name, const Control_Handler & control_handler);
 void set_mouse_move_handler(const std::string & name, const Mouse_Move_Handler & mouse_move_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);

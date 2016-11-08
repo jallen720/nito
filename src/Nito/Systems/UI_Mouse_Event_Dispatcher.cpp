@@ -7,8 +7,8 @@
 #include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Components.hpp"
-#include "Nito/Graphics.hpp"
-#include "Nito/Input.hpp"
+#include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/Input.hpp"
 
 
 using std::vector;

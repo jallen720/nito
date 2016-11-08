@@ -1,4 +1,4 @@
-#include "Nito/Graphics.hpp"
+#include "Nito/APIs/Graphics.hpp"
 
 #include <unordered_map>
 #include <stdexcept>
@@ -11,7 +11,7 @@
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Vector.hpp"
 
-#include "Nito/Resources.hpp"
+#include "Nito/APIs/Resources.hpp"
 
 
 using std::map;

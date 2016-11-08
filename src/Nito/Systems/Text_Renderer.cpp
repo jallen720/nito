@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 
 #include "Nito/Components.hpp"
-#include "Nito/Graphics.hpp"
-#include "Nito/Resources.hpp"
+#include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/Resources.hpp"
 
 
 using std::vector;

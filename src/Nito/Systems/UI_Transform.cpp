@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "Nito/Components.hpp"
-#include "Nito/Window.hpp"
-#include "Nito/Graphics.hpp"
+#include "Nito/APIs/Window.hpp"
+#include "Nito/APIs/Graphics.hpp"
 
 
 // glm/glm.hpp

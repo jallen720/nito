@@ -7,8 +7,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "Nito/Resources.hpp"
 #include "Nito/Components.hpp"
+#include "Nito/APIs/Resources.hpp"
 
 
 namespace Nito

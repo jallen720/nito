@@ -1,5 +1,6 @@
 #include <GL/glew.h>
-#include "Nito/Resources.hpp"
+
+#include "Nito/APIs/Resources.hpp"
 
 #include <stdexcept>
 #include <Magick++.h>
@@ -7,7 +8,7 @@
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
 
-#include "Nito/Graphics.hpp"
+#include "Nito/APIs/Graphics.hpp"
 
 
 using std::string;

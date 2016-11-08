@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "Nito/Components.hpp"
-#include "Nito/ECS.hpp"
-#include "Nito/Graphics.hpp"
+#include "Nito/APIs/ECS.hpp"
+#include "Nito/APIs/Graphics.hpp"
 
 
 using std::vector;

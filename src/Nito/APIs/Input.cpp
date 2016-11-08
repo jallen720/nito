@@ -1,4 +1,4 @@
-#include "Nito/Input.hpp"
+#include "Nito/APIs/Input.hpp"
 
 #include <vector>
 #include <map>
@@ -7,7 +7,7 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
-#include "Nito/Window.hpp"
+#include "Nito/APIs/Window.hpp"
 
 
 using std::string;

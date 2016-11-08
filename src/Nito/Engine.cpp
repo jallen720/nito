@@ -1,7 +1,7 @@
-#include "Nito/Engine.hpp"
-
 // Required before any other OpenGL includes
 #include <GL/glew.h>
+
+#include "Nito/Engine.hpp"
 
 #include <string>
 #include <vector>
@@ -18,13 +18,13 @@
 #include "Cpp_Utils/Vector.hpp"
 #include "Cpp_Utils/String.hpp"
 
-#include "Nito/Window.hpp"
-#include "Nito/Input.hpp"
-#include "Nito/Graphics.hpp"
-#include "Nito/ECS.hpp"
-#include "Nito/Resources.hpp"
 #include "Nito/Components.hpp"
 #include "Nito/Utilities.hpp"
+#include "Nito/APIs/Window.hpp"
+#include "Nito/APIs/Input.hpp"
+#include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/ECS.hpp"
+#include "Nito/APIs/Resources.hpp"
 #include "Nito/Systems/Button.hpp"
 #include "Nito/Systems/Camera.hpp"
 #include "Nito/Systems/Local_Transform.hpp"

@@ -4,7 +4,7 @@
 #include <string>
 
 #include "Nito/Components.hpp"
-#include "Nito/Graphics.hpp"
+#include "Nito/APIs/Graphics.hpp"
 
 
 using std::vector;

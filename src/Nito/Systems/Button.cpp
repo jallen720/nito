@@ -4,7 +4,7 @@
 #include <string>
 
 #include "Nito/Components.hpp"
-#include "Nito/Input.hpp"
+#include "Nito/APIs/Input.hpp"
 
 
 using std::vector;

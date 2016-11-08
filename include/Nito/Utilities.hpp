@@ -3,7 +3,7 @@
 
 #include "Cpp_Utils/JSON.hpp"
 
-#include "Nito/ECS.hpp"
+#include "Nito/APIs/ECS.hpp"
 
 
 #define NITO_COMPONENT_HANDLER(TYPE) Component TYPE ## _component_handler(const Cpp_Utils::JSON & component_data)

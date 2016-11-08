@@ -430,13 +430,13 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Configure clear color.
-    const OpenGL_Config::Clear_Color & clear_color = opengl_config.clear_color;
+    const vec4 & clear_color = opengl_config.clear_color;
 
     glClearColor(
-        clear_color.red,
-        clear_color.green,
-        clear_color.blue,
-        clear_color.alpha);
+        clear_color.x,
+        clear_color.y,
+        clear_color.z,
+        clear_color.w);
 
 
     // Disable byte-alignment restriction (required for font rendering).

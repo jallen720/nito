@@ -24,15 +24,7 @@ struct OpenGL_Config
     const unsigned int pixels_per_unit;
     const std::vector<std::string> capabilities;
     const std::vector<std::string> clear_flags;
-
-    const struct Clear_Color
-    {
-        const GLfloat red;
-        const GLfloat green;
-        const GLfloat blue;
-        const GLfloat alpha;
-    }
-    clear_color;
+    const glm::vec4 clear_color;
 
     const struct Blending
     {

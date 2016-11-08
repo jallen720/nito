@@ -90,12 +90,7 @@ struct Texture_Format
 
 struct Render_Layer
 {
-    vector<const string *> texture_paths;
-    vector<const string *> shader_pipeline_names;
-    vector<const Shader_Pipeline_Uniforms *> shader_pipeline_uniforms;
-    vector<const Dimensions *> dimensions;
-    vector<const vec3 *> positions;
-    vector<const vec3 *> scales;
+    vector<Render_Data> render_datas;
     vector<unsigned int> order;
 
     enum class Space
@@ -289,11 +284,9 @@ static void bind_texture(const GLuint texture_object, const GLuint texture_unit)
 }
 
 
-static void set_shader_pipeline_uniforms(
-    const GLuint shader_program,
-    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms)
+static void set_shader_pipeline_uniforms(const GLuint shader_program, const Render_Data::Uniforms * uniforms)
 {
-    for_each(*shader_pipeline_uniforms, [&](const string & uniform_name, const Uniform & uniform) -> void
+    for_each(*uniforms, [&](const string & uniform_name, const Uniform & uniform) -> void
     {
         switch (uniform.type)
         {
@@ -327,7 +320,8 @@ static const Sorting_Function & get_sorting_function(const Render_Layer & render
             Render_Layer::Sorting::HIGHEST_Y,
             [&](unsigned int a, unsigned int b) -> bool
             {
-                return _render_layer.positions[a]->y > _render_layer.positions[b]->y;
+                return _render_layer.render_datas[a].position->y >
+                       _render_layer.render_datas[b].position->y;
             }
         },
     };
@@ -703,22 +697,10 @@ void load_render_layer(const string & name, const string & render_space, const s
 }
 
 
-void load_render_data(
-    const string * layer_name,
-    const string * texture_path,
-    const string * shader_pipeline_name,
-    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms,
-    const Dimensions * dimensions,
-    const vec3 * position,
-    const vec3 * scale)
+void load_render_data(const Render_Data & render_data)
 {
-    Render_Layer & render_layer = render_layers[*layer_name];
-    render_layer.texture_paths.push_back(texture_path);
-    render_layer.shader_pipeline_names.push_back(shader_pipeline_name);
-    render_layer.shader_pipeline_uniforms.push_back(shader_pipeline_uniforms);
-    render_layer.dimensions.push_back(dimensions);
-    render_layer.positions.push_back(position);
-    render_layer.scales.push_back(scale);
+    Render_Layer & render_layer = render_layers[*render_data.layer_name];
+    render_layer.render_datas.push_back(render_data);
     render_layer.order.push_back(render_layer.order.size());
 }
 
@@ -811,36 +793,36 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
         // Render all data in layer.
         for (unsigned int index : render_layer.order)
         {
-            const Dimensions * dimensions = render_layer.dimensions[index];
-            const float width = dimensions->width;
-            const float height = dimensions->height;
-            const Shader_Pipeline_Uniforms * shader_pipeline_uniforms = render_layer.shader_pipeline_uniforms[index];
+            const Render_Data & render_data = render_layer.render_datas[index];
+            const float width = render_data.width;
+            const float height = render_data.height;
+            const Render_Data::Uniforms * uniforms = render_data.uniforms;
 
 
             // Bind texture to texture unit 0.
-            bind_texture(texture_objects.at(*render_layer.texture_paths[index]), 0u);
+            bind_texture(texture_objects.at(*render_data.texture_path), 0u);
 
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
-            const vec3 & model_scale = *render_layer.scales[index];
-            const vec3 model_origin_offset = dimensions->origin * vec3(width, height, 0.0f) * model_scale;
-            const vec3 model_position = (*render_layer.positions[index] * unit_scale) - model_origin_offset;
+            const vec3 & model_scale = *render_data.scale;
+            const vec3 model_origin_offset = *render_data.origin * vec3(width, height, 0.0f) * model_scale;
+            const vec3 model_position = (*render_data.position * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
             model_matrix = scale(model_matrix, model_scale);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
 
 
             // Bind shader pipeline and set its uniforms.
-            const GLuint shader_program = shader_programs.at(*render_layer.shader_pipeline_names[index]);
+            const GLuint shader_program = shader_programs.at(*render_data.shader_pipeline_name);
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
             set_uniform(shader_program, "model", model_matrix);
 
             // Set custom shader pipeline uniforms if any were passed.
-            if (shader_pipeline_uniforms != nullptr)
+            if (uniforms != nullptr)
             {
-                set_shader_pipeline_uniforms(shader_program, shader_pipeline_uniforms);
+                set_shader_pipeline_uniforms(shader_program, uniforms);
             }
 
 
@@ -871,11 +853,7 @@ void cleanup_rendering()
     // Clear rendering data.
     for_each(render_layers, [](const string & /*layer_name*/, Render_Layer & render_layer) -> void
     {
-        render_layer.texture_paths.clear();
-        render_layer.shader_pipeline_names.clear();
-        render_layer.dimensions.clear();
-        render_layer.positions.clear();
-        render_layer.scales.clear();
+        render_layer.render_datas.clear();
         render_layer.order.clear();
     });
 

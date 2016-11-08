@@ -44,15 +44,20 @@ void renderer_update()
     {
         const Sprite * entity_sprite = entity_sprites[i];
         const Transform * entity_transform = entity_transforms[i];
+        const Dimensions & entity_sprite_dimensions = entity_sprite->dimensions;
 
         load_render_data(
-            entity_render_layers[i],
-            &entity_sprite->texture_path,
-            &entity_sprite->shader_pipeline_name,
-            nullptr,
-            &entity_sprite->dimensions,
-            &entity_transform->position,
-            &entity_transform->scale);
+            {
+                entity_render_layers[i],
+                &entity_sprite->texture_path,
+                &entity_sprite->shader_pipeline_name,
+                nullptr,
+                entity_sprite_dimensions.width,
+                entity_sprite_dimensions.height,
+                &entity_sprite_dimensions.origin,
+                &entity_transform->position,
+                &entity_transform->scale
+            });
     }
 }
 

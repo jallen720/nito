@@ -30,10 +30,10 @@ static vector<string *> entity_render_layers;
 static vector<Transform *> entity_transforms;
 static vector<Text *> entity_texts;
 static vector<vector<string>> character_texture_paths;
-static vector<Shader_Pipeline_Uniforms> text_uniforms;
-static vector<vector<const Dimensions *>> character_dimensions;
-static vector<vector<vec3>> character_positions;
-static vector<vector<float>> character_advances;
+static vector<Render_Data::Uniforms> text_uniforms;
+static vector<vector<const Dimensions *>> text_character_dimensions;
+static vector<vector<vec3>> text_character_positions;
+static vector<vector<float>> text_character_advances;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,17 +60,17 @@ void text_renderer_subscribe(const Entity entity)
     for (const char character : entity_text->value)
     {
         const string character_texture_path = font_prefix + character;
-        const Dimensions * character_dimensions = &get_loaded_texture(character_texture_path).dimensions;
+        const Dimensions * text_character_dimensions = &get_loaded_texture(character_texture_path).dimensions;
         entity_character_texture_paths.push_back(character_texture_path);
-        entity_character_dimensions.push_back(character_dimensions);
+        entity_character_dimensions.push_back(text_character_dimensions);
         entity_character_positions.push_back(vec3());
         entity_character_advances.push_back(get_loaded_glyph_advance(character_texture_path) / unit_scale);
     }
 
     character_texture_paths.push_back(entity_character_texture_paths);
-    character_dimensions.push_back(entity_character_dimensions);
-    character_positions.push_back(entity_character_positions);
-    character_advances.push_back(entity_character_advances);
+    text_character_dimensions.push_back(entity_character_dimensions);
+    text_character_positions.push_back(entity_character_positions);
+    text_character_advances.push_back(entity_character_advances);
 
 
     // Set text color for this entity's shader pipeline uniforms.
@@ -95,25 +95,30 @@ void text_renderer_update()
         const Transform * entity_transform = entity_transforms[entity];
         const vec3 & entity_scale = entity_transform->scale;
         const vector<string> & entity_character_texture_paths = character_texture_paths[entity];
-        const vector<const Dimensions *> & entity_character_dimensions = character_dimensions[entity];
-        vector<vec3> & entity_character_positions = character_positions[entity];
-        const vector<float> & entity_character_advances = character_advances[entity];
-        const Shader_Pipeline_Uniforms * entity_text_uniforms = &text_uniforms[entity];
+        const vector<const Dimensions *> & entity_character_dimensions = text_character_dimensions[entity];
+        vector<vec3> & entity_character_positions = text_character_positions[entity];
+        const vector<float> & entity_character_advances = text_character_advances[entity];
+        const Render_Data::Uniforms * entity_text_uniforms = &text_uniforms[entity];
         vec3 character_position_offset(0.0f);
 
         for (auto character_index = 0u; character_index < entity_character_texture_paths.size(); character_index++)
         {
+            const Dimensions * character_dimensions = entity_character_dimensions[character_index];
             vec3 & character_position = entity_character_positions[character_index];
             character_position = entity_transform->position + character_position_offset;
 
             load_render_data(
-                entity_render_layer,
-                &entity_character_texture_paths[character_index],
-                &TEXT_SHADER_PIPELINE_NAME,
-                entity_text_uniforms,
-                entity_character_dimensions[character_index],
-                &character_position,
-                &entity_scale);
+                {
+                    entity_render_layer,
+                    &entity_character_texture_paths[character_index],
+                    &TEXT_SHADER_PIPELINE_NAME,
+                    entity_text_uniforms,
+                    character_dimensions->width,
+                    character_dimensions->height,
+                    &character_dimensions->origin,
+                    &character_position,
+                    &entity_scale
+                });
 
             character_position_offset.x += entity_character_advances[character_index] * entity_scale.x;
         }

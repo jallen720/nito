@@ -65,7 +65,20 @@ struct Uniform
 };
 
 
-using Shader_Pipeline_Uniforms = std::map<std::string, Uniform>;
+struct Render_Data
+{
+    using Uniforms = std::map<std::string, Uniform>;
+
+    const std::string * layer_name;
+    const std::string * texture_path;
+    const std::string * shader_pipeline_name;
+    const Uniforms * uniforms;
+    const float width;
+    const float height;
+    const glm::vec3 * origin;
+    const glm::vec3 * position;
+    const glm::vec3 * scale;
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,16 +98,7 @@ void load_vertex_data(
     const GLsizeiptr index_data_size);
 
 void load_render_layer(const std::string & name, const std::string & render_space, const std::string & render_sorting);
-
-void load_render_data(
-    const std::string * layer_name,
-    const std::string * texture_path,
-    const std::string * shader_pipeline_name,
-    const Shader_Pipeline_Uniforms * shader_pipeline_uniforms,
-    const Dimensions * dimensions,
-    const glm::vec3 * position,
-    const glm::vec3 * scale);
-
+void load_render_data(const Render_Data & render_data);
 void init_rendering();
 void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform);
 void cleanup_rendering();

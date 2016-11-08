@@ -113,11 +113,13 @@ void text_renderer_update()
                     &entity_character_texture_paths[character_index],
                     &TEXT_SHADER_PIPELINE_NAME,
                     entity_text_uniforms,
-                    character_dimensions->width,
-                    character_dimensions->height,
-                    &character_dimensions->origin,
-                    &character_position,
-                    &entity_scale
+                    {
+                        character_dimensions->width,
+                        character_dimensions->height,
+                        &character_dimensions->origin,
+                        &character_position,
+                        &entity_scale,
+                    },
                 });
 
             character_position_offset.x += entity_character_advances[character_index] * entity_scale.x;

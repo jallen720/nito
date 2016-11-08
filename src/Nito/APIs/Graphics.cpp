@@ -320,8 +320,8 @@ static const Sorting_Function & get_sorting_function(const Render_Layer & render
             Render_Layer::Sorting::HIGHEST_Y,
             [&](unsigned int a, unsigned int b) -> bool
             {
-                return _render_layer.render_datas[a].position->y >
-                       _render_layer.render_datas[b].position->y;
+                return _render_layer.render_datas[a].dimensions.position->y >
+                       _render_layer.render_datas[b].dimensions.position->y;
             }
         },
     };
@@ -717,41 +717,42 @@ void init_rendering()
 }
 
 
-void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform)
+void render(const Render_Canvas & render_canvas)
 {
     // Calculate view and projection matrices from view transform and viewport.
+    const Render_Dimensions & canvas_dimensions = render_canvas.dimensions;
     mat4 view_matrix;
-    vec3 view_scale = view_transform->scale;
-    vec3 view_origin_offset = view_dimensions->origin * vec3(view_dimensions->width, view_dimensions->height, 0.0f);
-    vec3 view_position = (view_transform->position * view_scale * unit_scale) - view_origin_offset;
+    const vec3 & view_scale = *canvas_dimensions.scale;
+    const vec3 view_origin_offset = *canvas_dimensions.origin * vec3(canvas_dimensions.width, canvas_dimensions.height, 0.0f);
+    const vec3 view_position = (*canvas_dimensions.position * view_scale * unit_scale) - view_origin_offset;
     view_matrix = translate(view_matrix, -view_position);
     view_matrix = scale(view_matrix, view_scale);
 
     mat4 projection_matrix = ortho(
-        0.0f,                    // Left
-        view_dimensions->width,  // Right
-        0.0f,                    // Top
-        view_dimensions->height, // Bottom
-        viewport->z_near,        // Z near
-        viewport->z_far);        // Z far
+        0.0f,                     // Left
+        canvas_dimensions.width,  // Right
+        0.0f,                     // Top
+        canvas_dimensions.height, // Bottom
+        render_canvas.z_near,     // Z near
+        render_canvas.z_far);     // Z far
 
 
     // Configure OpenGL viewport.
     glViewport(
-        viewport->x,
-        viewport->y,
-        view_dimensions->width,
-        view_dimensions->height);
+        render_canvas.x,
+        render_canvas.y,
+        canvas_dimensions.width,
+        canvas_dimensions.height);
 
 
     // Configure scissor test if enabled.
     if (glIsEnabled(capabilities.at("scissor_test")))
     {
         glScissor(
-            viewport->x,
-            viewport->y,
-            view_dimensions->width,
-            view_dimensions->height);
+            render_canvas.x,
+            render_canvas.y,
+            canvas_dimensions.width,
+            canvas_dimensions.height);
     }
 
 
@@ -794,8 +795,9 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
         for (unsigned int index : render_layer.order)
         {
             const Render_Data & render_data = render_layer.render_datas[index];
-            const float width = render_data.width;
-            const float height = render_data.height;
+            const Render_Dimensions & dimensions = render_data.dimensions;
+            const float width = dimensions.width;
+            const float height = dimensions.height;
             const Render_Data::Uniforms * uniforms = render_data.uniforms;
 
 
@@ -805,9 +807,9 @@ void render(const Dimensions * view_dimensions, const Viewport * viewport, const
 
             // Create model matrix from render data transformations and bound texture dimensions.
             mat4 model_matrix;
-            const vec3 & model_scale = *render_data.scale;
-            const vec3 model_origin_offset = *render_data.origin * vec3(width, height, 0.0f) * model_scale;
-            const vec3 model_position = (*render_data.position * unit_scale) - model_origin_offset;
+            const vec3 & model_scale = *dimensions.scale;
+            const vec3 model_origin_offset = *dimensions.origin * vec3(width, height, 0.0f) * model_scale;
+            const vec3 model_position = (*dimensions.position * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
             model_matrix = scale(model_matrix, model_scale);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));

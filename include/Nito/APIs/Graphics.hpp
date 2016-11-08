@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "Nito/Components.hpp"
 #include "Nito/APIs/Resources.hpp"
 
 
@@ -65,6 +64,16 @@ struct Uniform
 };
 
 
+struct Render_Dimensions
+{
+    const float width;
+    const float height;
+    const glm::vec3 * origin;
+    const glm::vec3 * position;
+    const glm::vec3 * scale;
+};
+
+
 struct Render_Data
 {
     using Uniforms = std::map<std::string, Uniform>;
@@ -73,11 +82,17 @@ struct Render_Data
     const std::string * texture_path;
     const std::string * shader_pipeline_name;
     const Uniforms * uniforms;
-    const float width;
-    const float height;
-    const glm::vec3 * origin;
-    const glm::vec3 * position;
-    const glm::vec3 * scale;
+    const Render_Dimensions dimensions;
+};
+
+
+struct Render_Canvas
+{
+    const GLint x;
+    const GLint y;
+    const float z_near;
+    const float z_far;
+    const Render_Dimensions dimensions;
 };
 
 
@@ -100,7 +115,7 @@ void load_vertex_data(
 void load_render_layer(const std::string & name, const std::string & render_space, const std::string & render_sorting);
 void load_render_data(const Render_Data & render_data);
 void init_rendering();
-void render(const Dimensions * view_dimensions, const Viewport * viewport, const Transform * view_transform);
+void render(const Render_Canvas & render_canvas);
 void cleanup_rendering();
 void destroy_graphics();
 float get_unit_scale();

@@ -43,10 +43,24 @@ void camera_update()
 
     for (auto i = 0u; i < entity_dimensions.size(); i++)
     {
+        const Viewport * entity_viewport = entity_viewports[i];
+        const Dimensions * _entity_dimensions = entity_dimensions[i];
+        const Transform * entity_transform = entity_transforms[i];
+
         render(
-            entity_dimensions[i],
-            entity_viewports[i],
-            entity_transforms[i]);
+            {
+                entity_viewport->x,
+                entity_viewport->y,
+                entity_viewport->z_near,
+                entity_viewport->z_far,
+                {
+                    _entity_dimensions->width,
+                    _entity_dimensions->height,
+                    &_entity_dimensions->origin,
+                    &entity_transform->position,
+                    &entity_transform->scale,
+                },
+            });
     }
 
     cleanup_rendering();

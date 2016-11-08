@@ -52,11 +52,13 @@ void renderer_update()
                 &entity_sprite->texture_path,
                 &entity_sprite->shader_pipeline_name,
                 nullptr,
-                entity_sprite_dimensions.width,
-                entity_sprite_dimensions.height,
-                &entity_sprite_dimensions.origin,
-                &entity_transform->position,
-                &entity_transform->scale
+                {
+                    entity_sprite_dimensions.width,
+                    entity_sprite_dimensions.height,
+                    &entity_sprite_dimensions.origin,
+                    &entity_transform->position,
+                    &entity_transform->scale,
+                },
             });
     }
 }

@@ -9,7 +9,6 @@
 #include <functional>
 #include <stdexcept>
 #include <cstdio>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/JSON.hpp"
 #include "Cpp_Utils/File.hpp"
@@ -291,10 +290,7 @@ static map<string, const Control_Handler> engine_control_handlers
 {
     {
         "exit",
-        [](GLFWwindow * window, const int /*key*/, const int /*action*/) -> void
-        {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
+        close_window
     }
 };
 

@@ -3,7 +3,6 @@
 
 #include <functional>
 #include <string>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 
@@ -157,7 +156,7 @@ enum class Key_Actions
 };
 
 
-using Control_Handler = std::function<void(GLFWwindow *, const int, const int)>;
+using Control_Handler = std::function<void()>;
 using Mouse_Move_Handler = std::function<void(const glm::dvec2 &)>;
 using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Key_Actions)>;
 

@@ -75,7 +75,7 @@ void init_glfw()
 }
 
 
-GLFWwindow * create_window(const Window_Config & window_config)
+void create_window(const Window_Config & window_config)
 {
     static const map<string, const int> swap_intervals
     {
@@ -146,15 +146,12 @@ GLFWwindow * create_window(const Window_Config & window_config)
     {
         window_created_handler();
     }
-
-
-    return window;
 }
 
 
-GLFWwindow ** get_window()
+void close_window()
 {
-    return &window;
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 
@@ -167,6 +164,12 @@ float get_delta_time()
 const vec3 & get_window_size()
 {
     return window_size;
+}
+
+
+int get_window_key_action(int key)
+{
+    return glfwGetKey(window, key);
 }
 
 

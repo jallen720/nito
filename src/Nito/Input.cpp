@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
+#include <GLFW/glfw3.h>
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
@@ -201,7 +202,7 @@ void window_key_handler(GLFWwindow * window, int key, int /*scan_code*/, int act
         if (control_binding.key == key &&
             control_binding.action == action)
         {
-            control_binding.handler(window, key, action);
+            control_binding.handler();
         }
     }
 }
@@ -439,7 +440,7 @@ void set_mouse_button_handler(const string & name, const Mouse_Button_Handler & 
 
 Key_Actions get_key_action(const Keys key)
 {
-    return at_value(key_actions, glfwGetKey(*get_window(), keys.at(key)));
+    return at_value(key_actions, get_window_key_action(keys.at(key)));
 }
 
 

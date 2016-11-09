@@ -312,16 +312,14 @@ static void set_shader_pipeline_uniforms(const GLuint shader_program, const Rend
 
 static const Sorting_Function & get_sorting_function(const Render_Layer & render_layer)
 {
-    static const Render_Layer & _render_layer = render_layer;
-
     static const map<Render_Layer::Sorting, const Sorting_Function> sorting_functions
     {
         {
             Render_Layer::Sorting::HIGHEST_Y,
             [&](unsigned int a, unsigned int b) -> bool
             {
-                return _render_layer.render_datas[a].dimensions.position->y >
-                       _render_layer.render_datas[b].dimensions.position->y;
+                return render_layer.render_datas[a].dimensions.position->y >
+                       render_layer.render_datas[b].dimensions.position->y;
             }
         },
     };

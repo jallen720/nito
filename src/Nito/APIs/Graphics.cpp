@@ -729,20 +729,22 @@ void render(const Render_Canvas & render_canvas)
 {
     // Calculate view and projection matrices from view transform and viewport.
     const Render_Dimensions & canvas_dimensions = render_canvas.dimensions;
+    const float canvas_width = canvas_dimensions.width;
+    const float canvas_height = canvas_dimensions.height;
     mat4 view_matrix;
     const vec3 & view_scale = *canvas_dimensions.scale;
-    const vec3 view_origin_offset = *canvas_dimensions.origin * vec3(canvas_dimensions.width, canvas_dimensions.height, 0.0f);
+    const vec3 view_origin_offset = *canvas_dimensions.origin * vec3(canvas_width, canvas_height, 0.0f);
     const vec3 view_position = (*canvas_dimensions.position * view_scale * unit_scale) - view_origin_offset;
     view_matrix = translate(view_matrix, -view_position);
     view_matrix = scale(view_matrix, view_scale);
 
     mat4 projection_matrix = ortho(
-        0.0f,                     // Left
-        canvas_dimensions.width,  // Right
-        0.0f,                     // Top
-        canvas_dimensions.height, // Bottom
-        render_canvas.z_near,     // Z near
-        render_canvas.z_far);     // Z far
+        0.0f,                              // Left
+        canvas_width,                      // Right
+        0.0f,                              // Top
+        canvas_height,                     // Bottom
+        render_canvas.z_near * unit_scale, // Z near
+        render_canvas.z_far * unit_scale); // Z far
 
 
     // Configure OpenGL viewport.

@@ -104,6 +104,7 @@ struct Render_Layer
     {
         NONE,
         HIGHEST_Y,
+        HIGHEST_Z,
     }
     sorting;
 };
@@ -320,6 +321,14 @@ static const Sorting_Function & get_sorting_function(const Render_Layer & render
             {
                 return render_layer.render_datas[a].dimensions.position->y >
                        render_layer.render_datas[b].dimensions.position->y;
+            }
+        },
+        {
+            Render_Layer::Sorting::HIGHEST_Z,
+            [&](unsigned int a, unsigned int b) -> bool
+            {
+                return render_layer.render_datas[a].dimensions.position->z >
+                       render_layer.render_datas[b].dimensions.position->z;
             }
         },
     };
@@ -687,6 +696,7 @@ void load_render_layer(const string & name, const string & render_space, const s
     {
         { "none"      , Render_Layer::Sorting::NONE      },
         { "highest_y" , Render_Layer::Sorting::HIGHEST_Y },
+        { "highest_z" , Render_Layer::Sorting::HIGHEST_Z },
     };
 
     Render_Layer & render_layer = render_layers[name];

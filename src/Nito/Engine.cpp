@@ -25,6 +25,7 @@
 #include "Nito/APIs/Graphics.hpp"
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Resources.hpp"
+#include "Nito/APIs/Scene.hpp"
 #include "Nito/Systems/Button.hpp"
 #include "Nito/Systems/Camera.hpp"
 #include "Nito/Systems/Local_Transform.hpp"
@@ -433,17 +434,6 @@ static const map<string, const Key_Actions> key_action_mappings
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static string get_system_requirement_message(
-    const Entity entity,
-    const string & system_name,
-    const string & requirement_name,
-    const string & requirement_type)
-{
-    return "ERROR: entity " + to_string(entity) + " does not contain a " + requirement_name + " " +
-           requirement_type + " required by the " + system_name + " system!";
-}
-
-
 static Component transform_component_handler(const JSON & data)
 {
     vec3 position;
@@ -653,73 +643,20 @@ int run_engine()
     }
 
 
-    // Load entities.
-    const vector<JSON> entities_data = read_json_file("resources/data/entities.json");
+    // Load scenes.
+    static const string DEFAULT_SCENE_NAME = "default";
 
-    const vector<Entity> entities = transform<Entity>(entities_data, [](const JSON & /*entity_data*/) -> Entity
+    for_each(read_json_file("resources/data/scenes.json"), set_scene);
+
+    // Validate that a default scene was specified.
+    if (!scene_exists(DEFAULT_SCENE_NAME))
     {
-        return create_entity();
-    });
-
-
-    // Add components to entities.
-    for (auto i = 0u; i < entities.size(); i++)
-    {
-        for_each(entities_data[i]["components"], [&](const string & component, const JSON & data) -> void
-        {
-            add_component(entities[i], component, data);
-        });
+        throw runtime_error(
+            "ERROR: a scene named \"" + DEFAULT_SCENE_NAME + "\" must be provided in resources/data/scenes.json!");
     }
 
-
-    // Subscribe entities to systems.
-    const JSON systems_data = read_json_file("resources/data/systems.json");
-
-    for (auto i = 0u; i < entities.size(); i++)
-    {
-        const Entity entity = entities[i];
-        const vector<string> & entity_systems = entities_data[i]["systems"];
-
-
-        // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
-        for (const string & system_name : entity_systems)
-        {
-            // Defining system and component requirements for systems is optional, so make sure requirements are defined
-            // before checking them.
-            if (contains_key(systems_data, system_name))
-            {
-                const JSON & system_data = systems_data[system_name];
-
-                if (contains_key(system_data, "required_components"))
-                {
-                    for (const string & required_component : system_data["required_components"])
-                    {
-                        if (!has_component(entity, required_component))
-                        {
-                            throw runtime_error(
-                                get_system_requirement_message(entity, system_name, required_component, "component"));
-                        }
-                    }
-                }
-
-                if (contains_key(system_data, "required_systems"))
-                {
-                    for (const string & required_system : system_data["required_systems"])
-                    {
-                        if (!contains(entity_systems, required_system))
-                        {
-                            throw runtime_error(
-                                get_system_requirement_message(entity, system_name, required_system, "system"));
-                        }
-                    }
-                }
-            }
-
-
-            // If entity meets all system and component requirements for this system, subscribe entity to it.
-            subscribe_to_system(entity, system_name);
-        }
-    }
+    // Load default scene.
+    load_scene(DEFAULT_SCENE_NAME);
 
 
     // Main loop

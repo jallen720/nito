@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <string>
+
+
 namespace Nito
 {
 
@@ -10,7 +13,9 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+void set_scene(const std::string & name, const std::string & path);
+bool scene_exists(const std::string & name);
+void load_scene(const std::string & name);
 
 
 } // namespace Nito

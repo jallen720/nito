@@ -3,6 +3,8 @@
 
 #include <functional>
 
+#include "Nito/APIs/ECS.hpp"
+
 
 namespace Nito
 {
@@ -16,6 +18,20 @@ namespace Nito
 using Update_Handler = std::function<void()>;
 
 
+struct Component_Handlers
+{
+    const Component_Allocator allocator;
+    const Component_Deallocator deallocator;
+};
+
+
+struct System_Entity_Handlers
+{
+    const System_Entity_Handler subscriber;
+    const System_Entity_Handler unsubscriber;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -24,5 +40,14 @@ using Update_Handler = std::function<void()>;
 void add_update_handler(const Update_Handler & update_handler);
 int run_engine();
 
+template<typename T>
+Component_Allocator get_component_allocator();
+
+template<typename T>
+Component_Deallocator get_component_deallocator();
+
 
 } // namespace Nito
+
+
+#include "Nito/Engine.ipp"

@@ -19,6 +19,7 @@ using Cpp_Utils::for_each;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+using Cpp_Utils::remove;
 
 // glm/glm.hpp
 using glm::vec3;
@@ -31,13 +32,24 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Data Structures
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Entity_State
+{
+    bool is_mouse_over;
+    Sprite * sprite;
+    Transform * transform;
+    UI_Mouse_Event_Handlers * ui_mouse_event_handlers;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<bool> is_mouse_over_flags;
-static vector<Sprite *> entity_sprites;
-static vector<Transform *> entity_transforms;
-static vector<UI_Mouse_Event_Handlers *> entity_ui_mouse_event_handlers;
+static map<Entity, Entity_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,10 +70,8 @@ bool is_mouse_over(const dvec2 & mouse_position, const Sprite * sprite, const Tr
 }
 
 
-void update_mouse_over_flag(unsigned int i, bool value, const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
+void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
 {
-    is_mouse_over_flags[i] = value;
-
     if (event_handler)
     {
         event_handler();
@@ -71,40 +81,45 @@ void update_mouse_over_flag(unsigned int i, bool value, const UI_Mouse_Event_Han
 
 void mouse_move_handler(const dvec2 & mouse_position)
 {
-    for (auto i = 0u; i < is_mouse_over_flags.size(); i++)
+    for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
-        bool is_mouse_over_entity = is_mouse_over(mouse_position, entity_sprites[i], entity_transforms[i]);
-        UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_ui_mouse_event_handlers[i];
+        bool is_mouse_currently_over_entity =
+            is_mouse_over(mouse_position, entity_state.sprite, entity_state.transform);
+
+        bool & entity_is_mouse_over = entity_state.is_mouse_over;
+        UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_state.ui_mouse_event_handlers;
 
 
         // Check for mouse enter/exit events.
-        if (is_mouse_over_flags[i])
+        if (entity_is_mouse_over)
         {
-            if (!is_mouse_over_entity)
+            if (!is_mouse_currently_over_entity)
             {
-                update_mouse_over_flag(i, false, ui_mouse_event_handlers->mouse_exit_handler);
+                entity_is_mouse_over = false;
+                check_call_handler(ui_mouse_event_handlers->mouse_exit_handler);
             }
         }
         else
         {
-            if (is_mouse_over_entity)
+            if (is_mouse_currently_over_entity)
             {
-                update_mouse_over_flag(i, true, ui_mouse_event_handlers->mouse_enter_handler);
+                entity_is_mouse_over = true;
+                check_call_handler(ui_mouse_event_handlers->mouse_enter_handler);
             }
         }
-    }
+    });
 }
 
 
 void mouse_button_handler(const Mouse_Buttons mouse_button, const Key_Actions key_action)
 {
-    for (auto i = 0u; i < is_mouse_over_flags.size(); i++)
+    for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
         // Only handle mouse button events if mouse is over entity.
-        if (is_mouse_over_flags[i])
+        if (entity_state.is_mouse_over)
         {
             const UI_Mouse_Event_Handlers::Button_Handlers & button_handlers =
-                entity_ui_mouse_event_handlers[i]->mouse_button_handlers;
+                entity_state.ui_mouse_event_handlers->mouse_button_handlers;
 
             if (contains_key(button_handlers, mouse_button))
             {
@@ -116,7 +131,7 @@ void mouse_button_handler(const Mouse_Buttons mouse_button, const Key_Actions ke
                 }
             }
         }
-    }
+    });
 }
 
 
@@ -134,13 +149,19 @@ void ui_mouse_event_dispatcher_init()
 
 void ui_mouse_event_dispatcher_subscribe(const Entity entity)
 {
-    entity_sprites.push_back((Sprite *)get_component(entity, "sprite"));
-    entity_transforms.push_back((Transform *)get_component(entity, "transform"));
+    entity_states[entity] =
+    {
+        false,
+        (Sprite *)get_component(entity, "sprite"),
+        (Transform *)get_component(entity, "transform"),
+        (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers"),
+    };
+}
 
-    entity_ui_mouse_event_handlers.push_back(
-        (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers"));
 
-    is_mouse_over_flags.push_back(false);
+void ui_mouse_event_dispatcher_unsubscribe(const Entity entity)
+{
+    remove(entity_states, entity);
 }
 
 

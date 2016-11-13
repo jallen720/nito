@@ -15,6 +15,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ui_mouse_event_dispatcher_init();
 void ui_mouse_event_dispatcher_subscribe(const Entity entity);
+void ui_mouse_event_dispatcher_unsubscribe(const Entity entity);
 
 
 } // namespace Nito

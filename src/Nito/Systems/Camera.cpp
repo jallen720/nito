@@ -1,13 +1,21 @@
 #include "Nito/Systems/Camera.hpp"
 
-#include <vector>
+#include <map>
+#include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Components.hpp"
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"
 
 
-using std::vector;
+using std::map;
+
+// Cpp_Utils/Map.hpp
+using Cpp_Utils::remove;
+
+// Cpp_Utils/Collection.hpp
+using Cpp_Utils::for_each;
 
 
 namespace Nito
@@ -16,12 +24,23 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Data Structures
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Entity_State
+{
+    const Viewport * viewport;
+    const Dimensions * dimensions;
+    const Transform * transform;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Dimensions *> entity_dimensions;
-static vector<Transform *> entity_transforms;
-static vector<Viewport *> entity_viewports;
+static map<Entity, Entity_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +50,18 @@ static vector<Viewport *> entity_viewports;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void camera_subscribe(const Entity entity)
 {
-    entity_dimensions.push_back((Dimensions *)get_component(entity, "dimensions"));
-    entity_transforms.push_back((Transform *)get_component(entity, "transform"));
-    entity_viewports.push_back((Viewport *)get_component(entity, "viewport"));
+    entity_states[entity] =
+    {
+        (Viewport *)get_component(entity, "viewport"),
+        (Dimensions *)get_component(entity, "dimensions"),
+        (Transform *)get_component(entity, "transform"),
+    };
+}
+
+
+void camera_unsubscribe(const Entity entity)
+{
+    remove(entity_states, entity);
 }
 
 
@@ -41,11 +69,11 @@ void camera_update()
 {
     init_rendering();
 
-    for (auto i = 0u; i < entity_dimensions.size(); i++)
+    for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
-        const Viewport * entity_viewport = entity_viewports[i];
-        const Dimensions * _entity_dimensions = entity_dimensions[i];
-        const Transform * entity_transform = entity_transforms[i];
+        const Viewport * entity_viewport = entity_state.viewport;
+        const Dimensions * entity_dimensions = entity_state.dimensions;
+        const Transform * entity_transform = entity_state.transform;
 
         render(
             {
@@ -54,14 +82,14 @@ void camera_update()
                 entity_viewport->z_near,
                 entity_viewport->z_far,
                 {
-                    _entity_dimensions->width,
-                    _entity_dimensions->height,
-                    &_entity_dimensions->origin,
+                    entity_dimensions->width,
+                    entity_dimensions->height,
+                    &entity_dimensions->origin,
                     &entity_transform->position,
                     &entity_transform->scale,
                 },
             });
-    }
+    });
 
     cleanup_rendering();
 }

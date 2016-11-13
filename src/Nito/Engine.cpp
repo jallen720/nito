@@ -19,11 +19,9 @@
 #include "Cpp_Utils/String.hpp"
 
 #include "Nito/Components.hpp"
-#include "Nito/Utilities.hpp"
 #include "Nito/APIs/Window.hpp"
 #include "Nito/APIs/Input.hpp"
 #include "Nito/APIs/Graphics.hpp"
-#include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Resources.hpp"
 #include "Nito/APIs/Scene.hpp"
 #include "Nito/Systems/Button.hpp"
@@ -76,7 +74,7 @@ namespace Nito
 // Forward Declarations
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static Component transform_component_handler(const JSON & data);
+static Component transform_component_allocator(const JSON & data);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,15 +85,57 @@ static Component transform_component_handler(const JSON & data);
 static vector<Update_Handler> update_handlers;
 
 
-static map<string, const System_Subscribe_Handler> engine_system_subscribe_handlers
+static map<string, const System_Entity_Handlers> engine_system_entity_handlers
 {
-    { "button"                    , button_subscribe                    },
-    { "camera"                    , camera_subscribe                    },
-    { "local_transform"           , local_transform_subscribe           },
-    { "renderer"                  , renderer_subscribe                  },
-    { "text_renderer"             , text_renderer_subscribe             },
-    { "ui_mouse_event_dispatcher" , ui_mouse_event_dispatcher_subscribe },
-    { "ui_transform"              , ui_transform_subscribe              },
+    {
+        "button",
+        {
+            button_subscribe,
+            button_unsubscribe,
+        },
+    },
+    {
+        "camera",
+        {
+            camera_subscribe,
+            camera_unsubscribe,
+        },
+    },
+    {
+        "local_transform",
+        {
+            local_transform_subscribe,
+            local_transform_unsubscribe,
+        },
+    },
+    {
+        "renderer",
+        {
+            renderer_subscribe,
+            renderer_unsubscribe,
+        },
+    },
+    {
+        "text_renderer",
+        {
+            text_renderer_subscribe,
+            text_renderer_unsubscribe,
+        },
+    },
+    {
+        "ui_mouse_event_dispatcher",
+        {
+            ui_mouse_event_dispatcher_subscribe,
+            ui_mouse_event_dispatcher_unsubscribe,
+        },
+    },
+    {
+        "ui_transform",
+        {
+            ui_transform_subscribe,
+            ui_transform_unsubscribe,
+        },
+    },
 };
 
 
@@ -108,181 +148,217 @@ static vector<Update_Handler> engine_update_handlers
 };
 
 
-static map<string, const Component_Handler> engine_component_handlers
+static map<string, const Component_Handlers> engine_component_handlers
 {
     {
         "transform",
-        transform_component_handler
+        {
+            transform_component_allocator,
+            get_component_deallocator<Transform>(),
+        }
     },
     {
         "local_transform",
-        transform_component_handler
+        {
+            transform_component_allocator,
+            get_component_deallocator<Local_Transform>(),
+        }
     },
     {
         "ui_transform",
-        [](const JSON & data) -> Component
         {
-            vec3 position;
-            vec3 anchor;
-
-            if (contains_key(data, "position"))
+            [](const JSON & data) -> Component
             {
-                const JSON & position_data = data["position"];
-                position.x = position_data["x"];
-                position.y = position_data["y"];
-            }
+                vec3 position;
+                vec3 anchor;
 
-            if (contains_key(data, "anchor"))
-            {
-                const JSON & anchor_data = data["anchor"];
-                anchor.x = anchor_data["x"];
-                anchor.y = anchor_data["y"];
-            }
+                if (contains_key(data, "position"))
+                {
+                    const JSON & position_data = data["position"];
+                    position.x = position_data["x"];
+                    position.y = position_data["y"];
+                }
 
-            return new UI_Transform
-            {
-                position,
-                anchor,
-            };
+                if (contains_key(data, "anchor"))
+                {
+                    const JSON & anchor_data = data["anchor"];
+                    anchor.x = anchor_data["x"];
+                    anchor.y = anchor_data["y"];
+                }
+
+                return new UI_Transform
+                {
+                    position,
+                    anchor,
+                };
+            },
+            get_component_deallocator<UI_Transform>(),
         }
     },
     {
         "sprite",
-        [](const JSON & data) -> Component
         {
-            const string texture_path = data["texture_path"];
-
-            // Use texture dimensions as default dimensions for sprite.
-            Dimensions dimensions = get_loaded_texture(texture_path).dimensions;
-
-            // If dimensions field is present, overwrite texture dimensions with provided fields.
-            if (contains_key(data, "dimensions"))
+            [](const JSON & data) -> Component
             {
-                const JSON & dimensions_data = data["dimensions"];
+                const string texture_path = data["texture_path"];
 
-                if (contains_key(dimensions_data, "width"))
+                // Use texture dimensions as default dimensions for sprite.
+                Dimensions dimensions = get_loaded_texture(texture_path).dimensions;
+
+                // If dimensions field is present, overwrite texture dimensions with provided fields.
+                if (contains_key(data, "dimensions"))
                 {
-                    dimensions.width = dimensions_data["width"].get<float>();
+                    const JSON & dimensions_data = data["dimensions"];
+
+                    if (contains_key(dimensions_data, "width"))
+                    {
+                        dimensions.width = dimensions_data["width"].get<float>();
+                    }
+
+                    if (contains_key(dimensions_data, "height"))
+                    {
+                        dimensions.height = dimensions_data["height"].get<float>();
+                    }
+
+                    if (contains_key(dimensions_data, "origin"))
+                    {
+                        const JSON & origin = dimensions_data["origin"];
+                        dimensions.origin.x = origin["x"];
+                        dimensions.origin.y = origin["y"];
+                    }
                 }
 
-                if (contains_key(dimensions_data, "height"))
+                return new Sprite
                 {
-                    dimensions.height = dimensions_data["height"].get<float>();
-                }
-
-                if (contains_key(dimensions_data, "origin"))
-                {
-                    const JSON & origin = dimensions_data["origin"];
-                    dimensions.origin.x = origin["x"];
-                    dimensions.origin.y = origin["y"];
-                }
-            }
-
-            return new Sprite
-            {
-                texture_path,
-                data["shader_pipeline_name"],
-                dimensions,
-            };
+                    texture_path,
+                    data["shader_pipeline_name"],
+                    dimensions,
+                };
+            },
+            get_component_deallocator<Sprite>(),
         }
     },
     {
         "id",
-        string_component_handler
+        {
+            get_component_allocator<string>(),
+            get_component_deallocator<string>(),
+        }
     },
     {
         "render_layer",
-        string_component_handler
+        {
+            get_component_allocator<string>(),
+            get_component_deallocator<string>(),
+        }
     },
     {
         "viewport",
-        [](const JSON & data) -> Component
         {
-            return new Viewport
+            [](const JSON & data) -> Component
             {
-                data["x"],
-                data["y"],
-                data["z_near"],
-                data["z_far"],
-            };
+                return new Viewport
+                {
+                    data["x"],
+                    data["y"],
+                    data["z_near"],
+                    data["z_far"],
+                };
+            },
+            get_component_deallocator<Viewport>(),
         }
     },
     {
         "dimensions",
-        [](const JSON & data) -> Component
         {
-            vec3 origin;
-
-            if (contains_key(data, "origin"))
+            [](const JSON & data) -> Component
             {
-                const JSON & origin_data = data["origin"];
-                origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
-            }
+                vec3 origin;
 
-            return new Dimensions
-            {
-                data["width"],
-                data["height"],
-                origin,
-            };
+                if (contains_key(data, "origin"))
+                {
+                    const JSON & origin_data = data["origin"];
+                    origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
+                }
+
+                return new Dimensions
+                {
+                    data["width"],
+                    data["height"],
+                    origin,
+                };
+            },
+            get_component_deallocator<Dimensions>(),
         }
     },
     {
         "ui_mouse_event_handlers",
-        [](const JSON & /*data*/) -> Component
         {
-            return new UI_Mouse_Event_Handlers;
+            [](const JSON & /*data*/) -> Component
+            {
+                return new UI_Mouse_Event_Handlers;
+            },
+            get_component_deallocator<UI_Mouse_Event_Handlers>(),
         }
     },
     {
         "button",
-        [](const JSON & data) -> Component
         {
-            return new Button
+            [](const JSON & data) -> Component
             {
-                data["hover_texture_path"],
-                data["pressed_texture_path"],
-                {},
-            };
+                return new Button
+                {
+                    data["hover_texture_path"],
+                    data["pressed_texture_path"],
+                    {},
+                };
+            },
+            get_component_deallocator<Button>(),
         }
     },
     {
         "text",
-        [](const JSON & data) -> Component
         {
-            vec3 color;
-
-            if (contains_key(data, "color"))
+            [](const JSON & data) -> Component
             {
-                const JSON & color_data = data["color"];
+                vec3 color;
 
-                if (contains_key(color_data, "r"))
+                if (contains_key(data, "color"))
                 {
-                    color.x = color_data["r"];
+                    const JSON & color_data = data["color"];
+
+                    if (contains_key(color_data, "r"))
+                    {
+                        color.x = color_data["r"];
+                    }
+
+                    if (contains_key(color_data, "g"))
+                    {
+                        color.y = color_data["g"];
+                    }
+
+                    if (contains_key(color_data, "b"))
+                    {
+                        color.z = color_data["b"];
+                    }
                 }
 
-                if (contains_key(color_data, "g"))
+                return new Text
                 {
-                    color.y = color_data["g"];
-                }
-
-                if (contains_key(color_data, "b"))
-                {
-                    color.z = color_data["b"];
-                }
-            }
-
-            return new Text
-            {
-                data["font"],
-                color,
-                data["value"],
-            };
+                    data["font"],
+                    color,
+                    data["value"],
+                };
+            },
+            get_component_deallocator<Text>(),
         }
     },
     {
         "parent_id",
-        string_component_handler
+        {
+            get_component_allocator<string>(),
+            get_component_deallocator<string>(),
+        }
     }
 };
 
@@ -434,7 +510,7 @@ static const map<string, const Key_Actions> key_action_mappings
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static Component transform_component_handler(const JSON & data)
+static Component transform_component_allocator(const JSON & data)
 {
     vec3 position;
     vec3 scale(1.0f);
@@ -476,9 +552,19 @@ int run_engine()
 {
     // Load engine handlers.
     for_each(engine_update_handlers, add_update_handler);
-    for_each(engine_component_handlers, set_component_handler);
-    for_each(engine_system_subscribe_handlers, set_system_subscribe_handler);
     for_each(engine_control_handlers, set_control_handler);
+
+    for_each(
+        engine_system_entity_handlers,
+        [](const string & name, const System_Entity_Handlers & system_entity_handlers) -> void
+        {
+            set_system_entity_handlers(name, system_entity_handlers.subscriber, system_entity_handlers.unsubscriber);
+        });
+
+    for_each(engine_component_handlers, [](const string & type, const Component_Handlers & component_handlers) -> void
+    {
+        set_component_handlers(type, component_handlers.allocator, component_handlers.deallocator);
+    });
 
 
     // Initialize modules.
@@ -655,13 +741,15 @@ int run_engine()
             "ERROR: a scene named \"" + DEFAULT_SCENE_NAME + "\" must be provided in resources/data/scenes.json!");
     }
 
-    // Load default scene.
-    load_scene(DEFAULT_SCENE_NAME);
+    // Set default scene as first scene to be loaded.
+    set_scene_to_load(DEFAULT_SCENE_NAME);
 
 
     // Main loop
     run_window_loop([&]() -> void
     {
+        check_load_scene();
+
         for (const Update_Handler & update_handler : update_handlers)
         {
             update_handler();

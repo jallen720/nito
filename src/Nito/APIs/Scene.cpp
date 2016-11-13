@@ -50,6 +50,7 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static string scene_to_load = "";
 static map<string, string> scenes;
 
 
@@ -69,26 +70,16 @@ static string get_system_requirement_message(
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Interface
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void set_scene(const string & name, const string & path)
-{
-    scenes[name] = path;
-}
-
-
-bool scene_exists(const string & name)
-{
-    return contains_key(scenes, name);
-}
-
-
 void load_scene(const string & name)
 {
-    // TODO: Unload previous scene if one was loaded.
+    if (!scene_exists(name))
+    {
+        throw runtime_error("ERROR: no scene named \"" + name + "\" was set in the Scene API!");
+    }
+
+
+    // Delete any existing entity data before loading entity data from scene.
+    delete_entity_data();
 
 
     // Load entities.
@@ -157,6 +148,39 @@ void load_scene(const string & name)
             // If entity meets all system and component requirements for this system, subscribe entity to it.
             subscribe_to_system(entity, system_name);
         }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Interface
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void set_scene(const string & name, const string & path)
+{
+    scenes[name] = path;
+}
+
+
+bool scene_exists(const string & name)
+{
+    return contains_key(scenes, name);
+}
+
+
+void set_scene_to_load(const string & name)
+{
+    scene_to_load = name;
+}
+
+
+void check_load_scene()
+{
+    if (scene_to_load != "")
+    {
+        load_scene(scene_to_load);
+        scene_to_load = "";
     }
 }
 

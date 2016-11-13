@@ -14,6 +14,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void local_transform_subscribe(const Entity entity);
+void local_transform_unsubscribe(const Entity entity);
 void local_transform_update();
 
 

@@ -42,4 +42,10 @@ void ui_transform_subscribe(const Entity entity)
 }
 
 
+void ui_transform_unsubscribe(const Entity /*entity*/)
+{
+    // TODO: Fix ui transform so it unapplies position.
+}
+
+
 } // namespace Nito

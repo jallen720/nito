@@ -203,7 +203,7 @@ static map<string, const Component_Handlers> engine_component_handlers
                 const string texture_path = data["texture_path"];
 
                 // Use texture dimensions as default dimensions for sprite.
-                Dimensions dimensions = get_loaded_texture(texture_path).dimensions;
+                Dimensions sprite_dimensions = get_loaded_texture(texture_path).dimensions;
 
                 // If dimensions field is present, overwrite texture dimensions with provided fields.
                 if (contains_key(data, "dimensions"))
@@ -212,19 +212,19 @@ static map<string, const Component_Handlers> engine_component_handlers
 
                     if (contains_key(dimensions_data, "width"))
                     {
-                        dimensions.width = dimensions_data["width"].get<float>();
+                        sprite_dimensions.width = dimensions_data["width"].get<float>();
                     }
 
                     if (contains_key(dimensions_data, "height"))
                     {
-                        dimensions.height = dimensions_data["height"].get<float>();
+                        sprite_dimensions.height = dimensions_data["height"].get<float>();
                     }
 
                     if (contains_key(dimensions_data, "origin"))
                     {
                         const JSON & origin = dimensions_data["origin"];
-                        dimensions.origin.x = origin["x"];
-                        dimensions.origin.y = origin["y"];
+                        sprite_dimensions.origin.x = origin["x"];
+                        sprite_dimensions.origin.y = origin["y"];
                     }
                 }
 
@@ -232,7 +232,7 @@ static map<string, const Component_Handlers> engine_component_handlers
                 {
                     texture_path,
                     data["shader_pipeline_name"],
-                    dimensions,
+                    sprite_dimensions,
                 };
             },
             get_component_deallocator<Sprite>(),

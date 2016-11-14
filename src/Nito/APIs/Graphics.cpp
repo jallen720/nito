@@ -244,13 +244,13 @@ static void validate_no_opengl_error(const string & description)
 {
     static const map<GLenum, const string> opengl_error_messages
     {
-        { GL_INVALID_ENUM                  , "Invalid enum"                  },
-        { GL_INVALID_VALUE                 , "Invalid value"                 },
-        { GL_INVALID_OPERATION             , "Invalid operation"             },
-        { GL_INVALID_FRAMEBUFFER_OPERATION , "Invalid framebuffer operation" },
-        { GL_OUT_OF_MEMORY                 , "Out of memory"                 },
-        { GL_STACK_UNDERFLOW               , "Stack underflow"               },
-        { GL_STACK_OVERFLOW                , "Stack overflow"                },
+        { GL_INVALID_ENUM                  , "invalid enum"                  },
+        { GL_INVALID_VALUE                 , "invalid value"                 },
+        { GL_INVALID_OPERATION             , "invalid operation"             },
+        { GL_INVALID_FRAMEBUFFER_OPERATION , "invalid framebuffer operation" },
+        { GL_OUT_OF_MEMORY                 , "out of memory"                 },
+        { GL_STACK_UNDERFLOW               , "stack underflow"               },
+        { GL_STACK_OVERFLOW                , "stack overflow"                },
     };
 
     const GLenum error = glGetError();

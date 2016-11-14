@@ -635,8 +635,7 @@ int run_engine()
 
     for (const JSON & render_layer : render_layers_config)
     {
-        string sorting = contains_key(render_layer, "sorting") ? render_layer["sorting"] : "none";
-        load_render_layer(render_layer["name"], render_layer["space"], sorting);
+        load_render_layer(render_layer["name"], render_layer["space"]);
     }
 
 

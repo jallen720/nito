@@ -104,7 +104,7 @@ void load_vertex_data(
     const GLuint * index_data,
     const GLsizeiptr index_data_size);
 
-void load_render_layer(const std::string & name, const std::string & render_space, const std::string & render_sorting);
+void load_render_layer(const std::string & name, const std::string & render_space);
 void load_render_data(const Render_Data & render_data);
 void init_rendering();
 void render(const Render_Canvas & render_canvas);

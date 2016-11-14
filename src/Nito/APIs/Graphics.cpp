@@ -99,18 +99,7 @@ struct Render_Layer
         SCREEN,
     }
     space;
-
-    enum class Sorting
-    {
-        NONE,
-        HIGHEST_Y,
-        HIGHEST_Z,
-    }
-    sorting;
 };
-
-
-using Sorting_Function = function<bool(unsigned int, unsigned int)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,32 +297,6 @@ static void set_shader_pipeline_uniforms(const GLuint shader_program, const Rend
             }
         };
     });
-}
-
-
-static const Sorting_Function & get_sorting_function(const Render_Layer & render_layer)
-{
-    static const map<Render_Layer::Sorting, const Sorting_Function> sorting_functions
-    {
-        {
-            Render_Layer::Sorting::HIGHEST_Y,
-            [&](unsigned int a, unsigned int b) -> bool
-            {
-                return render_layer.render_datas[a].dimensions.position->y >
-                       render_layer.render_datas[b].dimensions.position->y;
-            }
-        },
-        {
-            Render_Layer::Sorting::HIGHEST_Z,
-            [&](unsigned int a, unsigned int b) -> bool
-            {
-                return render_layer.render_datas[a].dimensions.position->z >
-                       render_layer.render_datas[b].dimensions.position->z;
-            }
-        },
-    };
-
-    return sorting_functions.at(render_layer.sorting);
 }
 
 
@@ -684,7 +647,7 @@ void load_vertex_data(
 }
 
 
-void load_render_layer(const string & name, const string & render_space, const string & render_sorting)
+void load_render_layer(const string & name, const string & render_space)
 {
     static const map<string, const Render_Layer::Space> render_spaces
     {
@@ -692,16 +655,8 @@ void load_render_layer(const string & name, const string & render_space, const s
         { "screen" , Render_Layer::Space::SCREEN },
     };
 
-    static const map<string, const Render_Layer::Sorting> render_sortings
-    {
-        { "none"      , Render_Layer::Sorting::NONE      },
-        { "highest_y" , Render_Layer::Sorting::HIGHEST_Y },
-        { "highest_z" , Render_Layer::Sorting::HIGHEST_Z },
-    };
-
     Render_Layer & render_layer = render_layers[name];
     render_layer.space = render_spaces.at(render_space);
-    render_layer.sorting = render_sortings.at(render_sorting);
 }
 
 
@@ -781,11 +736,15 @@ void render(const Render_Canvas & render_canvas)
     // Render all layers.
     for_each(render_layers, [&](const string & /*layer_name*/, Render_Layer & render_layer) -> void
     {
+        const vector<Render_Data> & render_datas = render_layer.render_datas;
+
+
         // Sort render layer order.
-        if (render_layer.sorting != Render_Layer::Sorting::NONE)
+        sort(render_layer.order, [&](const unsigned int a, const unsigned int b) -> bool
         {
-            sort(render_layer.order, get_sorting_function(render_layer));
-        }
+            return render_datas[a].dimensions.position->z >
+                   render_datas[b].dimensions.position->z;
+        });
 
 
         // Set view matrices for all shader programs.
@@ -804,7 +763,7 @@ void render(const Render_Canvas & render_canvas)
         // Render all data in layer.
         for (unsigned int index : render_layer.order)
         {
-            const Render_Data & render_data = render_layer.render_datas[index];
+            const Render_Data & render_data = render_datas[index];
             const Render_Dimensions & dimensions = render_data.dimensions;
             const float width = dimensions.width;
             const float height = dimensions.height;

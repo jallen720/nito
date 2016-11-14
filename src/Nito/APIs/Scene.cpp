@@ -92,54 +92,62 @@ void load_scene(const string & name)
 
 
     // Add components to entities.
+    map<Entity, vector<string>> entity_component_lists;
+
     for (auto i = 0u; i < entities.size(); i++)
     {
-        for_each(scene_data[i]["components"], [&](const string & component, const JSON & data) -> void
+        const Entity entity = entities[i];
+        vector<string> & entity_component_list = entity_component_lists[entity];
+
+        for_each(scene_data[i]["components"], [&](const string & component_name, const JSON & data) -> void
         {
-            add_component(entities[i], component, data);
+            add_component(entities[i], component_name, data);
+            entity_component_list.push_back(component_name);
         });
     }
 
 
     // Subscribe entities to systems.
-    const JSON systems_data = read_json_file("resources/data/systems.json");
+    const JSON system_requirements_data = read_json_file("resources/data/system_requirements.json");
+    const JSON component_requirements_data = read_json_file("resources/data/component_requirements.json");
 
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
-        const vector<string> & entity_systems = scene_data[i]["systems"];
+        vector<string> entity_systems = scene_data[i]["systems"];
+
+
+        // Populate entity_systems with systems required by entity's components.
+        for (const string & component_name : entity_component_lists.at(entity))
+        {
+            // Defining system requirements for components is optional, so make sure requirements are defined before
+            // checking them.
+            if (contains_key(component_requirements_data, component_name))
+            {
+                for (const string & component_required_system : component_requirements_data[component_name])
+                {
+                    if (!contains(entity_systems, component_required_system))
+                    {
+                        entity_systems.push_back(component_required_system);
+                    }
+                }
+            }
+        }
 
 
         // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
         for (const string & system_name : entity_systems)
         {
-            // Defining system and component requirements for systems is optional, so make sure requirements are defined
-            // before checking them.
-            if (contains_key(systems_data, system_name))
+            // Defining component requirements for systems is optional, so make sure requirements are defined before
+            // checking them.
+            if (contains_key(system_requirements_data, system_name))
             {
-                const JSON & system_data = systems_data[system_name];
-
-                if (contains_key(system_data, "required_components"))
+                for (const string & required_component : system_requirements_data[system_name])
                 {
-                    for (const string & required_component : system_data["required_components"])
+                    if (!has_component(entity, required_component))
                     {
-                        if (!has_component(entity, required_component))
-                        {
-                            throw runtime_error(
-                                get_system_requirement_message(entity, system_name, required_component, "component"));
-                        }
-                    }
-                }
-
-                if (contains_key(system_data, "required_systems"))
-                {
-                    for (const string & required_system : system_data["required_systems"])
-                    {
-                        if (!contains(entity_systems, required_system))
-                        {
-                            throw runtime_error(
-                                get_system_requirement_message(entity, system_name, required_system, "system"));
-                        }
+                        throw runtime_error(
+                            get_system_requirement_message(entity, system_name, required_component, "component"));
                     }
                 }
             }

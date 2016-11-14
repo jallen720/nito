@@ -520,6 +520,11 @@ static Component transform_component_allocator(const JSON & data)
         const JSON & position_data = data["position"];
         position.x = position_data["x"];
         position.y = position_data["y"];
+
+        if (contains_key(position_data, "z"))
+        {
+            position.z = position_data["z"];
+        }
     }
 
     if (contains_key(data, "scale"))

@@ -38,8 +38,8 @@ namespace Nito
 struct Entity_State
 {
     bool is_mouse_over;
-    Sprite * sprite;
     Transform * transform;
+    Dimensions * dimensions;
     UI_Mouse_Event_Handlers * ui_mouse_event_handlers;
 };
 
@@ -57,12 +57,11 @@ static map<Entity, Entity_State> entity_states;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool is_mouse_over(const dvec2 & mouse_position, const Sprite * sprite, const Transform * transform)
+bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimensions, const Transform * transform)
 {
-    const Dimensions & dimensions = sprite->dimensions;
-    const float width = dimensions.width;
-    const float height = dimensions.height;
-    const vec3 sprite_origin_offset = sprite->dimensions.origin * vec3(width, height, 0.0f);
+    const float width = dimensions->width;
+    const float height = dimensions->height;
+    const vec3 sprite_origin_offset = dimensions->origin * vec3(width, height, 0.0f);
     const vec3 sprite_position = (transform->position * get_unit_scale()) - sprite_origin_offset;
 
     return mouse_position.x >= sprite_position.x && mouse_position.x < sprite_position.x + width &&
@@ -84,7 +83,7 @@ void mouse_move_handler(const dvec2 & mouse_position)
     for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
         bool is_mouse_currently_over_entity =
-            is_mouse_over(mouse_position, entity_state.sprite, entity_state.transform);
+            is_mouse_over(mouse_position, entity_state.dimensions, entity_state.transform);
 
         bool & entity_is_mouse_over = entity_state.is_mouse_over;
         UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_state.ui_mouse_event_handlers;
@@ -152,8 +151,8 @@ void ui_mouse_event_dispatcher_subscribe(const Entity entity)
     entity_states[entity] =
     {
         false,
-        (Sprite *)get_component(entity, "sprite"),
         (Transform *)get_component(entity, "transform"),
+        (Dimensions *)get_component(entity, "dimensions"),
         (UI_Mouse_Event_Handlers *)get_component(entity, "ui_mouse_event_handlers"),
     };
 }

@@ -28,6 +28,7 @@
 #include "Nito/Systems/Camera.hpp"
 #include "Nito/Systems/Local_Transform.hpp"
 #include "Nito/Systems/Renderer.hpp"
+#include "Nito/Systems/Sprite_Dimensions_Handler.hpp"
 #include "Nito/Systems/Text_Renderer.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
@@ -136,6 +137,13 @@ static map<string, const System_Entity_Handlers> engine_system_entity_handlers
             ui_transform_unsubscribe,
         },
     },
+    {
+        "sprite_dimensions_handler",
+        {
+            sprite_dimensions_handler_subscribe,
+            sprite_dimensions_handler_unsubscribe,
+        },
+    },
 };
 
 
@@ -200,39 +208,10 @@ static map<string, const Component_Handlers> engine_component_handlers
         {
             [](const JSON & data) -> Component
             {
-                const string texture_path = data["texture_path"];
-
-                // Use texture dimensions as default dimensions for sprite.
-                Dimensions sprite_dimensions = get_loaded_texture(texture_path).dimensions;
-
-                // If dimensions field is present, overwrite texture dimensions with provided fields.
-                if (contains_key(data, "dimensions"))
-                {
-                    const JSON & dimensions_data = data["dimensions"];
-
-                    if (contains_key(dimensions_data, "width"))
-                    {
-                        sprite_dimensions.width = dimensions_data["width"].get<float>();
-                    }
-
-                    if (contains_key(dimensions_data, "height"))
-                    {
-                        sprite_dimensions.height = dimensions_data["height"].get<float>();
-                    }
-
-                    if (contains_key(dimensions_data, "origin"))
-                    {
-                        const JSON & origin = dimensions_data["origin"];
-                        sprite_dimensions.origin.x = origin["x"];
-                        sprite_dimensions.origin.y = origin["y"];
-                    }
-                }
-
                 return new Sprite
                 {
-                    texture_path,
+                    data["texture_path"],
                     data["shader_pipeline_name"],
-                    sprite_dimensions,
                 };
             },
             get_component_deallocator<Sprite>(),
@@ -273,20 +252,31 @@ static map<string, const Component_Handlers> engine_component_handlers
         {
             [](const JSON & data) -> Component
             {
-                vec3 origin;
+                auto dimensions = new Dimensions
+                {
+                    -1.0f,
+                    -1.0f,
+                    vec3(-1.0f, -1.0f, 0.0f),
+                };
+
+                if (contains_key(data, "width"))
+                {
+                    dimensions->width = data["width"].get<float>();
+                }
+
+                if (contains_key(data, "height"))
+                {
+                    dimensions->height = data["height"].get<float>();
+                }
 
                 if (contains_key(data, "origin"))
                 {
-                    const JSON & origin_data = data["origin"];
-                    origin = vec3(origin_data["x"], origin_data["y"], 0.0f);
+                    const JSON & origin = data["origin"];
+                    dimensions->origin.x = origin["x"];
+                    dimensions->origin.y = origin["y"];
                 }
 
-                return new Dimensions
-                {
-                    data["width"],
-                    data["height"],
-                    origin,
-                };
+                return dimensions;
             },
             get_component_deallocator<Dimensions>(),
         }

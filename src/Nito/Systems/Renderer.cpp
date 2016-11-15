@@ -33,6 +33,7 @@ struct Entity_State
     const string * render_layer;
     const Sprite * sprite;
     const Transform * transform;
+    const Dimensions * dimensions;
 };
 
 
@@ -56,6 +57,7 @@ void renderer_subscribe(const Entity entity)
         (string *)get_component(entity, "render_layer"),
         (Sprite *)get_component(entity, "sprite"),
         (Transform *)get_component(entity, "transform"),
+        (Dimensions *)get_component(entity, "dimensions"),
     };
 }
 
@@ -72,7 +74,7 @@ void renderer_update()
     {
         const Sprite * entity_sprite = entity_state.sprite;
         const Transform * entity_transform = entity_state.transform;
-        const Dimensions & entity_sprite_dimensions = entity_sprite->dimensions;
+        const Dimensions * entity_dimensions = entity_state.dimensions;
 
         load_render_data(
             {
@@ -81,9 +83,9 @@ void renderer_update()
                 &entity_sprite->shader_pipeline_name,
                 nullptr,
                 {
-                    entity_sprite_dimensions.width,
-                    entity_sprite_dimensions.height,
-                    &entity_sprite_dimensions.origin,
+                    entity_dimensions->width,
+                    entity_dimensions->height,
+                    &entity_dimensions->origin,
                     &entity_transform->position,
                     &entity_transform->scale,
                 },

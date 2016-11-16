@@ -252,12 +252,7 @@ static map<string, const Component_Handlers> engine_component_handlers
         {
             [](const JSON & data) -> Component
             {
-                auto dimensions = new Dimensions
-                {
-                    -1.0f,
-                    -1.0f,
-                    vec3(-1.0f, -1.0f, 0.0f),
-                };
+                auto dimensions = new Dimensions { 0.0f, 0.0f, vec3(0.0f) };
 
                 if (contains_key(data, "width"))
                 {

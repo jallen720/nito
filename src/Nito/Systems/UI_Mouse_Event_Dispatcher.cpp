@@ -38,8 +38,8 @@ namespace Nito
 struct Entity_State
 {
     bool is_mouse_over;
-    Transform * transform;
-    Dimensions * dimensions;
+    const Transform * transform;
+    const Dimensions * dimensions;
     UI_Mouse_Event_Handlers * ui_mouse_event_handlers;
 };
 

@@ -39,6 +39,7 @@ struct Entity_State
 {
     const string * render_layer;
     const Transform * transform;
+    Dimensions * dimensions;
     const Text * text;
     Render_Data::Uniforms uniforms;
     vector<string> character_texture_paths;
@@ -65,10 +66,18 @@ static map<Entity, Entity_State> entity_states;
 void text_renderer_subscribe(const Entity entity)
 {
     Entity_State & entity_state = entity_states[entity];
+    auto entity_dimensions = (Dimensions *)get_component(entity, "dimensions");
     auto entity_text = (Text *)get_component(entity, "text");
     entity_state.render_layer = (string *)get_component(entity, "render_layer");
     entity_state.transform = (Transform *)get_component(entity, "transform");
+    entity_state.dimensions = entity_dimensions;
     entity_state.text = entity_text;
+
+
+    // Entity's width and height are calculated based on the width and height of its characters, so ensure width and
+    // height are 0 in case user specified different values.
+    entity_dimensions->width = 0.0f;
+    entity_dimensions->height = 0.0f;
 
 
     // Load character data for entity.
@@ -82,11 +91,22 @@ void text_renderer_subscribe(const Entity entity)
     for (const char character : entity_text->value)
     {
         const string character_texture_path = font_prefix + character;
-        const Dimensions * text_character_dimensions = &get_loaded_texture(character_texture_path).dimensions;
+        const Glyph & character_glyph = get_loaded_glyph(character_texture_path);
+        float character_advance =  character_glyph.advance / unit_scale;
         entity_character_texture_paths.push_back(character_texture_path);
-        entity_character_dimensions.push_back(text_character_dimensions);
+        entity_character_dimensions.push_back(&get_loaded_texture(character_texture_path).dimensions);
         entity_character_positions.push_back(vec3());
-        entity_character_advances.push_back(get_loaded_glyph_advance(character_texture_path) / unit_scale);
+        entity_character_advances.push_back(character_advance);
+
+
+        // Update text entity's width & height.
+        float character_bearing_y = character_glyph.bearing.y / unit_scale;
+        entity_state.dimensions->width += character_advance;
+
+        if (character_bearing_y > entity_state.dimensions->height)
+        {
+            entity_state.dimensions->height = character_bearing_y;
+        }
     }
 
 
@@ -110,6 +130,7 @@ void text_renderer_update()
     for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
         const Transform * entity_transform = entity_state.transform;
+        const Dimensions * entity_dimensions = entity_state.dimensions;
         const vec3 & entity_scale = entity_transform->scale;
         const vector<string> & entity_character_texture_paths = entity_state.character_texture_paths;
         const vector<const Dimensions *> & entity_character_dimensions = entity_state.character_dimensions;
@@ -117,11 +138,20 @@ void text_renderer_update()
         const vector<float> & entity_character_advances = entity_state.character_advances;
         vec3 character_position_offset(0.0f);
 
+
+        // Calculate entity position.
+        vec3 entity_origin_offset =
+            vec3(entity_dimensions->width, entity_dimensions->height, 0.0f) * entity_dimensions->origin * entity_scale;
+
+        vec3 entity_position = entity_transform->position - entity_origin_offset;
+
+
+        // Calculate character positions and load character rendering data.
         for (auto character_index = 0u; character_index < entity_character_texture_paths.size(); character_index++)
         {
             const Dimensions * character_dimensions = entity_character_dimensions[character_index];
             vec3 & character_position = entity_character_positions[character_index];
-            character_position = entity_transform->position + character_position_offset;
+            character_position = entity_position + character_position_offset;
 
             load_render_data(
                 {

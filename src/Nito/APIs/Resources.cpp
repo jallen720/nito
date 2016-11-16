@@ -4,7 +4,6 @@
 
 #include <stdexcept>
 #include <Magick++.h>
-#include <glm/glm.hpp>
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
 
@@ -22,6 +21,7 @@ using Magick::Image;
 
 // glm/glm.hpp
 using glm::vec3;
+using glm::vec2;
 
 // Cpp_Utils/JSON.hpp
 using Cpp_Utils::JSON;
@@ -43,7 +43,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static map<string, Texture> textures;
-static map<string, FT_Pos> glyph_advances;
+static map<string, Glyph> glyphs;
 static FT_Library ft;
 
 
@@ -184,7 +184,13 @@ void load_font(const JSON & config)
         // Load texture data and use the path of the font face with the appended character as its identifier.
         string glyph_identifier = font_face_path + " : " + ((char)character);
         textures[glyph_identifier] = texture;
-        glyph_advances[glyph_identifier] = glyph->advance.x >> 6;
+
+        glyphs[glyph_identifier] =
+        {
+            glyph->advance.x >> 6,
+            vec2(glyph->bitmap_left, glyph->bitmap_top),
+        };
+
         load_texture_data(texture, data, glyph_identifier);
     }
 }
@@ -194,16 +200,21 @@ const Texture & get_loaded_texture(const string & path)
 {
     if (!contains_key(textures, path))
     {
-        throw runtime_error("ERROR: no texture with path \"" + path + "\" was loaded!");
+        throw runtime_error("ERROR: no texture with path \"" + path + "\" was loaded by Resources API!");
     }
 
     return textures.at(path);
 }
 
 
-FT_Pos get_loaded_glyph_advance(const string & identifier)
+const Glyph & get_loaded_glyph(const string & identifier)
 {
-    return glyph_advances.at(identifier);
+    if (!contains_key(glyphs, identifier))
+    {
+        throw runtime_error("ERROR: no glyph with identifier \"" + identifier + "\" was loaded by Resources API!");
+    }
+
+    return glyphs.at(identifier);
 }
 
 

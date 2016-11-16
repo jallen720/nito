@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "Cpp_Utils/JSON.hpp"
@@ -31,6 +32,13 @@ struct Texture
 };
 
 
+struct Glyph
+{
+    FT_Pos advance;
+    glm::vec2 bearing;
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -40,7 +48,7 @@ void init_freetype();
 void load_texture(const Cpp_Utils::JSON & config);
 void load_font(const Cpp_Utils::JSON & config);
 const Texture & get_loaded_texture(const std::string & path);
-FT_Pos get_loaded_glyph_advance(const std::string & identifier);
+const Glyph & get_loaded_glyph(const std::string & identifier);
 
 
 } // namespace Nito

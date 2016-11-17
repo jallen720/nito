@@ -257,12 +257,12 @@ static void validate_no_opengl_error(const string & description)
 
     if (error != GL_NO_ERROR)
     {
-        string error_message =
+        const string error_message =
             contains_key(opengl_error_messages, error)
             ? opengl_error_messages.at(error)
-            : "An unknown OpenGL error occurred!";
+            : "an unknown OpenGL error occurred";
 
-        throw runtime_error("OPENGL ERROR: " + description + ": " + error_message);
+        throw runtime_error("OPENGL ERROR: " + description + ": " + error_message + "!");
     }
 }
 

@@ -168,7 +168,7 @@ void load_font(const JSON & config)
         };
 
 
-        // Data is loaded upside down, so invert data on the y-axis.
+        // Data is loaded upside down, so invert it on the y-axis.
         unsigned char * buffer = bitmap.buffer;
         unsigned char * data = new unsigned char[width * height];
 

@@ -19,6 +19,7 @@
 #include "Cpp_Utils/String.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/APIs/Audio.hpp"
 #include "Nito/APIs/Graphics.hpp"
 #include "Nito/APIs/Input.hpp"
 #include "Nito/APIs/Resources.hpp"
@@ -593,7 +594,7 @@ int run_engine()
     init_glew();
 
 
-    // Initialize graphics engine.
+    // Initialize Graphics API.
     const JSON opengl_config = read_json_file("resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
@@ -695,6 +696,14 @@ int run_engine()
         sizeof(sprite_index_data));
 
 
+    // Initialize OpenAL and Audio API.
+    init_openal();
+
+
+    // Load audio files.
+    for_each(read_json_file("resources/data/audio_files.json").get<vector<string>>(), load_audio_file);
+
+
     // Load control bindings.
     const JSON controls = read_json_file("resources/data/controls.json");
 
@@ -748,6 +757,7 @@ int run_engine()
 
     destroy_graphics();
     terminate_glfw();
+    clean_openal();
     return 0;
 }
 

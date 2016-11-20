@@ -774,7 +774,7 @@ void render(const Render_Canvas & render_canvas)
             bind_texture(texture_objects.at(*render_data.texture_path), 0u);
 
 
-            // Create model matrix from render data transformations and bound texture dimensions.
+            // Create model matrix from render data transformations.
             mat4 model_matrix;
             const vec3 & model_scale = *dimensions.scale;
             const vec3 model_origin_offset = *dimensions.origin * vec3(width, height, 0.0f) * model_scale;

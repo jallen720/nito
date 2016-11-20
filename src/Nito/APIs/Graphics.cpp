@@ -683,8 +683,6 @@ void init_rendering()
 
 void render(const Render_Canvas & render_canvas)
 {
-    static vec3 rotation_axis(0.0f, 0.0f, 1.0f);
-
     // Calculate view and projection matrices from view transform and viewport.
     const Render_Dimensions & canvas_dimensions = render_canvas.dimensions;
     const float canvas_width = canvas_dimensions.width;
@@ -745,8 +743,8 @@ void render(const Render_Canvas & render_canvas)
         // Sort render layer order.
         sort(render_layer.order, [&](const unsigned int a, const unsigned int b) -> bool
         {
-            return render_datas[a].dimensions.position->z >
-                   render_datas[b].dimensions.position->z;
+            return render_datas[a].matrix[3][2] >
+                   render_datas[b].matrix[3][2];
         });
 
 
@@ -767,9 +765,6 @@ void render(const Render_Canvas & render_canvas)
         for (unsigned int index : render_layer.order)
         {
             const Render_Data & render_data = render_datas[index];
-            const Render_Dimensions & dimensions = render_data.dimensions;
-            const float width = dimensions.width;
-            const float height = dimensions.height;
             const Render_Data::Uniforms * uniforms = render_data.uniforms;
 
 
@@ -777,23 +772,11 @@ void render(const Render_Canvas & render_canvas)
             bind_texture(texture_objects.at(*render_data.texture_path), 0u);
 
 
-            // Create model matrix from render data transformations.
-            mat4 model_matrix;
-            const vec3 & model_scale = *dimensions.scale;
-            const vec3 model_position = *dimensions.position * unit_scale;
-            const vec3 model_origin_offset = *dimensions.origin * vec3(width, height, 0.0f) * model_scale;
-            model_matrix = translate(model_matrix, model_position);
-            model_matrix = rotate(model_matrix, dimensions.rotation, rotation_axis);
-            model_matrix = translate(model_matrix, -model_origin_offset);
-            model_matrix = scale(model_matrix, model_scale);
-            model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
-
-
             // Bind shader pipeline and set its uniforms.
             const GLuint shader_program = shader_programs.at(*render_data.shader_pipeline_name);
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
-            set_uniform(shader_program, "model", model_matrix);
+            set_uniform(shader_program, "model", render_data.matrix);
 
             // Set custom shader pipeline uniforms if any were passed.
             if (uniforms != nullptr)

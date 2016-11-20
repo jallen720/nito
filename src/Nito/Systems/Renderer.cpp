@@ -6,6 +6,7 @@
 #include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/Utilities.hpp"
 #include "Nito/APIs/Graphics.hpp"
 
 
@@ -82,14 +83,13 @@ void renderer_update()
                 &entity_sprite->texture_path,
                 &entity_sprite->shader_pipeline_name,
                 nullptr,
-                {
+                calculate_matrix(
                     entity_dimensions->width,
                     entity_dimensions->height,
-                    &entity_dimensions->origin,
-                    &entity_transform->position,
-                    &entity_transform->scale,
-                    entity_transform->rotation,
-                },
+                    entity_dimensions->origin,
+                    entity_transform->position,
+                    entity_transform->scale,
+                    entity_transform->rotation),
             });
     });
 }

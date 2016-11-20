@@ -75,7 +75,7 @@ struct Render_Data
     const std::string * texture_path;
     const std::string * shader_pipeline_name;
     const Uniforms * uniforms;
-    const Render_Dimensions dimensions;
+    const glm::mat4 matrix;
 };
 
 

@@ -8,6 +8,7 @@
 #include "Cpp_Utils/Map.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/Utilities.hpp"
 #include "Nito/APIs/Graphics.hpp"
 #include "Nito/APIs/Resources.hpp"
 
@@ -159,14 +160,13 @@ void text_renderer_update()
                     &entity_character_texture_paths[character_index],
                     &TEXT_SHADER_PIPELINE_NAME,
                     &entity_state.uniforms,
-                    {
+                    calculate_matrix(
                         character_dimensions->width,
                         character_dimensions->height,
-                        &character_dimensions->origin,
-                        &character_position,
-                        &entity_scale,
-                        0.0f,
-                    },
+                        character_dimensions->origin,
+                        character_position,
+                        entity_scale,
+                        0.0f),
                 });
 
             character_position_offset.x += entity_character_advances[character_index] * entity_scale.x;

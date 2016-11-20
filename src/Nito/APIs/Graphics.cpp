@@ -30,6 +30,7 @@ using glm::mat4;
 // glm/gtc/matrix_transform.hpp
 using glm::translate;
 using glm::scale;
+using glm::rotate;
 using glm::ortho;
 
 // glm/gtc/type_ptr.hpp
@@ -682,6 +683,8 @@ void init_rendering()
 
 void render(const Render_Canvas & render_canvas)
 {
+    static vec3 rotation_axis(0.0f, 0.0f, 1.0f);
+
     // Calculate view and projection matrices from view transform and viewport.
     const Render_Dimensions & canvas_dimensions = render_canvas.dimensions;
     const float canvas_width = canvas_dimensions.width;
@@ -777,9 +780,11 @@ void render(const Render_Canvas & render_canvas)
             // Create model matrix from render data transformations.
             mat4 model_matrix;
             const vec3 & model_scale = *dimensions.scale;
+            const vec3 model_position = *dimensions.position * unit_scale;
             const vec3 model_origin_offset = *dimensions.origin * vec3(width, height, 0.0f) * model_scale;
-            const vec3 model_position = (*dimensions.position * unit_scale) - model_origin_offset;
             model_matrix = translate(model_matrix, model_position);
+            model_matrix = rotate(model_matrix, dimensions.rotation, rotation_axis);
+            model_matrix = translate(model_matrix, -model_origin_offset);
             model_matrix = scale(model_matrix, model_scale);
             model_matrix = scale(model_matrix, vec3(width, height, 1.0f));
 

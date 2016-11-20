@@ -20,6 +20,7 @@ struct Transform
 {
     glm::vec3 position;
     glm::vec3 scale;
+    float rotation;
 };
 
 
@@ -27,6 +28,7 @@ struct Local_Transform
 {
     glm::vec3 position;
     glm::vec3 scale;
+    float rotation;
 };
 
 

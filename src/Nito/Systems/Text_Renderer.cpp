@@ -165,6 +165,7 @@ void text_renderer_update()
                         &character_dimensions->origin,
                         &character_position,
                         &entity_scale,
+                        0.0f,
                     },
                 });
 

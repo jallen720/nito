@@ -500,6 +500,7 @@ static Component transform_component_allocator(const JSON & data)
 {
     vec3 position;
     vec3 scale(1.0f);
+    float rotation = 0.0f;
 
     if (contains_key(data, "position"))
     {
@@ -520,10 +521,16 @@ static Component transform_component_allocator(const JSON & data)
         scale.y = scale_data["y"];
     }
 
+    if (contains_key(data, "rotation"))
+    {
+        rotation = data["rotation"];
+    }
+
     return new Transform
     {
         position,
         scale,
+        rotation,
     };
 }
 

@@ -88,6 +88,7 @@ void renderer_update()
                     &entity_dimensions->origin,
                     &entity_transform->position,
                     &entity_transform->scale,
+                    entity_transform->rotation,
                 },
             });
     });

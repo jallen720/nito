@@ -79,6 +79,7 @@ void calculate_transform(
     const Local_Transform * entity_local_transform = entity_state.local_transform;
     entity_transform->position = parent_transform->position + entity_local_transform->position;
     entity_transform->scale = parent_transform->scale * entity_local_transform->scale;
+    entity_transform->rotation = parent_transform->rotation + entity_local_transform->rotation;
     calculated_transforms[entity] = entity_transform;
 }
 

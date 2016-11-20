@@ -63,6 +63,7 @@ struct Render_Dimensions
     const glm::vec3 * origin;
     const glm::vec3 * position;
     const glm::vec3 * scale;
+    const float rotation;
 };
 
 

@@ -14,20 +14,20 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 glm::mat4 calculate_model_matrix(
-    const float width,
-    const float height,
-    const glm::vec3 & origin,
-    const glm::vec3 & position,
-    const glm::vec3 & scale,
-    const float rotation);
+    const float model_width,
+    const float model_height,
+    const glm::vec3 & model_origin,
+    const glm::vec3 & model_position,
+    const glm::vec3 & model_scale,
+    const float model_rotation);
 
 glm::mat4 calculate_view_matrix(
-    const float width,
-    const float height,
-    const glm::vec3 & origin,
-    const glm::vec3 & position,
-    const glm::vec3 & scale,
-    const float rotation);
+    const float view_width,
+    const float view_height,
+    const glm::vec3 & view_origin,
+    const glm::vec3 & view_position,
+    const glm::vec3 & view_scale,
+    const float view_rotation);
 
 
 } // namespace Nito

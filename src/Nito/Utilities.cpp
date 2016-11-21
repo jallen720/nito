@@ -12,6 +12,7 @@ using glm::vec3;
 // glm/gtc/matrix_transform.hpp
 using glm::translate;
 using glm::rotate;
+using glm::scale;
 using glm::radians;
 
 
@@ -33,39 +34,40 @@ static const vec3 ROTATION_AXIS(0.0f, 0.0f, 1.0f);
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 mat4 calculate_model_matrix(
-    const float width,
-    const float height,
-    const vec3 & origin,
-    const vec3 & position,
-    const vec3 & scale,
-    const float rotation)
+    const float model_width,
+    const float model_height,
+    const vec3 & model_origin,
+    const vec3 & model_position,
+    const vec3 & model_scale,
+    const float model_rotation)
 {
     mat4 model_matrix;
-    const vec3 origin_offset = origin * vec3(width, height, 0.0f) * scale;
-    model_matrix = translate(model_matrix, position * get_unit_scale());
-    model_matrix = rotate(model_matrix, radians(rotation), ROTATION_AXIS);
-    model_matrix = translate(model_matrix, -origin_offset);
-    model_matrix = glm::scale(model_matrix, scale);
-    model_matrix = glm::scale(model_matrix, vec3(width, height, 1.0f));
+    const vec3 model_origin_offset = model_origin * vec3(model_width, model_height, 0.0f) * model_scale;
+    const vec3 model_scaled_position = model_position * get_unit_scale();
+    model_matrix = translate(model_matrix, model_scaled_position);
+    model_matrix = rotate(model_matrix, radians(model_rotation), ROTATION_AXIS);
+    model_matrix = translate(model_matrix, -model_origin_offset);
+    model_matrix = scale(model_matrix, model_scale);
+    model_matrix = scale(model_matrix, vec3(model_width, model_height, 1.0f));
     return model_matrix;
 }
 
 
 mat4 calculate_view_matrix(
-    const float width,
-    const float height,
-    const vec3 & origin,
-    const vec3 & position,
-    const vec3 & scale,
-    const float rotation)
+    const float view_width,
+    const float view_height,
+    const vec3 & view_origin,
+    const vec3 & view_position,
+    const vec3 & view_scale,
+    const float view_rotation)
 {
     mat4 view_matrix;
-    const vec3 view_origin_offset = origin * vec3(width, height, 0.0f);
-    const vec3 view_position = (position * scale * get_unit_scale());
-    view_matrix = translate(view_matrix, -view_position);
+    const vec3 view_origin_offset = view_origin * vec3(view_width, view_height, 0.0f);
+    const vec3 view_scaled_position = view_position * view_scale * get_unit_scale();
+    view_matrix = translate(view_matrix, -view_scaled_position);
     view_matrix = translate(view_matrix, view_origin_offset);
-    view_matrix = rotate(view_matrix, radians(rotation), ROTATION_AXIS);
-    view_matrix = glm::scale(view_matrix, scale);
+    view_matrix = rotate(view_matrix, radians(view_rotation), ROTATION_AXIS);
+    view_matrix = scale(view_matrix, view_scale);
     return view_matrix;
 }
 

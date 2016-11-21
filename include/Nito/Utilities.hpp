@@ -13,7 +13,7 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-glm::mat4 calculate_matrix(
+glm::mat4 calculate_model_matrix(
     const float width,
     const float height,
     const glm::vec3 & origin,

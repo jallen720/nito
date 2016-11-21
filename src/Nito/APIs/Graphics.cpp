@@ -743,8 +743,8 @@ void render(const Render_Canvas & render_canvas)
         // Sort render layer order.
         sort(render_layer.order, [&](const unsigned int a, const unsigned int b) -> bool
         {
-            return render_datas[a].matrix[3][2] >
-                   render_datas[b].matrix[3][2];
+            return render_datas[a].model_matrix[3][2] >
+                   render_datas[b].model_matrix[3][2];
         });
 
 
@@ -776,7 +776,7 @@ void render(const Render_Canvas & render_canvas)
             const GLuint shader_program = shader_programs.at(*render_data.shader_pipeline_name);
             glUseProgram(shader_program);
             set_uniform(shader_program, "texture0", 0);
-            set_uniform(shader_program, "model", render_data.matrix);
+            set_uniform(shader_program, "model", render_data.model_matrix);
 
             // Set custom shader pipeline uniforms if any were passed.
             if (uniforms != nullptr)

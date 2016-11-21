@@ -83,7 +83,7 @@ void renderer_update()
                 &entity_sprite->texture_path,
                 &entity_sprite->shader_pipeline_name,
                 nullptr,
-                calculate_matrix(
+                calculate_model_matrix(
                     entity_dimensions->width,
                     entity_dimensions->height,
                     entity_dimensions->origin,

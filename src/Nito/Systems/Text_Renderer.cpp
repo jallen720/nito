@@ -160,7 +160,7 @@ void text_renderer_update()
                     &entity_character_texture_paths[character_index],
                     &TEXT_SHADER_PIPELINE_NAME,
                     &entity_state.uniforms,
-                    calculate_matrix(
+                    calculate_model_matrix(
                         character_dimensions->width,
                         character_dimensions->height,
                         character_dimensions->origin,

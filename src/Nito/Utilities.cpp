@@ -23,7 +23,7 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-mat4 calculate_matrix(
+mat4 calculate_model_matrix(
     const float width,
     const float height,
     const vec3 & origin,
@@ -33,14 +33,14 @@ mat4 calculate_matrix(
 {
     static const vec3 ROTATION_AXIS(0.0f, 0.0f, 1.0f);
 
+    mat4 model_matrix;
     const vec3 origin_offset = origin * vec3(width, height, 0.0f) * scale;
-    mat4 matrix;
-    matrix = translate(matrix, position * get_unit_scale());
-    matrix = rotate(matrix, rotation, ROTATION_AXIS);
-    matrix = translate(matrix, -origin_offset);
-    matrix = glm::scale(matrix, scale);
-    matrix = glm::scale(matrix, vec3(width, height, 1.0f));
-    return matrix;
+    model_matrix = translate(model_matrix, position * get_unit_scale());
+    model_matrix = rotate(model_matrix, rotation, ROTATION_AXIS);
+    model_matrix = translate(model_matrix, -origin_offset);
+    model_matrix = glm::scale(model_matrix, scale);
+    model_matrix = glm::scale(model_matrix, vec3(width, height, 1.0f));
+    return model_matrix;
 }
 
 

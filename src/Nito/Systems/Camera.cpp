@@ -5,6 +5,7 @@
 #include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/Utilities.hpp"
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"
 
@@ -74,21 +75,24 @@ void camera_update()
         const Viewport * entity_viewport = entity_state.viewport;
         const Dimensions * entity_dimensions = entity_state.dimensions;
         const Transform * entity_transform = entity_state.transform;
+        const float entity_width = entity_dimensions->width;
+        const float entity_height = entity_dimensions->height;
 
         render(
             {
                 entity_viewport->x,
                 entity_viewport->y,
+                entity_width,
+                entity_height,
                 entity_viewport->z_near,
                 entity_viewport->z_far,
-                {
-                    entity_dimensions->width,
-                    entity_dimensions->height,
-                    &entity_dimensions->origin,
-                    &entity_transform->position,
-                    &entity_transform->scale,
-                    entity_transform->rotation,
-                },
+                calculate_view_matrix(
+                    entity_width,
+                    entity_height,
+                    entity_dimensions->origin,
+                    entity_transform->position,
+                    entity_transform->scale,
+                    entity_transform->rotation),
             });
     });
 

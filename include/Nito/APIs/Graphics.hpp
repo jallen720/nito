@@ -56,17 +56,6 @@ struct Uniform
 };
 
 
-struct Render_Dimensions
-{
-    const float width;
-    const float height;
-    const glm::vec3 * origin;
-    const glm::vec3 * position;
-    const glm::vec3 * scale;
-    const float rotation;
-};
-
-
 struct Render_Data
 {
     using Uniforms = std::map<std::string, Uniform>;
@@ -83,9 +72,11 @@ struct Render_Canvas
 {
     const GLint x;
     const GLint y;
+    const float width;
+    const float height;
     const float z_near;
     const float z_far;
-    const Render_Dimensions dimensions;
+    const glm::mat4 view_matrix;
 };
 
 

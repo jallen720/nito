@@ -683,17 +683,13 @@ void init_rendering()
 
 void render(const Render_Canvas & render_canvas)
 {
-    // Calculate view and projection matrices from view transform and viewport.
-    const Render_Dimensions & canvas_dimensions = render_canvas.dimensions;
-    const float canvas_width = canvas_dimensions.width;
-    const float canvas_height = canvas_dimensions.height;
-    mat4 view_matrix;
-    const vec3 & view_scale = *canvas_dimensions.scale;
-    const vec3 view_origin_offset = *canvas_dimensions.origin * vec3(canvas_width, canvas_height, 0.0f);
-    const vec3 view_position = (*canvas_dimensions.position * view_scale * unit_scale) - view_origin_offset;
-    view_matrix = translate(view_matrix, -view_position);
-    view_matrix = scale(view_matrix, view_scale);
+    const float canvas_x = render_canvas.x;
+    const float canvas_y = render_canvas.y;
+    const float canvas_width = render_canvas.width;
+    const float canvas_height = render_canvas.height;
 
+
+    // Set orthographic projection based on render_canvas dimensions.
     mat4 projection_matrix = ortho(
         0.0f,                              // Left
         canvas_width,                      // Right
@@ -705,20 +701,20 @@ void render(const Render_Canvas & render_canvas)
 
     // Configure OpenGL viewport.
     glViewport(
-        render_canvas.x,
-        render_canvas.y,
-        canvas_dimensions.width,
-        canvas_dimensions.height);
+        canvas_x,
+        canvas_y,
+        canvas_width,
+        canvas_height);
 
 
     // Configure scissor test if enabled.
     if (glIsEnabled(capabilities.at("scissor_test")))
     {
         glScissor(
-            render_canvas.x,
-            render_canvas.y,
-            canvas_dimensions.width,
-            canvas_dimensions.height);
+            canvas_x,
+            canvas_y,
+            canvas_width,
+            canvas_height);
     }
 
 
@@ -751,7 +747,7 @@ void render(const Render_Canvas & render_canvas)
         // Set view matrices for all shader programs.
         auto layer_view_matrix =
             render_layer.space == Render_Layer::Space::WORLD
-            ? view_matrix
+            ? render_canvas.view_matrix
             : mat4();
 
         for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void

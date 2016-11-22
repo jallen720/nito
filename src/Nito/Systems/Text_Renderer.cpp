@@ -132,19 +132,14 @@ void text_renderer_update()
     {
         const Transform * entity_transform = entity_state.transform;
         const Dimensions * entity_dimensions = entity_state.dimensions;
-        const vec3 & entity_scale = entity_transform->scale;
         const vector<string> & entity_character_texture_paths = entity_state.character_texture_paths;
         const vector<const Dimensions *> & entity_character_dimensions = entity_state.character_dimensions;
         vector<vec3> & entity_character_positions = entity_state.character_positions;
         const vector<float> & entity_character_advances = entity_state.character_advances;
         vec3 character_position_offset(0.0f);
 
-
-        // Calculate entity position.
         vec3 entity_origin_offset =
-            vec3(entity_dimensions->width, entity_dimensions->height, 0.0f) * entity_dimensions->origin * entity_scale;
-
-        vec3 entity_position = entity_transform->position - entity_origin_offset;
+            vec3(entity_dimensions->width, entity_dimensions->height, 0.0f) * entity_dimensions->origin;
 
 
         // Calculate character positions and load character rendering data.
@@ -152,7 +147,10 @@ void text_renderer_update()
         {
             const Dimensions * character_dimensions = entity_character_dimensions[character_index];
             vec3 & character_position = entity_character_positions[character_index];
-            character_position = entity_position + character_position_offset;
+
+            character_position = get_child_world_position(
+                entity_transform,
+                character_position_offset - entity_origin_offset);
 
             load_render_data(
                 {
@@ -165,11 +163,11 @@ void text_renderer_update()
                         character_dimensions->height,
                         character_dimensions->origin,
                         character_position,
-                        entity_scale,
-                        0.0f),
+                        entity_transform->scale,
+                        entity_transform->rotation),
                 });
 
-            character_position_offset.x += entity_character_advances[character_index] * entity_scale.x;
+            character_position_offset.x += entity_character_advances[character_index];
         }
     });
 }

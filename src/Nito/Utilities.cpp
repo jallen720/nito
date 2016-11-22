@@ -72,4 +72,15 @@ mat4 calculate_view_matrix(
 }
 
 
+vec3 get_child_world_position(const Transform * parent_transform, const vec3 & child_local_position)
+{
+    mat4 position;
+    position = translate(position, parent_transform->position);
+    position = rotate(position, radians(parent_transform->rotation), ROTATION_AXIS);
+    position = scale(position, parent_transform->scale);
+    position = translate(position, child_local_position);
+    return vec3(position[3][0], position[3][1], position[3][2]);
+}
+
+
 } // namespace Nito

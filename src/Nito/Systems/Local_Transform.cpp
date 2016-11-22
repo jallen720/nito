@@ -7,6 +7,7 @@
 #include "Cpp_Utils/Vector.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/Utilities.hpp"
 
 
 using std::map;
@@ -77,7 +78,7 @@ void calculate_transform(
     const Transform * parent_transform = calculated_transforms[entity_parent];
     Transform * entity_transform = entity_state.transform;
     const Local_Transform * entity_local_transform = entity_state.local_transform;
-    entity_transform->position = parent_transform->position + entity_local_transform->position;
+    entity_transform->position = get_child_world_position(parent_transform, entity_local_transform->position);
     entity_transform->scale = parent_transform->scale * entity_local_transform->scale;
     entity_transform->rotation = parent_transform->rotation + entity_local_transform->rotation;
     calculated_transforms[entity] = entity_transform;

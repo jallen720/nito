@@ -64,9 +64,9 @@ mat4 calculate_view_matrix(
     mat4 view_matrix;
     const vec3 view_origin_offset = view_origin * vec3(view_width, view_height, 0.0f);
     const vec3 view_scaled_position = view_position * view_scale * get_unit_scale();
-    view_matrix = translate(view_matrix, -view_scaled_position);
     view_matrix = translate(view_matrix, view_origin_offset);
-    view_matrix = rotate(view_matrix, radians(view_rotation), ROTATION_AXIS);
+    view_matrix = rotate(view_matrix, radians(-view_rotation), ROTATION_AXIS);
+    view_matrix = translate(view_matrix, -view_scaled_position);
     view_matrix = scale(view_matrix, view_scale);
     return view_matrix;
 }

@@ -73,17 +73,52 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Forward Declarations
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static Component transform_component_allocator(const JSON & data);
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
+{
+    [](const JSON & data) -> Component
+    {
+        vec3 position;
+        vec3 scale(1.0f);
+        float rotation = 0.0f;
+
+        if (contains_key(data, "position"))
+        {
+            const JSON & position_data = data["position"];
+            position.x = position_data["x"];
+            position.y = position_data["y"];
+
+            if (contains_key(position_data, "z"))
+            {
+                position.z = position_data["z"];
+            }
+        }
+
+        if (contains_key(data, "scale"))
+        {
+            const JSON & scale_data = data["scale"];
+            scale.x = scale_data["x"];
+            scale.y = scale_data["y"];
+        }
+
+        if (contains_key(data, "rotation"))
+        {
+            rotation = data["rotation"];
+        }
+
+        return new Transform
+        {
+            position,
+            scale,
+            rotation,
+        };
+    },
+    get_component_deallocator<Transform>(),
+};
+
+
 static vector<Update_Handler> update_handlers;
 
 
@@ -161,17 +196,11 @@ static map<string, const Component_Handlers> engine_component_handlers
 {
     {
         "transform",
-        {
-            transform_component_allocator,
-            get_component_deallocator<Transform>(),
-        }
+        TRANSFORM_COMPONENT_HANDLERS
     },
     {
         "local_transform",
-        {
-            transform_component_allocator,
-            get_component_deallocator<Local_Transform>(),
-        }
+        TRANSFORM_COMPONENT_HANDLERS
     },
     {
         "ui_transform",
@@ -489,50 +518,6 @@ static const map<string, const Key_Actions> key_action_mappings
     { "press"   , Key_Actions::PRESS   },
     { "repeat"  , Key_Actions::REPEAT  },
 };
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Utilities
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static Component transform_component_allocator(const JSON & data)
-{
-    vec3 position;
-    vec3 scale(1.0f);
-    float rotation = 0.0f;
-
-    if (contains_key(data, "position"))
-    {
-        const JSON & position_data = data["position"];
-        position.x = position_data["x"];
-        position.y = position_data["y"];
-
-        if (contains_key(position_data, "z"))
-        {
-            position.z = position_data["z"];
-        }
-    }
-
-    if (contains_key(data, "scale"))
-    {
-        const JSON & scale_data = data["scale"];
-        scale.x = scale_data["x"];
-        scale.y = scale_data["y"];
-    }
-
-    if (contains_key(data, "rotation"))
-    {
-        rotation = data["rotation"];
-    }
-
-    return new Transform
-    {
-        position,
-        scale,
-        rotation,
-    };
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

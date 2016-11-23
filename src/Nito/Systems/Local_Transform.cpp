@@ -34,7 +34,7 @@ struct Entity_State
 {
     const string * parent_id;
     Transform * transform;
-    const Local_Transform * local_transform;
+    const Transform * local_transform;
 };
 
 
@@ -77,7 +77,7 @@ void calculate_transform(
     // Calculate entity's transform based on its parent's transform and its local_transform.
     const Transform * parent_transform = calculated_transforms[entity_parent];
     Transform * entity_transform = entity_state.transform;
-    const Local_Transform * entity_local_transform = entity_state.local_transform;
+    const Transform * entity_local_transform = entity_state.local_transform;
     entity_transform->position = get_child_world_position(parent_transform, entity_local_transform->position);
     entity_transform->scale = parent_transform->scale * entity_local_transform->scale;
     entity_transform->rotation = parent_transform->rotation + entity_local_transform->rotation;
@@ -96,7 +96,7 @@ void local_transform_subscribe(const Entity entity)
     {
         (string *)get_component(entity, "parent_id"),
         (Transform *)get_component(entity, "transform"),
-        (Local_Transform *)get_component(entity, "local_transform"),
+        (Transform *)get_component(entity, "local_transform"),
     };
 }
 

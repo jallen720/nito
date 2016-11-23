@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <functional>
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 
@@ -33,8 +32,8 @@ struct UI_Transform
 
 struct Viewport
 {
-    GLint x;
-    GLint y;
+    int x;
+    int y;
     float z_near;
     float z_far;
 };

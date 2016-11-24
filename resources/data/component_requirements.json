@@ -1,0 +1,27 @@
+{
+    "local_transform":
+    [
+        "local_transform"
+    ],
+    "ui_transform":
+    [
+        "ui_transform"
+    ],
+    "button":
+    [
+        "button"
+    ],
+    "ui_mouse_event_handlers":
+    [
+        "ui_mouse_event_dispatcher"
+    ],
+    "sprite":
+    [
+        "renderer",
+        "sprite_dimensions_handler"
+    ],
+    "text":
+    [
+        "text_renderer"
+    ]
+}

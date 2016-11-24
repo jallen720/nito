@@ -1,7 +1,6 @@
 #include "Nito/APIs/Scene.hpp"
 
 #include <map>
-#include <vector>
 #include <stdexcept>
 #include "Cpp_Utils/File.hpp"
 #include "Cpp_Utils/Collection.hpp"
@@ -52,6 +51,8 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static string scene_to_load = "";
 static map<string, string> scenes;
+static map<string, vector<string>> system_requirements;
+static map<string, vector<string>> component_requirements;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,9 +109,6 @@ void load_scene(const string & name)
 
 
     // Subscribe entities to systems.
-    const JSON system_requirements_data = read_json_file("resources/data/system_requirements.json");
-    const JSON component_requirements_data = read_json_file("resources/data/component_requirements.json");
-
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
@@ -120,11 +118,11 @@ void load_scene(const string & name)
         // Populate entity_systems with systems required by entity's components.
         for (const string & component_name : entity_component_lists.at(entity))
         {
-            // Defining system requirements for components is optional, so make sure requirements are defined before
+            // Defining systems required by a component is optional, so make sure requirements are defined before
             // checking them.
-            if (contains_key(component_requirements_data, component_name))
+            if (contains_key(component_requirements, component_name))
             {
-                for (const string & component_required_system : component_requirements_data[component_name])
+                for (const string & component_required_system : component_requirements[component_name])
                 {
                     if (!contains(entity_systems, component_required_system))
                     {
@@ -138,11 +136,11 @@ void load_scene(const string & name)
         // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
         for (const string & system_name : entity_systems)
         {
-            // Defining component requirements for systems is optional, so make sure requirements are defined before
+            // Defining components required by a system is optional, so make sure requirements are defined before
             // checking them.
-            if (contains_key(system_requirements_data, system_name))
+            if (contains_key(system_requirements, system_name))
             {
-                for (const string & required_component : system_requirements_data[system_name])
+                for (const string & required_component : system_requirements[system_name])
                 {
                     if (!has_component(entity, required_component))
                     {
@@ -190,6 +188,18 @@ void check_load_scene()
         load_scene(scene_to_load);
         scene_to_load = "";
     }
+}
+
+
+void set_component_requirements(const string & component_name, const vector<string> & systems)
+{
+    component_requirements[component_name] = systems;
+}
+
+
+void set_system_requirements(const string & system_name, const vector<string> & components)
+{
+    system_requirements[system_name] = components;
 }
 
 

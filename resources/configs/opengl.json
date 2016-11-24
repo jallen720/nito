@@ -1,0 +1,18 @@
+{
+    "pixels_per_unit": 64,
+    "capabilities":
+    [
+        "blend",
+        "scissor_test"
+    ],
+    "clear_flags":
+    [
+        "color_buffer_bit"
+    ],
+    "clear_color": { "r": 1, "g": 1, "b": 1, "a": 1 },
+    "blending":
+    {
+        "source_factor": "src_alpha",
+        "destination_factor": "one_minus_src_alpha"
+    }
+}

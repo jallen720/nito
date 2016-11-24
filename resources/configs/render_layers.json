@@ -1,0 +1,14 @@
+[
+    {
+        "name": "ui",
+        "space": "screen"
+    },
+    {
+        "name": "world",
+        "space": "world"
+    },
+    {
+        "name": "background",
+        "space": "screen"
+    }
+]

@@ -8,6 +8,7 @@
 #include <map>
 #include <functional>
 #include <stdexcept>
+#include <cstdlib>
 #include <cstdio>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/JSON.hpp"
@@ -50,6 +51,8 @@ using Cpp_Utils::read_json_file;
 
 // Cpp_Utils/File.hpp
 using Cpp_Utils::read_file;
+using Cpp_Utils::file_exists;
+using Cpp_Utils::directify;
 
 // Cpp_Utils/Container.hpp
 using Cpp_Utils::for_each;
@@ -76,6 +79,9 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const string DEFAULT_SCENE_NAME = "default";
+
+
 static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 {
     [](const JSON & data) -> Component
@@ -378,15 +384,6 @@ static map<string, const Component_Handlers> engine_component_handlers
 };
 
 
-static map<string, const Control_Handler> engine_control_handlers
-{
-    {
-        "exit",
-        close_window
-    }
-};
-
-
 static const map<string, const Keys> key_mappings
 {
     { "space"             , Keys::SPACE           },
@@ -522,6 +519,148 @@ static const map<string, const Key_Actions> key_action_mappings
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Utilities
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void load_resources(const string & root_path, const string & version_source, const string & vertex_attributes_source)
+{
+    // Load render layers
+    const string render_layers_path = root_path + "resources/configs/render_layers.json";
+
+    if (file_exists(render_layers_path))
+    {
+        const JSON render_layers_config = read_json_file(render_layers_path);
+
+        for (const JSON & render_layer : render_layers_config)
+        {
+            load_render_layer(render_layer["name"], render_layer["space"]);
+        }
+    }
+
+
+    // Load shader pipelines.
+    const string shader_pipelines_path = root_path + "resources/data/shader_pipelines.json";
+
+    if (file_exists(shader_pipelines_path))
+    {
+        const JSON shader_pipelines_data = read_json_file(shader_pipelines_path);
+        vector<Shader_Pipeline> shader_pipelines;
+
+        for (const JSON & shader_pipeline_data : shader_pipelines_data)
+        {
+            Shader_Pipeline shader_pipeline;
+            shader_pipeline.name = shader_pipeline_data["name"];
+            const JSON & shaders = shader_pipeline_data["shaders"];
+
+            for_each(shaders, [&](const string & type, const string & source_path) -> void
+            {
+                vector<string> & shader_sources = shader_pipeline.shader_sources[type];
+
+
+                // Load sources for shader into pipeline, starting with the version.glsl source, then the
+                // vertex_attributes.glsl source if this is a vertex shader, then finally the shader source itself.
+                shader_sources.push_back(version_source);
+
+                if (type == "vertex")
+                {
+                    shader_sources.push_back(vertex_attributes_source);
+                }
+
+                shader_sources.push_back(read_file(root_path + source_path));
+            });
+
+            shader_pipelines.push_back(shader_pipeline);
+        }
+
+        load_shader_pipelines(shader_pipelines);
+    }
+
+
+    // Load control bindings.
+    const string controls_path = root_path + "resources/data/controls.json";
+
+    if (file_exists(controls_path))
+    {
+        const JSON controls = read_json_file(controls_path);
+
+        for (const JSON & control_binding : controls)
+        {
+            const string & key = control_binding["key"];
+            const string & action = control_binding["action"];
+            const string & handler = control_binding["handler"];
+
+            if (!contains_key(key_mappings, key))
+            {
+                throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
+            }
+
+            if (!contains_key(key_action_mappings, action))
+            {
+                throw runtime_error("ERROR: \"" + action + "\" is not a valid key action!");
+            }
+
+            add_control_binding(key_mappings.at(key), key_action_mappings.at(action), handler);
+        }
+    }
+
+
+    // Load system requirements.
+    const string system_requirements_path = root_path + "resources/data/system_requirements.json";
+
+    if (file_exists(system_requirements_path))
+    {
+        for_each(read_json_file(system_requirements_path), set_system_requirements);
+    }
+
+
+    // Load component requirements.
+    const string component_requirements_path = root_path + "resources/data/component_requirements.json";
+
+    if (file_exists(component_requirements_path))
+    {
+        for_each(read_json_file(component_requirements_path), set_component_requirements);
+    }
+
+
+    // Load texture data.
+    const string textures_path = root_path + "resources/data/textures.json";
+
+    if (file_exists(textures_path))
+    {
+        for_each(read_json_file(textures_path).get<vector<JSON>>(), load_texture);
+    }
+
+
+    // Load font data.
+    const string fonts_path = root_path + "resources/data/fonts.json";
+
+    if (file_exists(fonts_path))
+    {
+        for_each(read_json_file(fonts_path).get<vector<JSON>>(), load_font);
+    }
+
+
+    // Load audio files.
+    const string audio_files_path = root_path + "resources/data/audio_files.json";
+
+    if (file_exists(audio_files_path))
+    {
+        for_each(read_json_file(audio_files_path).get<vector<string>>(), load_audio_file);
+    }
+
+
+    // Load scenes.
+    const string scenes_path = root_path + "resources/data/scenes.json";
+
+    if (file_exists(scenes_path))
+    {
+        for_each(read_json_file(scenes_path), set_scene);
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -533,9 +672,21 @@ void add_update_handler(const Update_Handler & update_handler)
 
 int run_engine()
 {
+    // Validate and load Nito installation root path from environment.
+    const char * env_nito_path = getenv("NITO_PATH");
+
+    if (env_nito_path == nullptr)
+    {
+        throw runtime_error(
+            "ERROR: the environment variable NITO_PATH could not be found; please set an environment variable called "
+            "NITO_PATH to the root directory of your Nito installation!");
+    }
+
+    const string NITO_PATH = directify(string(env_nito_path));
+
+
     // Load engine handlers.
     for_each(engine_update_handlers, add_update_handler);
-    for_each(engine_control_handlers, set_control_handler);
 
     for_each(
         engine_system_entity_handlers,
@@ -587,7 +738,7 @@ int run_engine()
 
 
     // Initialize Graphics API.
-    const JSON opengl_config = read_json_file("resources/configs/opengl.json");
+    const JSON opengl_config = read_json_file(NITO_PATH + "resources/configs/opengl.json");
     const JSON clear_color = opengl_config["clear_color"];
     const JSON blending = opengl_config["blending"];
 
@@ -613,56 +764,8 @@ int run_engine()
     ui_transform_init();
 
 
-    // Load render layers
-    const JSON render_layers_config = read_json_file("resources/configs/render_layers.json");
-
-    for (const JSON & render_layer : render_layers_config)
-    {
-        load_render_layer(render_layer["name"], render_layer["space"]);
-    }
-
-
-    // Load shader pipelines.
-    const JSON shader_pipelines_data = read_json_file("resources/data/shader_pipelines.json");
-    const string version_source = read_file("resources/shaders/shared/version.glsl");
-    const string vertex_attributes_source = read_file("resources/shaders/shared/vertex_attributes.glsl");
-    vector<Shader_Pipeline> shader_pipelines;
-
-    for (const JSON & shader_pipeline_data : shader_pipelines_data)
-    {
-        Shader_Pipeline shader_pipeline;
-        shader_pipeline.name = shader_pipeline_data["name"];
-        const JSON & shaders = shader_pipeline_data["shaders"];
-
-        for_each(shaders, [&](const string & type, const string & path) -> void
-        {
-            vector<string> & shader_sources = shader_pipeline.shader_sources[type];
-
-
-            // Load sources for shader into pipeline, starting with the version.glsl source, then the
-            // vertex_attributes.glsl source if this is a vertex shader, then finally the shader source itself.
-            shader_sources.push_back(version_source);
-
-            if (type == "vertex")
-            {
-                shader_sources.push_back(vertex_attributes_source);
-            }
-
-            shader_sources.push_back(read_file(path));
-        });
-
-        shader_pipelines.push_back(shader_pipeline);
-    }
-
-    load_shader_pipelines(shader_pipelines);
-
-
-    // Load texture data.
-    for_each(read_json_file("resources/data/textures.json").get<vector<JSON>>(), load_texture);
-
-
-    // Load font data.
-    for_each(read_json_file("resources/data/fonts.json").get<vector<JSON>>(), load_font);
+    // Initialize OpenAL and Audio API.
+    init_openal();
 
 
     // Load vertex data.
@@ -688,50 +791,20 @@ int run_engine()
         sizeof(sprite_index_data));
 
 
-    // Initialize OpenAL and Audio API.
-    init_openal();
+    // Load engine resources first, then project resources.
+    const string version_source = read_file(NITO_PATH + "resources/shaders/shared/version.glsl");
+    const string vertex_attributes_source = read_file(NITO_PATH + "resources/shaders/shared/vertex_attributes.glsl");
+    load_resources(NITO_PATH, version_source, vertex_attributes_source);
+    load_resources("./", version_source, vertex_attributes_source);
 
 
-    // Load audio files.
-    for_each(read_json_file("resources/data/audio_files.json").get<vector<string>>(), load_audio_file);
-
-
-    // Load control bindings.
-    const JSON controls = read_json_file("resources/data/controls.json");
-
-    for (const JSON & control_binding : controls)
-    {
-        const string & key = control_binding["key"];
-        const string & action = control_binding["action"];
-        const string & handler = control_binding["handler"];
-
-        if (!contains_key(key_mappings, key))
-        {
-            throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
-        }
-
-        if (!contains_key(key_action_mappings, action))
-        {
-            throw runtime_error("ERROR: \"" + action + "\" is not a valid key action!");
-        }
-
-        add_control_binding(key_mappings.at(key), key_action_mappings.at(action), handler);
-    }
-
-
-    // Load scenes.
-    static const string DEFAULT_SCENE_NAME = "default";
-
-    for_each(read_json_file("resources/data/scenes.json"), set_scene);
-
-    // Validate that a default scene was specified.
+    // Validate that a default scene was specified, then set that scene as the first scene to be loaded.
     if (!scene_exists(DEFAULT_SCENE_NAME))
     {
         throw runtime_error(
             "ERROR: a scene named \"" + DEFAULT_SCENE_NAME + "\" must be provided in resources/data/scenes.json!");
     }
 
-    // Set default scene as first scene to be loaded.
     set_scene_to_load(DEFAULT_SCENE_NAME);
 
 

@@ -102,6 +102,11 @@ void load_audio_file(const string & path)
 
 void create_audio_source(const string & identifier, bool is_looping, float volume, const string & data_path)
 {
+    if (!contains_key(buffers, data_path))
+    {
+        throw runtime_error("ERROR: no audio file with path \"" + data_path + "\" was loaded in the Audio API!");
+    }
+
     ALuint & audio_source = audio_sources[identifier];
     const ALuint buffer = buffers.at(data_path);
 

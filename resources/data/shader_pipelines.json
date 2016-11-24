@@ -1,0 +1,26 @@
+[
+    {
+        "name": "dev",
+        "shaders":
+        {
+            "vertex": "resources/shaders/dev.vert",
+            "fragment": "resources/shaders/dev.frag"
+        }
+    },
+    {
+        "name": "texture",
+        "shaders":
+        {
+            "vertex": "resources/shaders/default.vert",
+            "fragment": "resources/shaders/texture.frag"
+        }
+    },
+    {
+        "name": "text",
+        "shaders":
+        {
+            "vertex": "resources/shaders/default.vert",
+            "fragment": "resources/shaders/text.frag"
+        }
+    }
+]

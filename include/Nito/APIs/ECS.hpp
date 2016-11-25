@@ -28,9 +28,9 @@ using System_Entity_Handler = std::function<void(const Entity)>;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Entity create_entity();
-void add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & data);
-bool has_component(const Entity entity, const std::string & type);
+Component add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & data);
 Component get_component(const Entity entity, const std::string & type);
+bool has_component(const Entity entity, const std::string & type);
 
 void set_component_handlers(
     const std::string & type,

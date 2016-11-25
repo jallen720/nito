@@ -88,21 +88,16 @@ Entity create_entity()
 }
 
 
-void add_component(const Entity entity, const string & type, const JSON & data)
+Component add_component(const Entity entity, const string & type, const JSON & data)
 {
     if (!contains_key(component_allocators, type))
     {
         throw runtime_error("ERROR: \"" + type + "\" is not a supported component type!");
     }
 
-    components[entity][type] = component_allocators.at(type)(data);
-}
-
-
-bool has_component(const Entity entity, const string & type)
-{
-    return contains_key(components, entity) &&
-           contains_key(components.at(entity), type);
+    Component component = component_allocators.at(type)(data);
+    components[entity][type] = component;
+    return component;
 }
 
 
@@ -115,6 +110,13 @@ Component get_component(const Entity entity, const string & type)
     }
 
     return components.at(entity).at(type);
+}
+
+
+bool has_component(const Entity entity, const string & type)
+{
+    return contains_key(components, entity) &&
+           contains_key(components.at(entity), type);
 }
 
 

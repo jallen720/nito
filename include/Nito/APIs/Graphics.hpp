@@ -102,7 +102,7 @@ void init_rendering();
 void render(const Render_Canvas & render_canvas);
 void cleanup_rendering();
 void destroy_graphics();
-float get_unit_scale();
+float get_pixels_per_unit();
 
 
 } // namespace Nito

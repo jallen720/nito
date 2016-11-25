@@ -87,13 +87,13 @@ void text_renderer_subscribe(const Entity entity)
     vector<vec3> & entity_character_positions = entity_state.character_positions;
     vector<float> & entity_character_advances = entity_state.character_advances;
     const string font_prefix = entity_text->font + " : ";
-    const float unit_scale = get_unit_scale();
+    const float pixels_per_unit = get_pixels_per_unit();
 
     for (const char character : entity_text->value)
     {
         const string character_texture_path = font_prefix + character;
         const Glyph & character_glyph = get_loaded_glyph(character_texture_path);
-        float character_advance =  character_glyph.advance / unit_scale;
+        float character_advance =  character_glyph.advance / pixels_per_unit;
         entity_character_texture_paths.push_back(character_texture_path);
         entity_character_dimensions.push_back(&get_loaded_texture(character_texture_path).dimensions);
         entity_character_positions.push_back(vec3());
@@ -101,7 +101,7 @@ void text_renderer_subscribe(const Entity entity)
 
 
         // Update text entity's width & height.
-        float character_bearing_y = character_glyph.bearing.y / unit_scale;
+        float character_bearing_y = character_glyph.bearing.y / pixels_per_unit;
         entity_state.dimensions->width += character_advance;
 
         if (character_bearing_y > entity_state.dimensions->height)

@@ -62,7 +62,7 @@ bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimensions, 
     const float width = dimensions->width;
     const float height = dimensions->height;
     const vec3 sprite_origin_offset = dimensions->origin * vec3(width, height, 0.0f);
-    const vec3 sprite_position = (transform->position * get_unit_scale()) - sprite_origin_offset;
+    const vec3 sprite_position = (transform->position * get_pixels_per_unit()) - sprite_origin_offset;
 
     return mouse_position.x >= sprite_position.x && mouse_position.x < sprite_position.x + width &&
            mouse_position.y >= sprite_position.y && mouse_position.y < sprite_position.y + height;

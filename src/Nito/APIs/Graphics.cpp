@@ -116,7 +116,7 @@ static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
-static float unit_scale;
+static float pixels_per_unit;
 static GLbitfield clear_flags;
 static unordered_map<string, Render_Layer> render_layers;
 
@@ -415,7 +415,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
     // Set unit scale, which determines how many pixels an entity moves when moved 1 unit.
-    unit_scale = opengl_config.pixels_per_unit;
+    pixels_per_unit = opengl_config.pixels_per_unit;
 
 
     // Validate no OpenGL errors occurred.
@@ -695,8 +695,8 @@ void render(const Render_Canvas & render_canvas)
         canvas_width,                      // Right
         0.0f,                              // Top
         canvas_height,                     // Bottom
-        render_canvas.z_near * unit_scale, // Z near
-        render_canvas.z_far * unit_scale); // Z far
+        render_canvas.z_near * pixels_per_unit, // Z near
+        render_canvas.z_far * pixels_per_unit); // Z far
 
 
     // Configure OpenGL viewport.
@@ -837,9 +837,9 @@ void destroy_graphics()
 }
 
 
-float get_unit_scale()
+float get_pixels_per_unit()
 {
-    return unit_scale;
+    return pixels_per_unit;
 }
 
 

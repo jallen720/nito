@@ -30,7 +30,7 @@ vec3 window_unit_size;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ui_transform_init()
 {
-    window_unit_size = get_window_size() / get_unit_scale();
+    window_unit_size = get_window_size() / get_pixels_per_unit();
 }
 
 

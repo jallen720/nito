@@ -90,6 +90,11 @@ Entity create_entity()
 
 void add_component(const Entity entity, const string & type, Component component)
 {
+    if (component == nullptr)
+    {
+        throw runtime_error("ERROR: cannot add null component to entity!");
+    }
+
     components[entity][type] = component;
 }
 

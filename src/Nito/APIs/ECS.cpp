@@ -88,16 +88,20 @@ Entity create_entity()
 }
 
 
-Component add_component(const Entity entity, const string & type, const JSON & data)
+void add_component(const Entity entity, const string & type, Component component)
+{
+    components[entity][type] = component;
+}
+
+
+void add_component(const Entity entity, const string & type, const JSON & data)
 {
     if (!contains_key(component_allocators, type))
     {
         throw runtime_error("ERROR: \"" + type + "\" is not a supported component type!");
     }
 
-    Component component = component_allocators.at(type)(data);
-    components[entity][type] = component;
-    return component;
+    add_component(entity, type, component_allocators.at(type)(data));
 }
 
 

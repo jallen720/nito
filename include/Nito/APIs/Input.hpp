@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 
@@ -156,6 +157,15 @@ enum class Key_Actions
 };
 
 
+enum class Axes
+{
+    LEFT_STICK_X,
+    LEFT_STICK_Y,
+    RIGHT_STICK_X,
+    RIGHT_STICK_Y,
+};
+
+
 using Control_Handler = std::function<void()>;
 using Mouse_Move_Handler = std::function<void(const glm::dvec2 &)>;
 using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Key_Actions)>;
@@ -172,6 +182,8 @@ void set_control_handler(const std::string & name, const Control_Handler & contr
 void set_mouse_move_handler(const std::string & name, const Mouse_Move_Handler & mouse_move_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);
 Key_Actions get_key_action(const Keys key);
+float get_axis(const Axes axis, const int controller = GLFW_JOYSTICK_1);
+void debug_controllers();
 
 
 } // namespace Nito

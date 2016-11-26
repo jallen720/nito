@@ -3,8 +3,8 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
-#include <GLFW/glfw3.h>
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/String.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/APIs/Window.hpp"
@@ -21,6 +21,9 @@ using glm::dvec2;
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
 using Cpp_Utils::at_value;
+
+// Cpp_Utils/String.hpp
+using Cpp_Utils::to_string;
 
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
@@ -190,6 +193,24 @@ static map<Key_Actions, const int> key_actions
 };
 
 
+static map<Axes, const int> ds4_axes
+{
+    { Axes::LEFT_STICK_X  , 0 },
+    { Axes::LEFT_STICK_Y  , 1 },
+    { Axes::RIGHT_STICK_X , 2 },
+    { Axes::RIGHT_STICK_Y , 5 },
+};
+
+
+static map<Axes, const string> axis_names
+{
+    { Axes::LEFT_STICK_X  , "Axes::LEFT_STICK_X"  },
+    { Axes::LEFT_STICK_Y  , "Axes::LEFT_STICK_Y"  },
+    { Axes::RIGHT_STICK_X , "Axes::RIGHT_STICK_X" },
+    { Axes::RIGHT_STICK_Y , "Axes::RIGHT_STICK_Y" },
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Utilities
@@ -297,6 +318,51 @@ void set_mouse_button_handler(const string & name, const Mouse_Button_Handler & 
 Key_Actions get_key_action(const Keys key)
 {
     return at_value(key_actions, get_window_key_action(keys.at(key)));
+}
+
+
+float get_axis(const Axes axis, const int controller)
+{
+    int axis_count;
+    const int axis_index = ds4_axes.at(axis);
+    const float * axes = glfwGetJoystickAxes(controller, &axis_count);
+
+    if (axis_index >= axis_count)
+    {
+        throw runtime_error(
+            "ERROR: axis index " + to_string(axis_index) + " for axis " + axis_names.at(axis) + " is out of range for "
+            "the axis count " + to_string(axis_count) + " of controller " + to_string(controller) + "!");
+    }
+
+    return axes[axis_index];
+}
+
+
+void debug_controllers()
+{
+    vector<int> connected_joysticks;
+
+    for (int joystick = GLFW_JOYSTICK_1; joystick < GLFW_JOYSTICK_LAST; joystick++)
+    {
+        if (glfwJoystickPresent(joystick))
+        {
+            connected_joysticks.push_back(joystick);
+        }
+    }
+
+    for (const int connected_joystick : connected_joysticks)
+    {
+        printf("axes for joystick %d:\n", connected_joystick);
+        int count;
+        const float * axes = glfwGetJoystickAxes(connected_joystick, &count);
+
+        for (int axis = 0; axis < count; axis++)
+        {
+            printf("    axis %d: %f\n", axis, axes[axis]);
+        }
+
+        puts("");
+    }
 }
 
 

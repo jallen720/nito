@@ -185,29 +185,29 @@ static const map<Keys, const int> keys
 };
 
 
-static map<Key_Actions, const int> key_actions
+static map<Button_Actions, const int> button_actions
 {
-    { Key_Actions::RELEASE , GLFW_RELEASE },
-    { Key_Actions::PRESS   , GLFW_PRESS   },
-    { Key_Actions::REPEAT  , GLFW_REPEAT  },
+    { Button_Actions::RELEASE , GLFW_RELEASE },
+    { Button_Actions::PRESS   , GLFW_PRESS   },
+    { Button_Actions::REPEAT  , GLFW_REPEAT  },
 };
 
 
-static map<Axes, const int> ds4_axes
+static map<Controller_Axes, const int> ds4_axes
 {
-    { Axes::LEFT_STICK_X  , 0 },
-    { Axes::LEFT_STICK_Y  , 1 },
-    { Axes::RIGHT_STICK_X , 2 },
-    { Axes::RIGHT_STICK_Y , 5 },
+    { Controller_Axes::LEFT_STICK_X  , 0 },
+    { Controller_Axes::LEFT_STICK_Y  , 1 },
+    { Controller_Axes::RIGHT_STICK_X , 2 },
+    { Controller_Axes::RIGHT_STICK_Y , 5 },
 };
 
 
-static map<Axes, const string> axis_names
+static map<Controller_Axes, const string> controller_axis_names
 {
-    { Axes::LEFT_STICK_X  , "Axes::LEFT_STICK_X"  },
-    { Axes::LEFT_STICK_Y  , "Axes::LEFT_STICK_Y"  },
-    { Axes::RIGHT_STICK_X , "Axes::RIGHT_STICK_X" },
-    { Axes::RIGHT_STICK_Y , "Axes::RIGHT_STICK_Y" },
+    { Controller_Axes::LEFT_STICK_X  , "Controller_Axes::LEFT_STICK_X"  },
+    { Controller_Axes::LEFT_STICK_Y  , "Controller_Axes::LEFT_STICK_Y"  },
+    { Controller_Axes::RIGHT_STICK_X , "Controller_Axes::RIGHT_STICK_X" },
+    { Controller_Axes::RIGHT_STICK_Y , "Controller_Axes::RIGHT_STICK_Y" },
 };
 
 
@@ -257,7 +257,7 @@ void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action
         const string & /*name*/,
         const Mouse_Button_Handler & mouse_button_handler) -> void
     {
-        mouse_button_handler(mouse_buttons.at(button), at_value(key_actions, action));
+        mouse_button_handler(mouse_buttons.at(button), at_value(button_actions, action));
     });
 }
 
@@ -281,7 +281,7 @@ void input_init()
 }
 
 
-void add_control_binding(const Keys key, const Key_Actions key_action, const string & handler)
+void add_control_binding(const Keys key, const Button_Actions button_action, const string & handler)
 {
     if (!contains_key(control_handlers, handler))
     {
@@ -291,7 +291,7 @@ void add_control_binding(const Keys key, const Key_Actions key_action, const str
     control_bindings.push_back(
         {
             keys.at(key),
-            key_actions.at(key_action),
+            button_actions.at(button_action),
             control_handlers.at(handler),
         });
 }
@@ -315,23 +315,24 @@ void set_mouse_button_handler(const string & name, const Mouse_Button_Handler & 
 }
 
 
-Key_Actions get_key_action(const Keys key)
+Button_Actions get_key_button_action(const Keys key)
 {
-    return at_value(key_actions, get_window_key_action(keys.at(key)));
+    return at_value(button_actions, get_window_key_button_action(keys.at(key)));
 }
 
 
-float get_axis(const Axes axis, const int controller)
+float get_controller_axis(const Controller_Axes controller_axis, const int controller)
 {
     int axis_count;
-    const int axis_index = ds4_axes.at(axis);
+    const int axis_index = ds4_axes.at(controller_axis);
     const float * axes = glfwGetJoystickAxes(controller, &axis_count);
 
     if (axis_index >= axis_count)
     {
         throw runtime_error(
-            "ERROR: axis index " + to_string(axis_index) + " for axis " + axis_names.at(axis) + " is out of range for "
-            "the axis count " + to_string(axis_count) + " of controller " + to_string(controller) + "!");
+            "ERROR: axis index " + to_string(axis_index) + " for axis " + controller_axis_names.at(controller_axis) +
+            " is out of range for the axis count " + to_string(axis_count) + " of controller " + to_string(controller) +
+            "!");
     }
 
     return axes[axis_index];

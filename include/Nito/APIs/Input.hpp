@@ -149,7 +149,7 @@ enum class Keys
 };
 
 
-enum class Key_Actions
+enum class Button_Actions
 {
     PRESS,
     REPEAT,
@@ -157,7 +157,7 @@ enum class Key_Actions
 };
 
 
-enum class Axes
+enum class Controller_Axes
 {
     LEFT_STICK_X,
     LEFT_STICK_Y,
@@ -168,7 +168,7 @@ enum class Axes
 
 using Control_Handler = std::function<void()>;
 using Mouse_Move_Handler = std::function<void(const glm::dvec2 &)>;
-using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Key_Actions)>;
+using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Button_Actions)>;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,12 +177,12 @@ using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Key_A
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void input_init();
-void add_control_binding(const Keys key, const Key_Actions key_action, const std::string & handler);
+void add_control_binding(const Keys key, const Button_Actions button_action, const std::string & handler);
 void set_control_handler(const std::string & name, const Control_Handler & control_handler);
 void set_mouse_move_handler(const std::string & name, const Mouse_Move_Handler & mouse_move_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);
-Key_Actions get_key_action(const Keys key);
-float get_axis(const Axes axis, const int controller = GLFW_JOYSTICK_1);
+Button_Actions get_key_button_action(const Keys key);
+float get_controller_axis(const Controller_Axes controller_axis, const int controller = GLFW_JOYSTICK_1);
 void debug_controllers();
 
 

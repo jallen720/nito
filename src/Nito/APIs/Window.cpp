@@ -167,7 +167,7 @@ const vec3 & get_window_size()
 }
 
 
-int get_window_key_action(int key)
+int get_window_key_button_action(int key)
 {
     return glfwGetKey(window, key);
 }

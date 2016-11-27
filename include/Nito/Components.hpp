@@ -12,7 +12,7 @@ namespace Nito
 
 
 enum class Mouse_Buttons;
-enum class Key_Actions;
+enum class Button_Actions;
 
 
 struct Transform
@@ -57,7 +57,7 @@ struct Sprite
 struct UI_Mouse_Event_Handlers
 {
     using Event_Handler = std::function<void()>;
-    using Button_Handlers = std::map<Mouse_Buttons, std::map<Key_Actions, Event_Handler>>;
+    using Button_Handlers = std::map<Mouse_Buttons, std::map<Button_Actions, Event_Handler>>;
 
     Event_Handler mouse_enter_handler;
     Event_Handler mouse_exit_handler;

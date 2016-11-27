@@ -110,7 +110,7 @@ void mouse_move_handler(const dvec2 & mouse_position)
 }
 
 
-void mouse_button_handler(const Mouse_Buttons mouse_button, const Key_Actions key_action)
+void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions button_action)
 {
     for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
@@ -124,9 +124,9 @@ void mouse_button_handler(const Mouse_Buttons mouse_button, const Key_Actions ke
             {
                 const auto & mouse_button_handlers = button_handlers.at(mouse_button);
 
-                if (contains_key(mouse_button_handlers, key_action))
+                if (contains_key(mouse_button_handlers, button_action))
                 {
-                    mouse_button_handlers.at(key_action)();
+                    mouse_button_handlers.at(button_action)();
                 }
             }
         }

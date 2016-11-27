@@ -54,12 +54,12 @@ void button_subscribe(const Entity entity)
         sprite->texture_path = default_button_texture_path;
     };
 
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Key_Actions::PRESS] = [=]() -> void
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::PRESS] = [=]() -> void
     {
         sprite->texture_path = button->pressed_texture_path;
     };
 
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Key_Actions::RELEASE] = [=]() -> void
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::RELEASE] = [=]() -> void
     {
         sprite->texture_path = button->hover_texture_path;
 
@@ -80,8 +80,8 @@ void button_unsubscribe(const Entity entity)
     UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_ui_mouse_event_handlers[entity];
     ui_mouse_event_handlers->mouse_enter_handler = dud;
     ui_mouse_event_handlers->mouse_exit_handler = dud;
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Key_Actions::PRESS] = dud;
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Key_Actions::RELEASE] = dud;
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::PRESS] = dud;
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::RELEASE] = dud;
     remove(entity_ui_mouse_event_handlers, entity);
 }
 

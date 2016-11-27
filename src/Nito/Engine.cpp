@@ -509,11 +509,11 @@ static const map<string, const Keys> key_mappings
 };
 
 
-static const map<string, const Key_Actions> key_action_mappings
+static const map<string, const Button_Actions> button_action_mappings
 {
-    { "release" , Key_Actions::RELEASE },
-    { "press"   , Key_Actions::PRESS   },
-    { "repeat"  , Key_Actions::REPEAT  },
+    { "release" , Button_Actions::RELEASE },
+    { "press"   , Button_Actions::PRESS   },
+    { "repeat"  , Button_Actions::REPEAT  },
 };
 
 
@@ -594,12 +594,12 @@ void load_resources(const string & root_path, const string & version_source, con
                 throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
             }
 
-            if (!contains_key(key_action_mappings, action))
+            if (!contains_key(button_action_mappings, action))
             {
-                throw runtime_error("ERROR: \"" + action + "\" is not a valid key action!");
+                throw runtime_error("ERROR: \"" + action + "\" is not a valid button action!");
             }
 
-            add_control_binding(key_mappings.at(key), key_action_mappings.at(action), handler);
+            add_control_binding(key_mappings.at(key), button_action_mappings.at(action), handler);
         }
     }
 

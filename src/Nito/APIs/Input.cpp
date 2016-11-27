@@ -339,27 +339,50 @@ float get_controller_axis(const Controller_Axes controller_axis, const int contr
 }
 
 
+Button_Actions get_controller_button_action(const int controller_button, const int controller)
+{
+    int button_count;
+    const unsigned char * buttons = glfwGetJoystickButtons(controller, &button_count);
+
+    if (controller_button >= button_count)
+    {
+        throw runtime_error(
+            "ERROR: button " + to_string(controller_button) + " is out of range for the button count " +
+            to_string(button_count) + " of controller " + to_string(controller) + "!");
+    }
+
+    return at_value(button_actions, (int)buttons[controller_button]);
+}
+
+
 void debug_controllers()
 {
-    vector<int> connected_joysticks;
+    vector<int> connected_controllers;
 
-    for (int joystick = GLFW_JOYSTICK_1; joystick < GLFW_JOYSTICK_LAST; joystick++)
+    for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)
     {
-        if (glfwJoystickPresent(joystick))
+        if (glfwJoystickPresent(controller))
         {
-            connected_joysticks.push_back(joystick);
+            connected_controllers.push_back(controller);
         }
     }
 
-    for (const int connected_joystick : connected_joysticks)
+    for (const int connected_controller : connected_controllers)
     {
-        printf("axes for joystick %d:\n", connected_joystick);
-        int count;
-        const float * axes = glfwGetJoystickAxes(connected_joystick, &count);
+        int axis_count;
+        int button_count;
+        const float * axes = glfwGetJoystickAxes(connected_controller, &axis_count);
+        const unsigned char * buttons = glfwGetJoystickButtons(connected_controller, &button_count);
+        printf("controller %d:\n", connected_controller);
 
-        for (int axis = 0; axis < count; axis++)
+        for (int axis = 0; axis < axis_count; axis++)
         {
             printf("    axis %d: %f\n", axis, axes[axis]);
+        }
+
+        for (int button = 0; button < button_count; button++)
+        {
+            printf("    button %d: %d\n", button, buttons[button]);
         }
 
         puts("");

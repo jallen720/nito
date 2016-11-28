@@ -321,6 +321,22 @@ Button_Actions get_key_button_action(const Keys key)
 }
 
 
+Button_Actions get_controller_button_action(const int controller_button, const int controller)
+{
+    int button_count;
+    const unsigned char * buttons = glfwGetJoystickButtons(controller, &button_count);
+
+    if (controller_button >= button_count)
+    {
+        throw runtime_error(
+            "ERROR: button " + to_string(controller_button) + " is out of range for the button count " +
+            to_string(button_count) + " of controller " + to_string(controller) + "!");
+    }
+
+    return at_value(button_actions, (int)buttons[controller_button]);
+}
+
+
 float get_controller_axis(const Controller_Axes controller_axis, const int controller)
 {
     int axis_count;
@@ -336,22 +352,6 @@ float get_controller_axis(const Controller_Axes controller_axis, const int contr
     }
 
     return axes[axis_index];
-}
-
-
-Button_Actions get_controller_button_action(const int controller_button, const int controller)
-{
-    int button_count;
-    const unsigned char * buttons = glfwGetJoystickButtons(controller, &button_count);
-
-    if (controller_button >= button_count)
-    {
-        throw runtime_error(
-            "ERROR: button " + to_string(controller_button) + " is out of range for the button count " +
-            to_string(button_count) + " of controller " + to_string(controller) + "!");
-    }
-
-    return at_value(button_actions, (int)buttons[controller_button]);
 }
 
 

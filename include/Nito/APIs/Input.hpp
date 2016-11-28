@@ -182,8 +182,8 @@ void set_control_handler(const std::string & name, const Control_Handler & contr
 void set_mouse_move_handler(const std::string & name, const Mouse_Move_Handler & mouse_move_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);
 Button_Actions get_key_button_action(const Keys key);
-float get_controller_axis(const Controller_Axes controller_axis, const int controller = GLFW_JOYSTICK_1);
 Button_Actions get_controller_button_action(const int controller_button, const int controller = GLFW_JOYSTICK_1);
+float get_controller_axis(const Controller_Axes controller_axis, const int controller = GLFW_JOYSTICK_1);
 void debug_controllers();
 
 

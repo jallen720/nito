@@ -576,34 +576,6 @@ void load_resources(const string & root_path, const string & version_source, con
     }
 
 
-    // Load control bindings.
-    const string controls_path = root_path + "resources/data/controls.json";
-
-    if (file_exists(controls_path))
-    {
-        const JSON controls = read_json_file(controls_path);
-
-        for (const JSON & control_binding : controls)
-        {
-            const string & key = control_binding["key"];
-            const string & action = control_binding["action"];
-            const string & handler = control_binding["handler"];
-
-            if (!contains_key(key_mappings, key))
-            {
-                throw runtime_error("ERROR: \"" + key + "\" is not a valid key!");
-            }
-
-            if (!contains_key(button_action_mappings, action))
-            {
-                throw runtime_error("ERROR: \"" + action + "\" is not a valid button action!");
-            }
-
-            add_control_binding(key_mappings.at(key), button_action_mappings.at(action), handler);
-        }
-    }
-
-
     // Load system requirements.
     const string system_requirements_path = root_path + "resources/data/system_requirements.json";
 

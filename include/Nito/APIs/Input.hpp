@@ -166,7 +166,6 @@ enum class Controller_Axes
 };
 
 
-using Control_Handler = std::function<void()>;
 using Mouse_Move_Handler = std::function<void(const glm::dvec2 &)>;
 using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Button_Actions)>;
 
@@ -177,8 +176,6 @@ using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Butto
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void input_init();
-void add_control_binding(const Keys key, const Button_Actions button_action, const std::string & handler);
-void set_control_handler(const std::string & name, const Control_Handler & control_handler);
 void set_mouse_move_handler(const std::string & name, const Mouse_Move_Handler & mouse_move_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);
 Button_Actions get_key_button_action(const Keys key);

@@ -35,24 +35,9 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Data Structures
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Control_Binding
-{
-    const int key;
-    const int action;
-    const Control_Handler & handler;
-};
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static vector<Control_Binding> control_bindings;
-static map<string, Control_Handler> control_handlers;
 static dvec2 mouse_position;
 
 // Event handlers
@@ -218,14 +203,7 @@ static map<Controller_Axes, const string> controller_axis_names
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int action, int /*mods*/)
 {
-    for (const Control_Binding & control_binding : control_bindings)
-    {
-        if (control_binding.key == key &&
-            control_binding.action == action)
-        {
-            control_binding.handler();
-        }
-    }
+
 }
 
 
@@ -278,28 +256,6 @@ void window_created_handler()
 void input_init()
 {
     add_window_created_handler(window_created_handler);
-}
-
-
-void add_control_binding(const Keys key, const Button_Actions button_action, const string & handler)
-{
-    if (!contains_key(control_handlers, handler))
-    {
-        throw runtime_error("ERROR: \"" + handler + "\" is not a registered control handler!");
-    }
-
-    control_bindings.push_back(
-        {
-            keys.at(key),
-            button_actions.at(button_action),
-            control_handlers.at(handler),
-        });
-}
-
-
-void set_control_handler(const string & name, const Control_Handler & control_handler)
-{
-    control_handlers[name] = control_handler;
 }
 
 

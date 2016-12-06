@@ -41,7 +41,7 @@ namespace Nito
 static dvec2 mouse_position;
 
 // Event handlers
-static map<string, Mouse_Move_Handler> mouse_move_handlers;
+static map<string, Mouse_Position_Handler> mouse_position_handlers;
 static map<string, Mouse_Button_Handler> mouse_button_handlers;
 
 
@@ -214,11 +214,13 @@ void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, d
     // Invert y position to match coordinate system.
     mouse_position.y = get_window_size().y - y_position;
 
-    // Trigger mouse move handlers with newly updated mouse position.
-    for_each(mouse_move_handlers, [&](const string & /*id*/, const Mouse_Move_Handler & mouse_move_handler) -> void
-    {
-        mouse_move_handler(mouse_position);
-    });
+    // Trigger mouse position handlers with newly updated mouse position.
+    for_each(
+        mouse_position_handlers,
+        [&](const string & /*id*/, const Mouse_Position_Handler & mouse_position_handler) -> void
+        {
+            mouse_position_handler(mouse_position);
+        });
 }
 
 
@@ -259,9 +261,9 @@ void input_init()
 }
 
 
-void set_mouse_move_handler(const string & id, const Mouse_Move_Handler & mouse_move_handler)
+void set_mouse_position_handler(const string & id, const Mouse_Position_Handler & mouse_position_handler)
 {
-    mouse_move_handlers[id] = mouse_move_handler;
+    mouse_position_handlers[id] = mouse_position_handler;
 }
 
 

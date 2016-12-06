@@ -78,7 +78,7 @@ void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_han
 }
 
 
-void mouse_move_handler(const dvec2 & mouse_position)
+void mouse_position_handler(const dvec2 & mouse_position)
 {
     for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
@@ -141,7 +141,7 @@ void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ui_mouse_event_dispatcher_init()
 {
-    set_mouse_move_handler("ui_mouse_event_dispatcher", mouse_move_handler);
+    set_mouse_position_handler("ui_mouse_event_dispatcher", mouse_position_handler);
     set_mouse_button_handler("ui_mouse_event_dispatcher", mouse_button_handler);
 }
 

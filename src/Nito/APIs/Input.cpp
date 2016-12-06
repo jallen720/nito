@@ -215,7 +215,7 @@ void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, d
     mouse_position.y = get_window_size().y - y_position;
 
     // Trigger mouse move handlers with newly updated mouse position.
-    for_each(mouse_move_handlers, [&](const string & /*name*/, const Mouse_Move_Handler & mouse_move_handler) -> void
+    for_each(mouse_move_handlers, [&](const string & /*id*/, const Mouse_Move_Handler & mouse_move_handler) -> void
     {
         mouse_move_handler(mouse_position);
     });
@@ -232,7 +232,7 @@ void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action
     };
 
     for_each(mouse_button_handlers, [&](
-        const string & /*name*/,
+        const string & /*id*/,
         const Mouse_Button_Handler & mouse_button_handler) -> void
     {
         mouse_button_handler(mouse_buttons.at(button), at_value(button_actions, action));
@@ -259,15 +259,15 @@ void input_init()
 }
 
 
-void set_mouse_move_handler(const string & name, const Mouse_Move_Handler & mouse_move_handler)
+void set_mouse_move_handler(const string & id, const Mouse_Move_Handler & mouse_move_handler)
 {
-    mouse_move_handlers[name] = mouse_move_handler;
+    mouse_move_handlers[id] = mouse_move_handler;
 }
 
 
-void set_mouse_button_handler(const string & name, const Mouse_Button_Handler & mouse_button_handler)
+void set_mouse_button_handler(const string & id, const Mouse_Button_Handler & mouse_button_handler)
 {
-    mouse_button_handlers[name] = mouse_button_handler;
+    mouse_button_handlers[id] = mouse_button_handler;
 }
 
 

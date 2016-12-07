@@ -183,7 +183,7 @@ using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Butto
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void input_init();
+void input_api_init();
 void set_key_handler(const std::string & id, const Key_Handler & key_handler);
 void set_mouse_position_handler(const std::string & name, const Mouse_Position_Handler & mouse_position_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);

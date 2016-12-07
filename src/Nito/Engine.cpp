@@ -673,8 +673,8 @@ int run_engine()
     });
 
 
-    // Initialize modules.
-    input_init();
+    // Initialize APIs.
+    input_api_init();
 
 
     // Initialize systems.

@@ -273,7 +273,7 @@ void validate_handler_not_set(const map<string, T> & handlers, const string & na
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void input_init()
+void input_api_init()
 {
     // Add window_created_handler() so when the window is created it can set the window input handlers.
     add_window_created_handler(window_created_handler);

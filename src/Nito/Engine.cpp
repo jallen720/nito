@@ -80,6 +80,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const string DEFAULT_SCENE_NAME = "default";
+static vector<Update_Handler> update_handlers;
 
 
 static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
@@ -125,7 +126,14 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 };
 
 
-static vector<Update_Handler> update_handlers;
+static vector<Update_Handler> engine_update_handlers
+{
+    input_api_update,
+    local_transform_update,
+    renderer_update,
+    text_renderer_update,
+    camera_update,
+};
 
 
 static map<string, const System_Entity_Handlers> engine_system_entity_handlers
@@ -186,15 +194,6 @@ static map<string, const System_Entity_Handlers> engine_system_entity_handlers
             sprite_dimensions_handler_unsubscribe,
         },
     },
-};
-
-
-static vector<Update_Handler> engine_update_handlers
-{
-    local_transform_update,
-    renderer_update,
-    text_renderer_update,
-    camera_update,
 };
 
 

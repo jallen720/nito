@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
+#include <cstring>
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/String.hpp"
 #include "Cpp_Utils/Collection.hpp"
@@ -35,13 +36,31 @@ namespace Nito
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Data Structures
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Controller_State
+{
+    bool is_connected;
+    int axis_count;
+    int button_count;
+    const float * axes;
+    const unsigned char * buttons;
+    unsigned char previous_buttons[16];
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static dvec2 mouse_position;
+static vector<Controller_State> controller_states;
 
 // Event handlers
 static map<string, Key_Handler> key_handlers;
+static map<string, Controller_Button_Handler> controller_button_handlers;
 static map<string, Mouse_Position_Handler> mouse_position_handlers;
 static map<string, Mouse_Button_Handler> mouse_button_handlers;
 
@@ -268,6 +287,22 @@ void validate_handler_not_set(const map<string, T> & handlers, const string & na
 }
 
 
+void trigger_controller_button_handlers(const int controller, const int button, const unsigned char action)
+{
+    for_each(
+        controller_button_handlers,
+        [=](const string & /*id*/, const Controller_Button_Handler & controller_button_handler) -> void
+        {
+            if (controller_button_handler.controller == controller &&
+                controller_button_handler.button == button &&
+                controller_button_handler.button_action == at_value(button_actions, (int)action))
+            {
+                controller_button_handler.handler();
+            }
+        });
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -277,6 +312,51 @@ void input_api_init()
 {
     // Add window_created_handler() so when the window is created it can set the window input handlers.
     add_window_created_handler(window_created_handler);
+
+    for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)
+    {
+        controller_states.push_back({});
+    }
+}
+
+
+void input_api_update()
+{
+    for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)
+    {
+        // Update controller states.
+        Controller_State & controller_state = controller_states[controller];
+        controller_state.is_connected = glfwJoystickPresent(controller);
+
+        if (!controller_state.is_connected)
+        {
+            continue;
+        }
+
+        controller_state.axes = glfwGetJoystickAxes(controller, &controller_state.axis_count);
+        controller_state.buttons = glfwGetJoystickButtons(controller, &controller_state.button_count);
+
+
+        // Check for state changes and fire their associated handlers.
+        const int button_count = controller_state.button_count;
+
+        for (int button = 0; button < button_count; button++)
+        {
+            const unsigned char button_state = controller_state.buttons[button];
+
+            if (button_state != controller_state.previous_buttons[button])
+            {
+                trigger_controller_button_handlers(controller, button, button_state);
+            }
+        }
+
+
+        // Record current controller button states into controller_state.previous_buttons.
+        memcpy(
+            controller_state.previous_buttons,
+            controller_state.buttons,
+            sizeof(unsigned char) * button_count);
+    }
 }
 
 
@@ -284,6 +364,13 @@ void set_key_handler(const string & id, const Key_Handler & key_handler)
 {
     validate_handler_not_set(key_handlers, "key", id);
     key_handlers[id] = key_handler;
+}
+
+
+void set_controller_button_handler(const string & id, const Controller_Button_Handler & controller_button_handler)
+{
+    validate_handler_not_set(controller_button_handlers, "controller button", id);
+    controller_button_handlers[id] = controller_button_handler;
 }
 
 
@@ -307,10 +394,20 @@ Button_Actions get_key_button_action(const Keys key)
 }
 
 
+static void validate_controller_is_connected(const int controller)
+{
+    if (!controller_states[controller].is_connected)
+    {
+        throw runtime_error("ERROR: controller " + to_string(controller) + " is not connected!");
+    }
+}
+
+
 Button_Actions get_controller_button_action(const int controller_button, const int controller)
 {
-    int button_count;
-    const unsigned char * buttons = glfwGetJoystickButtons(controller, &button_count);
+    validate_controller_is_connected(controller);
+    const Controller_State & controller_state = controller_states[controller];
+    const int button_count = controller_state.button_count;
 
     if (controller_button >= button_count)
     {
@@ -319,56 +416,50 @@ Button_Actions get_controller_button_action(const int controller_button, const i
             to_string(button_count) + " of controller " + to_string(controller) + "!");
     }
 
-    return at_value(button_actions, (int)buttons[controller_button]);
+    return at_value(button_actions, (int)controller_state.buttons[controller_button]);
 }
 
 
 float get_controller_axis(const Controller_Axes controller_axis, const int controller)
 {
-    int axis_count;
-    const int axis_index = ds4_axes.at(controller_axis);
-    const float * axes = glfwGetJoystickAxes(controller, &axis_count);
+    validate_controller_is_connected(controller);
+    const Controller_State & controller_state = controller_states[controller];
+    const int axis = ds4_axes.at(controller_axis);
+    const int axis_count = controller_state.axis_count;
 
-    if (axis_index >= axis_count)
+    if (axis >= axis_count)
     {
         throw runtime_error(
-            "ERROR: axis index " + to_string(axis_index) + " for axis " + controller_axis_names.at(controller_axis) +
-            " is out of range for the axis count " + to_string(axis_count) + " of controller " + to_string(controller) +
+            "ERROR: axis index " + to_string(axis) + " for axis " + controller_axis_names.at(controller_axis) + " is "
+            "out of range for the axis count " + to_string(axis_count) + " of controller " + to_string(controller) +
             "!");
     }
 
-    return axes[axis_index];
+    return controller_state.axes[axis];
 }
 
 
 void debug_controllers()
 {
-    vector<int> connected_controllers;
-
     for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)
     {
-        if (glfwJoystickPresent(controller))
-        {
-            connected_controllers.push_back(controller);
-        }
-    }
+        Controller_State & controller_state = controller_states[controller];
 
-    for (const int connected_controller : connected_controllers)
-    {
-        int axis_count;
-        int button_count;
-        const float * axes = glfwGetJoystickAxes(connected_controller, &axis_count);
-        const unsigned char * buttons = glfwGetJoystickButtons(connected_controller, &button_count);
-        printf("controller %d:\n", connected_controller);
-
-        for (int axis = 0; axis < axis_count; axis++)
+        if (!controller_state.is_connected)
         {
-            printf("    axis %d: %f\n", axis, axes[axis]);
+            continue;
         }
 
-        for (int button = 0; button < button_count; button++)
+        printf("controller %d:\n", controller);
+
+        for (int axis = 0; axis < controller_state.axis_count; axis++)
         {
-            printf("    button %d: %d\n", button, buttons[button]);
+            printf("    axis %d: %f\n", axis, controller_state.axes[axis]);
+        }
+
+        for (int button = 0; button < controller_state.button_count; button++)
+        {
+            printf("    button %d: %d\n", button, controller_state.buttons[button]);
         }
 
         puts("");

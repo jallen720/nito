@@ -41,6 +41,7 @@ namespace Nito
 static dvec2 mouse_position;
 
 // Event handlers
+static map<string, Key_Handler> key_handlers;
 static map<string, Mouse_Position_Handler> mouse_position_handlers;
 static map<string, Mouse_Button_Handler> mouse_button_handlers;
 
@@ -203,7 +204,14 @@ static map<Controller_Axes, const string> controller_axis_names
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int action, int /*mods*/)
 {
-
+    for_each(key_handlers, [=](const string & /*id*/, const Key_Handler & key_handler) -> void
+    {
+        if (key_handler.key == at_value(keys, key) &&
+            key_handler.button_action == at_value(button_actions, action))
+        {
+            key_handler.handler();
+        }
+    });
 }
 
 
@@ -250,6 +258,16 @@ void window_created_handler()
 }
 
 
+template<typename T>
+void validate_handler_not_set(const map<string, T> & handlers, const string & name, const string & id)
+{
+    if (contains_key(handlers, id))
+    {
+        throw runtime_error("ERROR: " + name + " handlers already contains a handler with id \"" + id + "\"!");
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -261,14 +279,23 @@ void input_init()
 }
 
 
+void set_key_handler(const string & id, const Key_Handler & key_handler)
+{
+    validate_handler_not_set(key_handlers, "key", id);
+    key_handlers[id] = key_handler;
+}
+
+
 void set_mouse_position_handler(const string & id, const Mouse_Position_Handler & mouse_position_handler)
 {
+    validate_handler_not_set(mouse_position_handlers, "mouse position", id);
     mouse_position_handlers[id] = mouse_position_handler;
 }
 
 
 void set_mouse_button_handler(const string & id, const Mouse_Button_Handler & mouse_button_handler)
 {
+    validate_handler_not_set(mouse_button_handlers, "mouse button", id);
     mouse_button_handlers[id] = mouse_button_handler;
 }
 

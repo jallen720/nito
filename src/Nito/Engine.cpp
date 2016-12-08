@@ -138,62 +138,14 @@ static vector<Update_Handler> engine_update_handlers
 
 static map<string, const System_Entity_Handlers> engine_system_entity_handlers
 {
-    {
-        "button",
-        {
-            button_subscribe,
-            button_unsubscribe,
-        },
-    },
-    {
-        "camera",
-        {
-            camera_subscribe,
-            camera_unsubscribe,
-        },
-    },
-    {
-        "local_transform",
-        {
-            local_transform_subscribe,
-            local_transform_unsubscribe,
-        },
-    },
-    {
-        "renderer",
-        {
-            renderer_subscribe,
-            renderer_unsubscribe,
-        },
-    },
-    {
-        "text_renderer",
-        {
-            text_renderer_subscribe,
-            text_renderer_unsubscribe,
-        },
-    },
-    {
-        "ui_mouse_event_dispatcher",
-        {
-            ui_mouse_event_dispatcher_subscribe,
-            ui_mouse_event_dispatcher_unsubscribe,
-        },
-    },
-    {
-        "ui_transform",
-        {
-            ui_transform_subscribe,
-            ui_transform_unsubscribe,
-        },
-    },
-    {
-        "sprite_dimensions_handler",
-        {
-            sprite_dimensions_handler_subscribe,
-            sprite_dimensions_handler_unsubscribe,
-        },
-    },
+    NITO_SYSTEM_ENTITY_HANDLERS(button),
+    NITO_SYSTEM_ENTITY_HANDLERS(camera),
+    NITO_SYSTEM_ENTITY_HANDLERS(local_transform),
+    NITO_SYSTEM_ENTITY_HANDLERS(renderer),
+    NITO_SYSTEM_ENTITY_HANDLERS(text_renderer),
+    NITO_SYSTEM_ENTITY_HANDLERS(ui_mouse_event_dispatcher),
+    NITO_SYSTEM_ENTITY_HANDLERS(ui_transform),
+    NITO_SYSTEM_ENTITY_HANDLERS(sprite_dimensions_handler),
 };
 
 

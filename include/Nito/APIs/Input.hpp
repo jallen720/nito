@@ -166,23 +166,6 @@ enum class Controller_Axes
 };
 
 
-struct Key_Handler
-{
-    Keys key;
-    Button_Actions button_action;
-    std::function<void()> handler;
-};
-
-
-struct Controller_Button_Handler
-{
-    int controller;
-    int button;
-    Button_Actions button_action;
-    std::function<void()> handler;
-};
-
-
 using Mouse_Position_Handler = std::function<void(const glm::dvec2 &)>;
 using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Button_Actions)>;
 
@@ -194,8 +177,20 @@ using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Butto
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void input_api_init();
 void input_api_update();
-void set_key_handler(const std::string & id, const Key_Handler & key_handler);
-void set_controller_button_handler(const std::string & id, const Controller_Button_Handler & controller_button_handler);
+
+void set_key_handler(
+    const std::string & id,
+    const Keys key,
+    const Button_Actions button_action,
+    const std::function<void()> & handler);
+
+void set_controller_button_handler(
+    const std::string & id,
+    const int controller_button,
+    const Button_Actions button_action,
+    const std::function<void()> & handler,
+    const int controller = GLFW_JOYSTICK_1);
+
 void set_mouse_position_handler(const std::string & name, const Mouse_Position_Handler & mouse_position_handler);
 void set_mouse_button_handler(const std::string & name, const Mouse_Button_Handler & mouse_button_handler);
 Button_Actions get_key_button_action(const Keys key);

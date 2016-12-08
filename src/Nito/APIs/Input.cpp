@@ -15,6 +15,7 @@ using std::string;
 using std::vector;
 using std::map;
 using std::runtime_error;
+using std::function;
 
 // glm/glm.hpp
 using glm::dvec2;
@@ -47,6 +48,23 @@ struct Controller_State
     const float * axes;
     const unsigned char * buttons;
     unsigned char previous_buttons[16];
+};
+
+
+struct Key_Handler
+{
+    Keys key;
+    Button_Actions button_action;
+    std::function<void()> handler;
+};
+
+
+struct Controller_Button_Handler
+{
+    int controller;
+    int button;
+    Button_Actions button_action;
+    std::function<void()> handler;
 };
 
 
@@ -360,17 +378,39 @@ void input_api_update()
 }
 
 
-void set_key_handler(const string & id, const Key_Handler & key_handler)
+void set_key_handler(
+    const string & id,
+    const Keys key,
+    const Button_Actions button_action,
+    const function<void()> & handler)
 {
     validate_handler_not_set(key_handlers, "key", id);
-    key_handlers[id] = key_handler;
+
+    key_handlers[id] =
+    {
+        key,
+        button_action,
+        handler,
+    };
 }
 
 
-void set_controller_button_handler(const string & id, const Controller_Button_Handler & controller_button_handler)
+void set_controller_button_handler(
+    const string & id,
+    const int controller_button,
+    const Button_Actions button_action,
+    const function<void()> & handler,
+    const int controller)
 {
     validate_handler_not_set(controller_button_handlers, "controller button", id);
-    controller_button_handlers[id] = controller_button_handler;
+
+    controller_button_handlers[id] =
+    {
+        controller,
+        controller_button,
+        button_action,
+        handler,
+    };
 }
 
 

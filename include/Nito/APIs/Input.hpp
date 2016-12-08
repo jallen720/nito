@@ -186,7 +186,7 @@ void set_key_handler(
 
 void set_controller_button_handler(
     const std::string & id,
-    const int controller_button,
+    const int button,
     const Button_Actions button_action,
     const std::function<void()> & handler,
     const int controller = GLFW_JOYSTICK_1);

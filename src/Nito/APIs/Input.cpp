@@ -51,11 +51,17 @@ struct Controller_State
 };
 
 
+struct Button_Handler
+{
+    Button_Actions button_action;
+    std::function<void()> callback;
+};
+
+
 struct Key_Handler
 {
     Keys key;
-    Button_Actions button_action;
-    std::function<void()> handler;
+    Button_Handler button_handler;
 };
 
 
@@ -63,8 +69,7 @@ struct Controller_Button_Handler
 {
     int controller;
     int button;
-    Button_Actions button_action;
-    std::function<void()> handler;
+    Button_Handler button_handler;
 };
 
 
@@ -243,10 +248,14 @@ void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int
 {
     for_each(key_handlers, [=](const string & /*id*/, const Key_Handler & key_handler) -> void
     {
-        if (key_handler.key == at_value(keys, key) &&
-            key_handler.button_action == at_value(button_actions, action))
+        if (key_handler.key == at_value(keys, key))
         {
-            key_handler.handler();
+            const Button_Handler & button_handler = key_handler.button_handler;
+
+            if (button_handler.button_action == at_value(button_actions, action))
+            {
+                button_handler.callback();
+            }
         }
     });
 }
@@ -278,12 +287,12 @@ void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action
         { GLFW_MOUSE_BUTTON_LEFT   , Mouse_Buttons::LEFT   },
     };
 
-    for_each(mouse_button_handlers, [&](
-        const string & /*id*/,
-        const Mouse_Button_Handler & mouse_button_handler) -> void
-    {
-        mouse_button_handler(mouse_buttons.at(button), at_value(button_actions, action));
-    });
+    for_each(
+        mouse_button_handlers,
+        [&](const string & /*id*/, const Mouse_Button_Handler & mouse_button_handler) -> void
+        {
+            mouse_button_handler(mouse_buttons.at(button), at_value(button_actions, action));
+        });
 }
 
 
@@ -312,10 +321,14 @@ void trigger_controller_button_handlers(const int controller, const int button, 
         [=](const string & /*id*/, const Controller_Button_Handler & controller_button_handler) -> void
         {
             if (controller_button_handler.controller == controller &&
-                controller_button_handler.button == button &&
-                controller_button_handler.button_action == at_value(button_actions, (int)action))
+                controller_button_handler.button == button)
             {
-                controller_button_handler.handler();
+                const Button_Handler & button_handler = controller_button_handler.button_handler;
+
+                if (button_handler.button_action == at_value(button_actions, (int)action))
+                {
+                    button_handler.callback();
+                }
             }
         });
 }
@@ -389,15 +402,17 @@ void set_key_handler(
     key_handlers[id] =
     {
         key,
-        button_action,
-        handler,
+        {
+            button_action,
+            handler,
+        },
     };
 }
 
 
 void set_controller_button_handler(
     const string & id,
-    const int controller_button,
+    const int button,
     const Button_Actions button_action,
     const function<void()> & handler,
     const int controller)
@@ -407,9 +422,11 @@ void set_controller_button_handler(
     controller_button_handlers[id] =
     {
         controller,
-        controller_button,
-        button_action,
-        handler,
+        button,
+        {
+            button_action,
+            handler,
+        },
     };
 }
 

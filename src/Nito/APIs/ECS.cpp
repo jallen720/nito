@@ -54,8 +54,8 @@ using Components = map<string, Component>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static Entity entity_index = 0u;
 static vector<Entity> entities;
-static map<Entity, Components> components;
-static map<Entity, vector<string>> entity_system_subscriptions;
+static map<Entity, Components> entity_components;
+static map<Entity, vector<string>> entity_subscriptions;
 
 // Handlers
 static map<string, Component_Allocator> component_allocators;
@@ -95,7 +95,7 @@ void add_component(const Entity entity, const string & type, Component component
         throw runtime_error("ERROR: cannot add null component to entity!");
     }
 
-    components[entity][type] = component;
+    entity_components[entity][type] = component;
 }
 
 
@@ -118,14 +118,14 @@ Component get_component(const Entity entity, const string & type)
             "ERROR: entity " + to_string(entity) + " does not have a component of type \"" + type + "\"!");
     }
 
-    return components.at(entity).at(type);
+    return entity_components.at(entity).at(type);
 }
 
 
 bool has_component(const Entity entity, const string & type)
 {
-    return contains_key(components, entity) &&
-           contains_key(components.at(entity), type);
+    return contains_key(entity_components, entity) &&
+           contains_key(entity_components.at(entity), type);
 }
 
 
@@ -156,7 +156,7 @@ void subscribe_to_system(const Entity entity, const string & system_name)
         throw runtime_error(get_system_entity_handler_error_message(system_name));
     }
 
-    vector<string> & subscriptions = entity_system_subscriptions[entity];
+    vector<string> & subscriptions = entity_subscriptions[entity];
 
     if (contains(subscriptions, system_name))
     {
@@ -176,7 +176,7 @@ void unsubscribe_from_system(const Entity entity, const string & system_name)
         throw runtime_error(get_system_entity_handler_error_message(system_name));
     }
 
-    vector<string> & subscriptions = entity_system_subscriptions[entity];
+    vector<string> & subscriptions = entity_subscriptions[entity];
 
     if (!contains(subscriptions, system_name))
     {
@@ -213,7 +213,7 @@ Entity get_entity(const string & id)
 void delete_entity_data()
 {
     // Unsubscribe from systems.
-    for_each(entity_system_subscriptions, [&](const Entity entity, vector<string> & subscriptions) -> void
+    for_each(entity_subscriptions, [&](const Entity entity, vector<string> & subscriptions) -> void
     {
         while (subscriptions.size() > 0)
         {
@@ -222,10 +222,10 @@ void delete_entity_data()
     });
 
 
-    // Delete components.
-    for_each(components, [&](const Entity /*entity*/, Components & entity_components) -> void
+    // Delete entity_components.
+    for_each(entity_components, [&](const Entity /*entity*/, Components & components) -> void
     {
-        for_each(entity_components, [&](const string & type, Component component) -> void
+        for_each(components, [&](const string & type, Component component) -> void
         {
             component_deallocators.at(type)(component);
         });
@@ -234,8 +234,8 @@ void delete_entity_data()
 
     // Clear entities.
     entities.clear();
-    components.clear();
-    entity_system_subscriptions.clear();
+    entity_components.clear();
+    entity_subscriptions.clear();
     entity_index = 0u;
 }
 

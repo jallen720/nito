@@ -100,10 +100,6 @@ static void delete_entity(const Entity entity)
 
     for_each(components, [&](const string & type, Component component) -> void
     {
-        if (entity == 120)
-        {
-            printf("type: %s\n", type.c_str());
-        }
         component_deallocators.at(type)(component);
     });
 
@@ -134,26 +130,6 @@ Entity create_entity()
     }
 
     entities.push_back(entity);
-
-        puts("\n==========================================================");
-        puts("create_entity()");
-        printf("    entities: ");
-
-        for (const Entity entity : entities)
-        {
-            printf("%d, ", entity);
-        }
-
-        printf("\n");
-        printf("    unused_entities: ");
-
-        for (const Entity unused_entity : unused_entities)
-        {
-            printf("%d, ", unused_entity);
-        }
-
-        puts("\n==========================================================\n");
-
     return entity;
 }
 
@@ -289,31 +265,8 @@ void flag_entity_for_deletion(const Entity entity)
 
 void delete_flagged_entities()
 {
-    int size = entities_to_delete.size();
     for_each(entities_to_delete, delete_entity);
     entities_to_delete.clear();
-
-    if (size > 0)
-    {
-        puts("\n==========================================================");
-        puts("delete_flagged_entities()");
-        printf("    entities: ");
-
-        for (const Entity entity : entities)
-        {
-            printf("%d, ", entity);
-        }
-
-        printf("\n");
-        printf("    unused_entities: ");
-
-        for (const Entity unused_entity : unused_entities)
-        {
-            printf("%d, ", unused_entity);
-        }
-
-        puts("\n==========================================================\n");
-    }
 }
 
 
@@ -328,25 +281,6 @@ void delete_entity_data()
     entity_components.clear();
     entity_subscriptions.clear();
     entity_index = 0u;
-
-        puts("\n==========================================================");
-        puts("delete_entity_data()");
-        printf("    entities: ");
-
-        for (const Entity entity : entities)
-        {
-            printf("%d, ", entity);
-        }
-
-        printf("\n");
-        printf("    unused_entities: ");
-
-        for (const Entity unused_entity : unused_entities)
-        {
-            printf("%d, ", unused_entity);
-        }
-
-        puts("\n==========================================================\n");
 }
 
 

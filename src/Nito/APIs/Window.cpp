@@ -155,6 +155,12 @@ void close_window()
 }
 
 
+float get_time()
+{
+    return glfwGetTime();
+}
+
+
 float get_delta_time()
 {
     return delta_time;

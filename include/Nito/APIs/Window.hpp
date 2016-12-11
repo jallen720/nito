@@ -44,6 +44,7 @@ using Window_Loop_Callback = std::function<void()>;
 void init_glfw();
 void create_window(const Window_Config & window_config);
 void close_window();
+float get_time();
 float get_delta_time();
 const glm::vec3 & get_window_size();
 int get_window_key_button_action(int key);

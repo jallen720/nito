@@ -22,8 +22,10 @@ using Cpp_Utils::JSON;
 using Cpp_Utils::contains_key;
 
 // Cpp_Utils/Vector.hpp
-using Cpp_Utils::remove;
 using Cpp_Utils::contains;
+
+// Cpp_Utils/Vector.hpp & Cpp_Utils/Map.hpp
+using Cpp_Utils::remove;
 
 // Cpp_Utils/Fn.hpp
 using Cpp_Utils::filter;
@@ -54,6 +56,8 @@ using Components = map<string, Component>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static Entity entity_index = 0u;
 static vector<Entity> entities;
+static vector<Entity> unused_entities;
+static vector<Entity> entities_to_delete;
 static map<Entity, Components> entity_components;
 static map<Entity, vector<string>> entity_subscriptions;
 
@@ -75,6 +79,41 @@ static string get_system_entity_handler_error_message(const string & system_name
 }
 
 
+static void validate_component_has_handlers(const string & type)
+{
+    if (!contains_key(component_allocators, type))
+    {
+        throw runtime_error("ERROR: \"" + type + "\" is not a supported component type!");
+    }
+}
+
+
+static void delete_entity(const Entity entity)
+{
+    vector<string> & subscriptions = entity_subscriptions[entity];
+    Components & components = entity_components[entity];
+
+    while (subscriptions.size() > 0)
+    {
+        unsubscribe_from_system(entity, subscriptions[0]);
+    }
+
+    for_each(components, [&](const string & type, Component component) -> void
+    {
+        if (entity == 120)
+        {
+            printf("type: %s\n", type.c_str());
+        }
+        component_deallocators.at(type)(component);
+    });
+
+    remove(entity_subscriptions, entity);
+    remove(entity_components, entity);
+    remove(entities, entity);
+    unused_entities.push_back(entity);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -82,8 +121,39 @@ static string get_system_entity_handler_error_message(const string & system_name
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Entity create_entity()
 {
-    Entity entity = entity_index++;
+    Entity entity;
+
+    if (unused_entities.size() > 0)
+    {
+        entity = unused_entities.back();
+        unused_entities.pop_back();
+    }
+    else
+    {
+        entity = entity_index++;
+    }
+
     entities.push_back(entity);
+
+        puts("\n==========================================================");
+        puts("create_entity()");
+        printf("    entities: ");
+
+        for (const Entity entity : entities)
+        {
+            printf("%d, ", entity);
+        }
+
+        printf("\n");
+        printf("    unused_entities: ");
+
+        for (const Entity unused_entity : unused_entities)
+        {
+            printf("%d, ", unused_entity);
+        }
+
+        puts("\n==========================================================\n");
+
     return entity;
 }
 
@@ -95,17 +165,14 @@ void add_component(const Entity entity, const string & type, Component component
         throw runtime_error("ERROR: cannot add null component to entity!");
     }
 
+    validate_component_has_handlers(type);
     entity_components[entity][type] = component;
 }
 
 
 void add_component(const Entity entity, const string & type, const JSON & data)
 {
-    if (!contains_key(component_allocators, type))
-    {
-        throw runtime_error("ERROR: \"" + type + "\" is not a supported component type!");
-    }
-
+    validate_component_has_handlers(type);
     add_component(entity, type, component_allocators.at(type)(data));
 }
 
@@ -210,33 +277,76 @@ Entity get_entity(const string & id)
 }
 
 
+void flag_entity_for_deletion(const Entity entity)
+{
+    // Only flag entity if it hasn't already been flagged.
+    if (!contains(entities_to_delete, entity))
+    {
+        entities_to_delete.push_back(entity);
+    }
+}
+
+
+void delete_flagged_entities()
+{
+    int size = entities_to_delete.size();
+    for_each(entities_to_delete, delete_entity);
+    entities_to_delete.clear();
+
+    if (size > 0)
+    {
+        puts("\n==========================================================");
+        puts("delete_flagged_entities()");
+        printf("    entities: ");
+
+        for (const Entity entity : entities)
+        {
+            printf("%d, ", entity);
+        }
+
+        printf("\n");
+        printf("    unused_entities: ");
+
+        for (const Entity unused_entity : unused_entities)
+        {
+            printf("%d, ", unused_entity);
+        }
+
+        puts("\n==========================================================\n");
+    }
+}
+
+
 void delete_entity_data()
 {
-    // Unsubscribe from systems.
-    for_each(entity_subscriptions, [&](const Entity entity, vector<string> & subscriptions) -> void
+    while (entities.size() > 0)
     {
-        while (subscriptions.size() > 0)
-        {
-            unsubscribe_from_system(entity, subscriptions[0]);
-        }
-    });
+        delete_entity(entities.back());
+    }
 
-
-    // Delete entity_components.
-    for_each(entity_components, [&](const Entity /*entity*/, Components & components) -> void
-    {
-        for_each(components, [&](const string & type, Component component) -> void
-        {
-            component_deallocators.at(type)(component);
-        });
-    });
-
-
-    // Clear entities.
-    entities.clear();
+    unused_entities.clear();
     entity_components.clear();
     entity_subscriptions.clear();
     entity_index = 0u;
+
+        puts("\n==========================================================");
+        puts("delete_entity_data()");
+        printf("    entities: ");
+
+        for (const Entity entity : entities)
+        {
+            printf("%d, ", entity);
+        }
+
+        printf("\n");
+        printf("    unused_entities: ");
+
+        for (const Entity unused_entity : unused_entities)
+        {
+            printf("%d, ", unused_entity);
+        }
+
+        puts("\n==========================================================\n");
 }
 
 

@@ -46,6 +46,8 @@ void set_system_entity_handlers(
 void subscribe_to_system(const Entity entity, const std::string & system_name);
 void unsubscribe_from_system(const Entity entity, const std::string & system_name);
 Entity get_entity(const std::string & id);
+void flag_entity_for_deletion(const Entity entity);
+void delete_flagged_entities();
 void delete_entity_data();
 
 

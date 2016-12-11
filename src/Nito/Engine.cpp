@@ -21,6 +21,7 @@
 
 #include "Nito/Components.hpp"
 #include "Nito/APIs/Audio.hpp"
+#include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"
 #include "Nito/APIs/Input.hpp"
 #include "Nito/APIs/Resources.hpp"
@@ -734,6 +735,7 @@ int run_engine()
     // Main loop
     run_window_loop([&]() -> void
     {
+        delete_flagged_entities();
         check_load_scene();
 
         for (const Update_Handler & update_handler : update_handlers)

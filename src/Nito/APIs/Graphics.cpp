@@ -691,10 +691,10 @@ void render(const Render_Canvas & render_canvas)
 
     // Set orthographic projection based on render_canvas dimensions.
     mat4 projection_matrix = ortho(
-        0.0f,                              // Left
-        canvas_width,                      // Right
-        0.0f,                              // Top
-        canvas_height,                     // Bottom
+        0.0f,                                   // Left
+        canvas_width,                           // Right
+        0.0f,                                   // Top
+        canvas_height,                          // Bottom
         render_canvas.z_near * pixels_per_unit, // Z near
         render_canvas.z_far * pixels_per_unit); // Z far
 

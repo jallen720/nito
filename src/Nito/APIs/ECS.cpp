@@ -134,6 +134,24 @@ Entity create_entity()
 }
 
 
+Entity generate_entity(const map<string, Component> & components, const vector<string> & systems)
+{
+    const Entity entity = create_entity();
+
+    for_each(components, [=](const string & type, Component component) -> void
+    {
+        add_component(entity, type, component);
+    });
+
+    for (const string & system : systems)
+    {
+        subscribe_to_system(entity, system);
+    }
+
+    return entity;
+}
+
+
 void add_component(const Entity entity, const string & type, Component component)
 {
     if (component == nullptr)

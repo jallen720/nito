@@ -28,6 +28,7 @@ using System_Entity_Handler = std::function<void(const Entity)>;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Entity create_entity();
+Entity generate_entity(const std::map<std::string, Component> & components, const std::vector<std::string> & systems);
 void add_component(const Entity entity, const std::string & type, Component component);
 void add_component(const Entity entity, const std::string & type, const Cpp_Utils::JSON & data);
 Component get_component(const Entity entity, const std::string & type);

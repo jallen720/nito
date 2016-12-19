@@ -45,7 +45,7 @@ struct Glyph
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void init_freetype();
-void load_texture(const Cpp_Utils::JSON & config);
+void load_textures(const Cpp_Utils::JSON & texture_group);
 void load_font(const Cpp_Utils::JSON & config);
 const Texture & get_loaded_texture(const std::string & path);
 const Glyph & get_loaded_glyph(const std::string & identifier);

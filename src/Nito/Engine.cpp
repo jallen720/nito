@@ -551,7 +551,7 @@ void load_resources(const string & root_path, const string & version_source, con
 
     if (file_exists(textures_path))
     {
-        for_each(read_json_file(textures_path).get<vector<JSON>>(), load_texture);
+        for_each(read_json_file(textures_path).get<vector<JSON>>(), load_textures);
     }
 
 

@@ -61,7 +61,7 @@ void init_freetype()
 }
 
 
-void load_texture(const JSON & config)
+void load_textures(const JSON & texture_group)
 {
     static const map<string, const string> image_formats
     {
@@ -69,38 +69,49 @@ void load_texture(const JSON & config)
         { "rgb"  , "RGB"  },
     };
 
+    const string format = texture_group["format"];
+    const vector<string> paths = texture_group["paths"];
 
-    // Create and configure new texture.
-    Texture texture;
-    texture.format = config["format"];
 
-    for_each(config["options"], [&](const string & option_key, const string & option_value) -> void
+    // Populate texture group options.
+    map<string, string> options;
+
+    for_each(texture_group["options"], [&](const string & option_key, const string & option_value) -> void
     {
-        texture.options[option_key] = option_value;
+        options[option_key] = option_value;
     });
 
 
-    // Load texture data from image at path.
-    const string texture_path = config["path"];
-    Image image;
-    Blob blob;
-    image.read(texture_path);
-    image.flip();
-    image.write(&blob, image_formats.at(texture.format));
-
-
-    // Load texture dimensions from image.
-    texture.dimensions =
+    // Load each texture for the texture group.
+    for (const string & path : paths)
     {
-        (float)image.columns(),
-        (float)image.rows(),
-        vec3(),
-    };
+        // Create and configure new texture.
+        Texture texture;
+        texture.format = format;
+        texture.options = options;
 
 
-    // Track texture and pass its data to Graphics.
-    textures[texture_path] = texture;
-    load_texture_data(texture, blob.data(), texture_path);
+        // Load texture data from image at path.
+        Image image;
+        Blob blob;
+        image.read(path);
+        image.flip();
+        image.write(&blob, image_formats.at(texture.format));
+
+
+        // Load texture dimensions from image.
+        texture.dimensions =
+        {
+            (float)image.columns(),
+            (float)image.rows(),
+            vec3(),
+        };
+
+
+        // Track texture and pass its data to Graphics API.
+        textures[path] = texture;
+        load_texture_data(texture, blob.data(), path);
+    }
 }
 
 

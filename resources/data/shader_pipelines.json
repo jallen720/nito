@@ -22,5 +22,13 @@
             "vertex": "resources/shaders/default.vert",
             "fragment": "resources/shaders/text.frag"
         }
+    },
+    {
+        "name": "color",
+        "shaders":
+        {
+            "vertex": "resources/shaders/default.vert",
+            "fragment": "resources/shaders/color.frag"
+        }
     }
 ]

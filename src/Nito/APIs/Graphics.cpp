@@ -699,6 +699,12 @@ void init_rendering()
 
 void render(const Render_Canvas & render_canvas)
 {
+    static const map<Render_Modes, const GLenum> GL_RENDER_MODES
+    {
+        { Render_Modes::TRIANGLES  , GL_TRIANGLES  },
+        { Render_Modes::LINE_STRIP , GL_LINE_STRIP },
+    };
+
     const float canvas_x = render_canvas.x;
     const float canvas_y = render_canvas.y;
     const float canvas_width = render_canvas.width;
@@ -778,17 +784,26 @@ void render(const Render_Canvas & render_canvas)
         {
             const Render_Data & render_data = render_datas[index];
             const Render_Data::Uniforms * uniforms = render_data.uniforms;
+            const string * texture_path = render_data.texture_path;
 
 
             // Bind texture to texture unit 0.
-            bind_texture(texture_objects.at(*render_data.texture_path), 0u);
+            if (texture_path != nullptr)
+            {
+                bind_texture(texture_objects.at(*texture_path), 0u);
+            }
 
 
             // Bind shader pipeline and set its uniforms.
             const GLuint shader_program = shader_programs.at(*render_data.shader_pipeline_name);
             glUseProgram(shader_program);
-            set_uniform(shader_program, "texture0", 0);
             set_uniform(shader_program, "model", render_data.model_matrix);
+
+            if (texture_path != nullptr)
+            {
+                set_uniform(shader_program, "texture0", 0);
+            }
+
 
             // Set custom shader pipeline uniforms if any were passed.
             if (uniforms != nullptr)
@@ -799,10 +814,10 @@ void render(const Render_Canvas & render_canvas)
 
             // Draw data.
             glDrawElements(
-                GL_TRIANGLES,    // Render mode
-                6,               // Index count
-                GL_UNSIGNED_INT, // Index type
-                (GLvoid *)0);    // Pointer to start of index array
+                GL_RENDER_MODES.at(render_data.render_mode), // Render mode
+                6,                                           // Index count
+                GL_UNSIGNED_INT,                             // Index type
+                (GLvoid *)0);                                // Pointer to start of index array
         }
     });
 

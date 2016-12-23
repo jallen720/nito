@@ -154,6 +154,7 @@ void text_renderer_update()
 
             load_render_data(
                 {
+                    Render_Modes::TRIANGLES,
                     entity_state.render_layer,
                     &entity_character_texture_paths[character_index],
                     &TEXT_SHADER_PIPELINE_NAME,

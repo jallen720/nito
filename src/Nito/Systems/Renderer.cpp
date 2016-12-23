@@ -79,6 +79,7 @@ void renderer_update()
 
         load_render_data(
             {
+                Render_Modes::TRIANGLES,
                 entity_state.render_layer,
                 &entity_sprite->texture_path,
                 &entity_sprite->shader_pipeline_name,

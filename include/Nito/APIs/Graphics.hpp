@@ -57,10 +57,18 @@ struct Uniform
 };
 
 
+enum class Render_Modes
+{
+    TRIANGLES,
+    LINE_STRIP,
+};
+
+
 struct Render_Data
 {
     using Uniforms = std::map<std::string, Uniform>;
 
+    const Render_Modes render_mode;
     const std::string * layer_name;
     const std::string * texture_path;
     const std::string * shader_pipeline_name;

@@ -221,6 +221,17 @@ static void set_uniform(const GLuint shader_program, const GLchar * uniform_name
 }
 
 
+static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
+{
+    glUniform4f(
+        glGetUniformLocation(shader_program, uniform_name),
+        uniform_value.x,
+        uniform_value.y,
+        uniform_value.z,
+        uniform_value.w);
+}
+
+
 static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLint uniform_value)
 {
     glUniform1i(glGetUniformLocation(shader_program, uniform_name), uniform_value);
@@ -289,6 +300,11 @@ static void set_shader_pipeline_uniforms(const GLuint shader_program, const Rend
             case Uniform::Types::VEC3:
             {
                 set_uniform(shader_program, uniform_name.c_str(), *((vec3 *)uniform.data));
+                break;
+            }
+            case Uniform::Types::VEC4:
+            {
+                set_uniform(shader_program, uniform_name.c_str(), *((vec4 *)uniform.data));
                 break;
             }
             case Uniform::Types::MAT4:

@@ -48,6 +48,7 @@ struct Uniform
     {
         INT,
         VEC3,
+        VEC4,
         MAT4,
     }
     type;

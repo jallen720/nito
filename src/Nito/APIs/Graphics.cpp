@@ -108,9 +108,9 @@ struct Render_Layer
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static const GLsizei VERTEX_ARRAY_COUNT  = 1;
+static const GLsizei VERTEX_ARRAY_COUNT = 1;
 static const GLsizei VERTEX_BUFFER_COUNT = 1;
-static const GLsizei INDEX_BUFFER_COUNT  = 1;
+static const GLsizei INDEX_BUFFER_COUNT = 1;
 static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
 static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
 static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];

@@ -36,7 +36,7 @@
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
 
-
+#include "Nito/Utilities.hpp"
 using std::string;
 using std::vector;
 using std::map;
@@ -127,12 +127,42 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 };
 
 
+static glm::vec4 color(0.0f, 0.7f, 0.0f, 1.0f);
+
+static const Render_Data::Uniforms uniforms
+{
+    { "color", Uniform { Uniform::Types::VEC4, &color } },
+};
+
+static const string layer_name("world");
+static const string shader_pipeline_name("color");
+static const string vertex_container_id("collider");
+
 static vector<Update_Handler> engine_update_handlers
 {
     input_api_update,
     local_transform_update,
     renderer_update,
     text_renderer_update,
+    []() -> void
+    {
+        load_render_data(
+            {
+                Render_Modes::LINE_STRIP,
+                &layer_name,
+                nullptr,
+                &shader_pipeline_name,
+                &vertex_container_id,
+                &uniforms,
+                calculate_model_matrix(
+                    32,
+                    32,
+                    glm::vec3(0.0f),
+                    glm::vec3(3.0f, 3.0f, 0.0f),
+                    glm::vec3(2.0f),
+                    0.0f)
+            });
+    },
     camera_update,
 };
 
@@ -669,6 +699,7 @@ int run_engine()
     configure_opengl(
         {
             opengl_config["pixels_per_unit"],
+            opengl_config["default_vertex_container_id"],
             opengl_config["capabilities"],
             opengl_config["clear_flags"],
             {
@@ -692,8 +723,8 @@ int run_engine()
     init_openal();
 
 
-    // Load vertex data.
-    GLfloat sprite_vertex_data[]
+    // Load default vertex data.
+    const vector<GLfloat> default_vertex_data
     {
         // Position       // UV
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -702,17 +733,27 @@ int run_engine()
         1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
     };
 
-    GLuint sprite_index_data[]
+    const vector<GLuint> default_index_data
     {
         0, 1, 2,
         0, 2, 3,
     };
 
-    load_vertex_data(
-        sprite_vertex_data,
-        sizeof(sprite_vertex_data),
-        sprite_index_data,
-        sizeof(sprite_index_data));
+    load_vertex_data(get_default_vertex_container_id(), default_vertex_data, default_index_data);
+
+
+    // Load collider vertex data.
+    const vector<GLfloat> collider_vertex_data
+    {
+        // Position       // UV
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+        0.5f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.5f, 0.0f, 1.0f, 1.0f,
+        0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    };
+
+    const vector<GLuint> collider_index_data { 0, 1, 2, 3, 0 };
+    load_vertex_data("collider", collider_vertex_data, collider_index_data);
 
 
     // Load engine resources first, then project resources.

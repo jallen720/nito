@@ -1,5 +1,6 @@
 {
     "pixels_per_unit": 64,
+    "default_vertex_container_id": "sprite",
     "capabilities":
     [
         "blend",

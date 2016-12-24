@@ -68,8 +68,6 @@ void camera_unsubscribe(const Entity entity)
 
 void camera_update()
 {
-    init_rendering();
-
     for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
         const Viewport * entity_viewport = entity_state.viewport;

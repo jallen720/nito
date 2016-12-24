@@ -82,6 +82,15 @@ struct Vertex_Attribute
 };
 
 
+struct Vertex_Container
+{
+    GLuint vertex_array;
+    GLuint vertex_buffer;
+    GLuint index_buffer;
+    GLsizei index_count;
+};
+
+
 struct Texture_Format
 {
     const GLenum internal;
@@ -108,17 +117,13 @@ struct Render_Layer
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static const GLsizei VERTEX_ARRAY_COUNT = 1;
-static const GLsizei VERTEX_BUFFER_COUNT = 1;
-static const GLsizei INDEX_BUFFER_COUNT = 1;
-static GLuint vertex_array_objects[VERTEX_ARRAY_COUNT];
-static GLuint vertex_buffer_objects[VERTEX_BUFFER_COUNT];
-static GLuint index_buffer_objects[INDEX_BUFFER_COUNT];
+static map<string, Vertex_Container> vertex_containers;
 static map<string, GLuint> texture_objects;
 static map<string, GLuint> shader_programs;
 static float pixels_per_unit;
 static GLbitfield clear_flags;
 static unordered_map<string, Render_Layer> render_layers;
+static string default_vertex_container_id;
 
 
 Vertex_Attribute::Types Vertex_Attribute::types
@@ -434,6 +439,10 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     pixels_per_unit = opengl_config.pixels_per_unit;
 
 
+    // Set default vertex_container_id to be used when rendering if no id was specified.
+    default_vertex_container_id = opengl_config.default_vertex_container_id;
+
+
     // Validate no OpenGL errors occurred.
     validate_no_opengl_error("configure_opengl()");
 }
@@ -584,11 +593,7 @@ void load_texture_data(const Texture & texture, const void * data, const string 
 }
 
 
-void load_vertex_data(
-    const GLvoid * vertex_data,
-    const GLsizeiptr vertex_data_size,
-    const GLuint * index_data,
-    const GLsizeiptr index_data_size)
+void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, const vector<GLuint> & index_data)
 {
     // Vertex attribute specification
     static const vector<Vertex_Attribute> vertex_attributes
@@ -607,28 +612,35 @@ void load_vertex_data(
             });
 
 
+    Vertex_Container & vertex_container = vertex_containers[id];
+    GLuint & vertex_array = vertex_container.vertex_array;
+    GLuint & vertex_buffer = vertex_container.vertex_buffer;
+    GLuint & index_buffer = vertex_container.index_buffer;
+    vertex_container.index_count = index_data.size();
+
+
     // Generate containers for vertex data.
-    glGenVertexArrays(VERTEX_ARRAY_COUNT, vertex_array_objects);
-    glGenBuffers(VERTEX_BUFFER_COUNT, vertex_buffer_objects);
-    glGenBuffers(INDEX_BUFFER_COUNT, index_buffer_objects);
+    glGenVertexArrays(1, &vertex_array);
+    glGenBuffers(1, &vertex_buffer);
+    glGenBuffers(1, &index_buffer);
 
 
     // Bind the vertex array object first, then bind and set vertex & index buffer data.
-    glBindVertexArray(vertex_array_objects[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_objects[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_objects[0]);
+    glBindVertexArray(vertex_array);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
     glBufferData(
-        GL_ARRAY_BUFFER,  // Target buffer to load data into
-        vertex_data_size, // Size of data
-        vertex_data,      // Pointer to data
-        GL_STATIC_DRAW);  // Usage
+        GL_ARRAY_BUFFER,                      // Target buffer to load data into
+        vertex_data.size() * sizeof(GLfloat), // Size of data
+        &vertex_data[0],                      // Pointer to data
+        GL_STATIC_DRAW);                      // Usage
 
     glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER, // Target buffer to load data into
-        index_data_size,         // Size of data
-        index_data,              // Pointer to data
-        GL_STATIC_DRAW);         // Usage
+        GL_ELEMENT_ARRAY_BUFFER,            // Target buffer to load data into
+        index_data.size() * sizeof(GLuint), // Size of data
+        &index_data[0],                     // Pointer to data
+        GL_STATIC_DRAW);                    // Usage
 
 
     // Define pointers to vertex attributes.
@@ -682,18 +694,6 @@ void load_render_data(const Render_Data & render_data)
     Render_Layer & render_layer = render_layers[*render_data.layer_name];
     render_layer.render_datas.push_back(render_data);
     render_layer.order.push_back(render_layer.order.size());
-}
-
-
-void init_rendering()
-{
-    // Bind sprite vertex array.
-    glBindVertexArray(vertex_array_objects[0]);
-
-
-#ifdef DEBUG
-    validate_no_opengl_error("init_rendering()");
-#endif
 }
 
 
@@ -784,7 +784,17 @@ void render(const Render_Canvas & render_canvas)
         {
             const Render_Data & render_data = render_datas[index];
             const Render_Data::Uniforms * uniforms = render_data.uniforms;
+            const string * vertex_container_id = render_data.vertex_container_id;
             const string * texture_path = render_data.texture_path;
+
+            const Vertex_Container & vertex_container = vertex_containers.at(
+                vertex_container_id == nullptr
+                ? default_vertex_container_id
+                : *vertex_container_id);
+
+
+            // Bind vertex array containing vertex data to be rendered.
+            glBindVertexArray(vertex_container.vertex_array);
 
 
             // Bind texture to texture unit 0.
@@ -815,7 +825,7 @@ void render(const Render_Canvas & render_canvas)
             // Draw data.
             glDrawElements(
                 GL_RENDER_MODES.at(render_data.render_mode), // Render mode
-                6,                                           // Index count
+                vertex_container.index_count,                // Index count
                 GL_UNSIGNED_INT,                             // Index type
                 (GLvoid *)0);                                // Pointer to start of index array
         }
@@ -853,9 +863,14 @@ void cleanup_rendering()
 void destroy_graphics()
 {
     // Delete vertex data.
-    glDeleteVertexArrays(VERTEX_ARRAY_COUNT, vertex_array_objects);
-    glDeleteBuffers(VERTEX_BUFFER_COUNT, vertex_buffer_objects);
-    glDeleteBuffers(INDEX_BUFFER_COUNT, index_buffer_objects);
+    for_each(vertex_containers, [](const string & /*id*/, const Vertex_Container & vertex_container) -> void
+    {
+        glDeleteVertexArrays(1, &vertex_container.vertex_array);
+        glDeleteBuffers(1, &vertex_container.vertex_buffer);
+        glDeleteBuffers(1, &vertex_container.index_buffer);
+    });
+
+    vertex_containers.clear();
 
 
     // Delete shader pipelines.
@@ -871,6 +886,12 @@ void destroy_graphics()
 float get_pixels_per_unit()
 {
     return pixels_per_unit;
+}
+
+
+const string & get_default_vertex_container_id()
+{
+    return default_vertex_container_id;
 }
 
 

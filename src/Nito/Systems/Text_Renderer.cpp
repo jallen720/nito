@@ -158,6 +158,7 @@ void text_renderer_update()
                     entity_state.render_layer,
                     &entity_character_texture_paths[character_index],
                     &TEXT_SHADER_PIPELINE_NAME,
+                    nullptr,
                     &entity_state.uniforms,
                     calculate_model_matrix(
                         character_dimensions->width,

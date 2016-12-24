@@ -37,6 +37,8 @@
 #include "Nito/Systems/UI_Transform.hpp"
 
 #include "Nito/Utilities.hpp"
+#include <cmath>
+
 using std::string;
 using std::vector;
 using std::map;
@@ -743,16 +745,23 @@ int run_engine()
 
 
     // Load collider vertex data.
-    const vector<GLfloat> collider_vertex_data
-    {
-        // Position       // UV
-        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
-        0.5f, 1.0f, 0.0f, 0.0f, 1.0f,
-        1.0f, 0.5f, 0.0f, 1.0f, 1.0f,
-        0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-    };
+    const float PI = 3.14159;
+    vector<GLfloat> collider_vertex_data;
+    vector<GLuint> collider_index_data;
+    float radius = 0.5f;
+    int index = 0;
 
-    const vector<GLuint> collider_index_data { 0, 1, 2, 3, 0 };
+    for (float angle = 0.0f; angle <= 2 * PI; angle += 0.25f)
+    {
+        collider_vertex_data.push_back(radius * cos(angle));
+        collider_vertex_data.push_back(radius * sin(angle));
+        collider_vertex_data.push_back(0.0f);
+        collider_vertex_data.push_back(0.0f);
+        collider_vertex_data.push_back(0.0f);
+        collider_index_data.push_back(index++);
+    }
+
+    collider_index_data.push_back(0);
     load_vertex_data("collider", collider_vertex_data, collider_index_data);
 
 

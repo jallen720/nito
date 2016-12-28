@@ -8,8 +8,6 @@
 #include <map>
 #include <functional>
 #include <stdexcept>
-#include <cstdlib>
-#include <cstdio>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/JSON.hpp"
 #include "Cpp_Utils/File.hpp"
@@ -36,8 +34,6 @@
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
 
-#include "Nito/Utilities.hpp"
-#include <cmath>
 
 using std::string;
 using std::vector;
@@ -129,42 +125,12 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 };
 
 
-static glm::vec4 color(0.0f, 0.7f, 0.0f, 1.0f);
-
-static const Render_Data::Uniforms uniforms
-{
-    { "color", Uniform { Uniform::Types::VEC4, &color } },
-};
-
-static const string layer_name("world");
-static const string shader_pipeline_name("color");
-static const string vertex_container_id("collider");
-
 static vector<Update_Handler> engine_update_handlers
 {
     input_api_update,
     local_transform_update,
     renderer_update,
     text_renderer_update,
-    []() -> void
-    {
-        load_render_data(
-            {
-                Render_Modes::LINE_STRIP,
-                &layer_name,
-                nullptr,
-                &shader_pipeline_name,
-                &vertex_container_id,
-                &uniforms,
-                calculate_model_matrix(
-                    32,
-                    32,
-                    glm::vec3(0.0f),
-                    glm::vec3(0.0f),
-                    glm::vec3(3.0f),
-                    0.0f)
-            });
-    },
     camera_update,
 };
 

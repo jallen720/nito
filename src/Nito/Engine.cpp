@@ -160,8 +160,8 @@ static vector<Update_Handler> engine_update_handlers
                     32,
                     32,
                     glm::vec3(0.0f),
-                    glm::vec3(3.0f, 3.0f, 0.0f),
-                    glm::vec3(2.0f),
+                    glm::vec3(0.0f),
+                    glm::vec3(3.0f),
                     0.0f)
             });
     },

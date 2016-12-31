@@ -10,7 +10,7 @@
     [
         "color_buffer_bit"
     ],
-    "clear_color": { "r": 1, "g": 1, "b": 1, "a": 1 },
+    "clear_color": { "r": 0, "g": 0, "b": 0, "a": 1 },
     "blending":
     {
         "source_factor": "src_alpha",

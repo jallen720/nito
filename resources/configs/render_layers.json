@@ -1,7 +1,7 @@
 [
     {
         "name": "ui",
-        "space": "screen"
+        "space": "viewport"
     },
     {
         "name": "world",
@@ -9,6 +9,6 @@
     },
     {
         "name": "background",
-        "space": "screen"
+        "space": "viewport"
     }
 ]

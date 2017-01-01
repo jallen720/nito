@@ -106,7 +106,7 @@ struct Render_Layer
     enum class Space
     {
         WORLD,
-        SCREEN,
+        VIEWPORT,
     }
     space;
 };
@@ -680,8 +680,8 @@ void load_render_layer(const string & name, const string & render_space)
 {
     static const map<string, const Render_Layer::Space> render_spaces
     {
-        { "world"  , Render_Layer::Space::WORLD  },
-        { "screen" , Render_Layer::Space::SCREEN },
+        { "world"    , Render_Layer::Space::WORLD    },
+        { "viewport" , Render_Layer::Space::VIEWPORT },
     };
 
     Render_Layer & render_layer = render_layers[name];

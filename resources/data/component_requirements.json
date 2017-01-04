@@ -23,5 +23,9 @@
     "text":
     [
         "text_renderer"
+    ],
+    "camera":
+    [
+        "camera"
     ]
 }

@@ -30,7 +30,7 @@ struct UI_Transform
 };
 
 
-struct Viewport
+struct Camera
 {
     int x;
     int y;

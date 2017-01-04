@@ -218,11 +218,11 @@ static map<string, const Component_Handlers> engine_component_handlers
         }
     },
     {
-        "viewport",
+        "camera",
         {
             [](const JSON & data) -> Component
             {
-                return new Viewport
+                return new Camera
                 {
                     data["x"],
                     data["y"],
@@ -230,7 +230,7 @@ static map<string, const Component_Handlers> engine_component_handlers
                     data["z_far"],
                 };
             },
-            get_component_deallocator<Viewport>(),
+            get_component_deallocator<Camera>(),
         }
     },
     {

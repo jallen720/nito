@@ -30,7 +30,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Entity_State
 {
-    const Viewport * viewport;
+    const Camera * camera;
     const Dimensions * dimensions;
     const Transform * transform;
 };
@@ -53,7 +53,7 @@ void camera_subscribe(const Entity entity)
 {
     entity_states[entity] =
     {
-        (Viewport *)get_component(entity, "viewport"),
+        (Camera *)get_component(entity, "camera"),
         (Dimensions *)get_component(entity, "dimensions"),
         (Transform *)get_component(entity, "transform"),
     };
@@ -70,7 +70,7 @@ void camera_update()
 {
     for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
-        const Viewport * entity_viewport = entity_state.viewport;
+        const Camera * entity_camera = entity_state.camera;
         const Dimensions * entity_dimensions = entity_state.dimensions;
         const Transform * entity_transform = entity_state.transform;
         const float entity_width = entity_dimensions->width;
@@ -78,12 +78,12 @@ void camera_update()
 
         render(
             {
-                entity_viewport->x,
-                entity_viewport->y,
+                entity_camera->x,
+                entity_camera->y,
                 entity_width,
                 entity_height,
-                entity_viewport->z_near,
-                entity_viewport->z_far,
+                entity_camera->z_near,
+                entity_camera->z_far,
                 calculate_view_matrix(
                     entity_width,
                     entity_height,

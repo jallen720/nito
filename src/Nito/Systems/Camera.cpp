@@ -78,8 +78,6 @@ void camera_update()
 
         render(
             {
-                entity_camera->x,
-                entity_camera->y,
                 entity_width,
                 entity_height,
                 entity_camera->z_near,

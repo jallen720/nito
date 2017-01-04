@@ -224,8 +224,6 @@ static map<string, const Component_Handlers> engine_component_handlers
             {
                 return new Camera
                 {
-                    data["x"],
-                    data["y"],
                     data["z_near"],
                     data["z_far"],
                 };

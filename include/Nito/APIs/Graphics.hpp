@@ -81,8 +81,6 @@ struct Render_Data
 
 struct Render_Canvas
 {
-    const GLint x;
-    const GLint y;
     const float width;
     const float height;
     const float z_near;

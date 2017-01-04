@@ -705,8 +705,8 @@ void render(const Render_Canvas & render_canvas)
         { Render_Modes::LINE_STRIP , GL_LINE_STRIP },
     };
 
-    const float canvas_x = render_canvas.x;
-    const float canvas_y = render_canvas.y;
+    const float canvas_x = 0.0f;
+    const float canvas_y = 0.0f;
     const float canvas_width = render_canvas.width;
     const float canvas_height = render_canvas.height;
 

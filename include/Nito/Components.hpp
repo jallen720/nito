@@ -32,8 +32,6 @@ struct UI_Transform
 
 struct Camera
 {
-    int x;
-    int y;
     float z_near;
     float z_far;
 };

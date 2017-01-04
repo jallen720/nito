@@ -1,6 +1,7 @@
 #include "Nito/Systems/Camera.hpp"
 
 #include <map>
+#include <glm/glm.hpp>
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
@@ -8,9 +9,13 @@
 #include "Nito/Utilities.hpp"
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/Window.hpp"
 
 
 using std::map;
+
+// glm/glm.hpp
+using glm::vec3;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::remove;
@@ -68,13 +73,14 @@ void camera_unsubscribe(const Entity entity)
 
 void camera_update()
 {
-    for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
+    static const vec3 & window_size = get_window_size();
+
+    for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
     {
         const Camera * entity_camera = entity_state.camera;
-        const Dimensions * entity_dimensions = entity_state.dimensions;
         const Transform * entity_transform = entity_state.transform;
-        const float entity_width = entity_dimensions->width;
-        const float entity_height = entity_dimensions->height;
+        const float entity_width = window_size.x;
+        const float entity_height = window_size.y;
 
         render(
             {
@@ -85,7 +91,7 @@ void camera_update()
                 calculate_view_matrix(
                     entity_width,
                     entity_height,
-                    entity_dimensions->origin,
+                    entity_state.dimensions->origin,
                     entity_transform->position,
                     entity_transform->scale,
                     entity_transform->rotation),

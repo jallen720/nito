@@ -35,7 +35,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Entity_State
+struct UI_Mouse_Event_Dispatcher_State
 {
     bool is_mouse_over;
     const Transform * transform;
@@ -49,7 +49,7 @@ struct Entity_State
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static map<Entity, Entity_State> entity_states;
+static map<Entity, UI_Mouse_Event_Dispatcher_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_han
 
 void mouse_position_handler(const dvec2 & mouse_position)
 {
-    for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
+    for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {
         bool is_mouse_currently_over_entity =
             is_mouse_over(mouse_position, entity_state.dimensions, entity_state.transform);
@@ -112,7 +112,7 @@ void mouse_position_handler(const dvec2 & mouse_position)
 
 void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions button_action)
 {
-    for_each(entity_states, [&](const Entity /*entity*/, Entity_State & entity_state) -> void
+    for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {
         // Only handle mouse button events if mouse is over entity.
         if (entity_state.is_mouse_over)

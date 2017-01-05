@@ -30,7 +30,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Entity_State
+struct Local_Transform_State
 {
     const string * parent_id;
     Transform * transform;
@@ -43,7 +43,7 @@ struct Entity_State
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static map<Entity, Entity_State> entity_states;
+static map<Entity, Local_Transform_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ void calculate_transform(
         return;
     }
 
-    Entity_State & entity_state = entity_states[entity];
+    Local_Transform_State & entity_state = entity_states[entity];
     Entity entity_parent = entity_parents.at(entity);
 
     // If entity's parent's transform has not already been calculated, calculate its transform before calculating
@@ -112,7 +112,7 @@ void local_transform_update()
     map<Entity, Entity> entity_parents;
     map<Entity, const Transform *> calculated_transforms;
 
-    for_each(entity_states, [&](const Entity entity, const Entity_State & state) -> void
+    for_each(entity_states, [&](const Entity entity, const Local_Transform_State & state) -> void
     {
         entity_parents[entity] = get_entity(*state.parent_id);
     });

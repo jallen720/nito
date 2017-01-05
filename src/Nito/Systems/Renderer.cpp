@@ -29,7 +29,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Entity_State
+struct Renderer_State
 {
     const string * render_layer;
     const Sprite * sprite;
@@ -43,7 +43,7 @@ struct Entity_State
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static map<Entity, Entity_State> entity_states;
+static map<Entity, Renderer_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ void renderer_unsubscribe(const Entity entity)
 
 void renderer_update()
 {
-    for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
+    for_each(entity_states, [](const Entity /*entity*/, Renderer_State & entity_state) -> void
     {
         const Sprite * entity_sprite = entity_state.sprite;
         const Transform * entity_transform = entity_state.transform;

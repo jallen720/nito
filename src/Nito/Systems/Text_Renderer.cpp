@@ -36,7 +36,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Entity_State
+struct Text_Renderer_State
 {
     const string * render_layer;
     const Transform * transform;
@@ -56,7 +56,7 @@ struct Entity_State
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const string TEXT_SHADER_PIPELINE_NAME = "text";
-static map<Entity, Entity_State> entity_states;
+static map<Entity, Text_Renderer_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ static map<Entity, Entity_State> entity_states;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void text_renderer_subscribe(const Entity entity)
 {
-    Entity_State & entity_state = entity_states[entity];
+    Text_Renderer_State & entity_state = entity_states[entity];
     auto entity_dimensions = (Dimensions *)get_component(entity, "dimensions");
     auto entity_text = (Text *)get_component(entity, "text");
     entity_state.render_layer = (string *)get_component(entity, "render_layer");
@@ -128,7 +128,7 @@ void text_renderer_unsubscribe(const Entity entity)
 
 void text_renderer_update()
 {
-    for_each(entity_states, [](const Entity /*entity*/, Entity_State & entity_state) -> void
+    for_each(entity_states, [](const Entity /*entity*/, Text_Renderer_State & entity_state) -> void
     {
         const Transform * entity_transform = entity_state.transform;
         const Dimensions * entity_dimensions = entity_state.dimensions;

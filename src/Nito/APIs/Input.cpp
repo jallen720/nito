@@ -23,6 +23,7 @@ using glm::dvec2;
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
 using Cpp_Utils::at_value;
+using Cpp_Utils::remove;
 
 // Cpp_Utils/String.hpp
 using Cpp_Utils::to_string;
@@ -449,6 +450,30 @@ void set_mouse_button_handler(const string & id, const Mouse_Button_Handler & mo
 }
 
 
+void remove_key_handler(const std::string & id)
+{
+    remove(key_handlers, id);
+}
+
+
+void remove_controller_button_handler(const std::string & id)
+{
+    remove(controller_button_handlers, id);
+}
+
+
+void remove_mouse_position_handler(const std::string & id)
+{
+    remove(mouse_position_handlers, id);
+}
+
+
+void remove_mouse_button_handler(const std::string & id)
+{
+    remove(mouse_button_handlers, id);
+}
+
+
 Button_Actions get_key_button_action(const Keys key)
 {
     return at_value(button_actions, get_window_key_button_action(keys.at(key)));
@@ -483,6 +508,11 @@ Button_Actions get_controller_button_action(const int controller_button, const i
 
 float get_controller_axis(const Controller_Axes controller_axis, const int controller)
 {
+    if (!controller_states[controller].is_connected)
+    {
+        return 0.0f;
+    }
+
     validate_controller_is_connected(controller);
     const Controller_State & controller_state = controller_states[controller];
     const int axis = ds4_axes.at(controller_axis);

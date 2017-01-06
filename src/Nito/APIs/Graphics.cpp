@@ -101,7 +101,7 @@ struct Texture_Format
 struct Render_Layer
 {
     vector<Render_Data> render_datas;
-    vector<unsigned int> order;
+    vector<int> order;
 
     enum class Space
     {
@@ -759,7 +759,7 @@ void render(const Render_Canvas & render_canvas)
 
 
         // Sort render layer order.
-        sort(render_layer.order, [&](const unsigned int a, const unsigned int b) -> bool
+        sort(render_layer.order, [&](const int a, const int b) -> bool
         {
             return render_datas[a].model_matrix[3][2] >
                    render_datas[b].model_matrix[3][2];
@@ -780,7 +780,7 @@ void render(const Render_Canvas & render_canvas)
 
 
         // Render all data in layer.
-        for (unsigned int index : render_layer.order)
+        for (int index : render_layer.order)
         {
             const Render_Data & render_data = render_datas[index];
             const Render_Data::Uniforms * uniforms = render_data.uniforms;

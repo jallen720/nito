@@ -93,8 +93,16 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
         if (contains_key(data, "position"))
         {
             const JSON & position_data = data["position"];
-            position.x = position_data["x"];
-            position.y = position_data["y"];
+
+            if (contains_key(position_data, "x"))
+            {
+                position.x = position_data["x"];
+            }
+
+            if (contains_key(position_data, "y"))
+            {
+                position.y = position_data["y"];
+            }
 
             if (contains_key(position_data, "z"))
             {
@@ -105,8 +113,16 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
         if (contains_key(data, "scale"))
         {
             const JSON & scale_data = data["scale"];
-            scale.x = scale_data["x"];
-            scale.y = scale_data["y"];
+
+            if (contains_key(scale_data, "x"))
+            {
+                scale.x = scale_data["x"];
+            }
+
+            if (contains_key(scale_data, "y"))
+            {
+                scale.y = scale_data["y"];
+            }
         }
 
         if (contains_key(data, "rotation"))

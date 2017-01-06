@@ -163,6 +163,8 @@ enum class Controller_Axes
     LEFT_STICK_Y,
     RIGHT_STICK_X,
     RIGHT_STICK_Y,
+    D_PAD_X,
+    D_PAD_Y,
 };
 
 

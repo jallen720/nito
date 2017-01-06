@@ -227,6 +227,8 @@ static map<Controller_Axes, const int> ds4_axes
     { Controller_Axes::LEFT_STICK_Y  , 1 },
     { Controller_Axes::RIGHT_STICK_X , 2 },
     { Controller_Axes::RIGHT_STICK_Y , 5 },
+    { Controller_Axes::D_PAD_X       , 6 },
+    { Controller_Axes::D_PAD_Y       , 7 },
 };
 
 
@@ -236,6 +238,8 @@ static map<Controller_Axes, const string> controller_axis_names
     { Controller_Axes::LEFT_STICK_Y  , "Controller_Axes::LEFT_STICK_Y"  },
     { Controller_Axes::RIGHT_STICK_X , "Controller_Axes::RIGHT_STICK_X" },
     { Controller_Axes::RIGHT_STICK_Y , "Controller_Axes::RIGHT_STICK_Y" },
+    { Controller_Axes::D_PAD_X       , "Controller_Axes::D_PAD_X"       },
+    { Controller_Axes::D_PAD_Y       , "Controller_Axes::D_PAD_Y"       },
 };
 
 

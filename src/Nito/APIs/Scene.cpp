@@ -99,8 +99,17 @@ void load_scene(const string & name)
     {
         const Entity entity = entities[i];
         vector<string> & entity_component_list = entity_component_lists[entity];
+        const JSON & entity_data = scene_data[i];
 
-        for_each(scene_data[i]["components"], [&](const string & component_name, const JSON & data) -> void
+
+        // Defining components for an entity is optional.
+        if (!contains_key(entity_data, "components"))
+        {
+            continue;
+        }
+
+
+        for_each(entity_data["components"], [&](const string & component_name, const JSON & data) -> void
         {
             add_component(entities[i], component_name, data);
             entity_component_list.push_back(component_name);
@@ -112,7 +121,15 @@ void load_scene(const string & name)
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
-        vector<string> entity_systems = scene_data[i]["systems"];
+        const JSON & entity_data = scene_data[i];
+        vector<string> entity_systems;
+
+
+        // Defining systems for an entity is optional.
+        if (contains_key(entity_data, "systems"))
+        {
+            entity_systems = entity_data["systems"].get<vector<string>>();
+        }
 
 
         // Populate entity_systems with systems required by entity's components.

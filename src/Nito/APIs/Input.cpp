@@ -423,6 +423,17 @@ void set_controller_button_handler(
 }
 
 
+void set_controller_button_handler(
+    const string & id,
+    const DS4_Buttons button,
+    const Button_Actions button_action,
+    const function<void()> & handler,
+    const int controller)
+{
+    set_controller_button_handler(id, (int)button, button_action, handler, controller);
+}
+
+
 void set_mouse_position_handler(const string & id, const Mouse_Position_Handler & mouse_position_handler)
 {
     validate_handler_not_set(mouse_position_handlers, "mouse position", id);
@@ -484,6 +495,12 @@ Button_Actions get_controller_button_action(const int controller_button, const i
 }
 
 
+Button_Actions get_controller_button_action(const DS4_Buttons controller_button, const int controller)
+{
+    return get_controller_button_action((int)controller_button, controller);
+}
+
+
 float get_controller_axis(const int controller_axis, const int controller)
 {
     if (!controller_states[controller].is_connected)
@@ -503,6 +520,12 @@ float get_controller_axis(const int controller_axis, const int controller)
     }
 
     return controller_state.axes[controller_axis];
+}
+
+
+float get_controller_axis(const DS4_Axes controller_axis, const int controller)
+{
+    return get_controller_axis((int)controller_axis, controller);
 }
 
 

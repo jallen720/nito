@@ -157,7 +157,7 @@ enum class Button_Actions
 };
 
 
-enum DS4_Axes
+enum class DS4_Axes
 {
     LEFT_STICK_X,
     LEFT_STICK_Y,
@@ -174,7 +174,7 @@ enum DS4_Axes
 };
 
 
-enum DS4_Buttons
+enum class DS4_Buttons
 {
     SQUARE,
     X,
@@ -218,6 +218,13 @@ void set_controller_button_handler(
     const std::function<void()> & handler,
     const int controller = GLFW_JOYSTICK_1);
 
+void set_controller_button_handler(
+    const std::string & id,
+    const DS4_Buttons button,
+    const Button_Actions button_action,
+    const std::function<void()> & handler,
+    const int controller = GLFW_JOYSTICK_1);
+
 void set_mouse_position_handler(const std::string & id, const Mouse_Position_Handler & mouse_position_handler);
 void set_mouse_button_handler(const std::string & id, const Mouse_Button_Handler & mouse_button_handler);
 void remove_key_handler(const std::string & id);
@@ -226,7 +233,9 @@ void remove_mouse_position_handler(const std::string & id);
 void remove_mouse_button_handler(const std::string & id);
 Button_Actions get_key_button_action(const Keys key);
 Button_Actions get_controller_button_action(const int controller_button, const int controller = GLFW_JOYSTICK_1);
+Button_Actions get_controller_button_action(const DS4_Buttons controller_button, const int controller = GLFW_JOYSTICK_1);
 float get_controller_axis(const int controller_axis, const int controller = GLFW_JOYSTICK_1);
+float get_controller_axis(const DS4_Axes controller_axis, const int controller = GLFW_JOYSTICK_1);
 void debug_controllers();
 
 

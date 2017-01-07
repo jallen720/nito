@@ -222,28 +222,6 @@ static map<Button_Actions, const int> button_actions
 };
 
 
-static map<Controller_Axes, const int> ds4_axes
-{
-    { Controller_Axes::LEFT_STICK_X  , 0 },
-    { Controller_Axes::LEFT_STICK_Y  , 1 },
-    { Controller_Axes::RIGHT_STICK_X , 2 },
-    { Controller_Axes::RIGHT_STICK_Y , 5 },
-    { Controller_Axes::D_PAD_X       , 6 },
-    { Controller_Axes::D_PAD_Y       , 7 },
-};
-
-
-static map<Controller_Axes, const string> controller_axis_names
-{
-    { Controller_Axes::LEFT_STICK_X  , "Controller_Axes::LEFT_STICK_X"  },
-    { Controller_Axes::LEFT_STICK_Y  , "Controller_Axes::LEFT_STICK_Y"  },
-    { Controller_Axes::RIGHT_STICK_X , "Controller_Axes::RIGHT_STICK_X" },
-    { Controller_Axes::RIGHT_STICK_Y , "Controller_Axes::RIGHT_STICK_Y" },
-    { Controller_Axes::D_PAD_X       , "Controller_Axes::D_PAD_X"       },
-    { Controller_Axes::D_PAD_Y       , "Controller_Axes::D_PAD_Y"       },
-};
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Utilities
@@ -506,7 +484,7 @@ Button_Actions get_controller_button_action(const int controller_button, const i
 }
 
 
-float get_controller_axis(const Controller_Axes controller_axis, const int controller)
+float get_controller_axis(const int controller_axis, const int controller)
 {
     if (!controller_states[controller].is_connected)
     {
@@ -515,18 +493,16 @@ float get_controller_axis(const Controller_Axes controller_axis, const int contr
 
     validate_controller_is_connected(controller);
     const Controller_State & controller_state = controller_states[controller];
-    const int axis = ds4_axes.at(controller_axis);
     const int axis_count = controller_state.axis_count;
 
-    if (axis >= axis_count)
+    if (controller_axis >= axis_count)
     {
         throw runtime_error(
-            "ERROR: axis index " + to_string(axis) + " for axis " + controller_axis_names.at(controller_axis) + " is "
-            "out of range for the axis count " + to_string(axis_count) + " of controller " + to_string(controller) +
-            "!");
+            "ERROR: axis index " + to_string(controller_axis) + " is out of range for the axis count " +
+            to_string(axis_count) + " of controller " + to_string(controller) + "!");
     }
 
-    return controller_state.axes[axis];
+    return controller_state.axes[controller_axis];
 }
 
 

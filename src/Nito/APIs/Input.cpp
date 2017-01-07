@@ -89,7 +89,7 @@ static map<string, Mouse_Position_Handler> mouse_position_handlers;
 static map<string, Mouse_Button_Handler> mouse_button_handlers;
 
 
-static const map<Keys, const int> keys
+static const map<Keys, const int> KEYS
 {
     { Keys::SPACE           , GLFW_KEY_SPACE         },
     { Keys::APOSTROPHE      , GLFW_KEY_APOSTROPHE    },
@@ -231,7 +231,7 @@ static void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code
 {
     for_each(key_handlers, [=](const string & /*id*/, const Key_Handler & key_handler) -> void
     {
-        if (key_handler.key == at_value(keys, key))
+        if (key_handler.key == at_value(KEYS, key))
         {
             const Button_Handler & button_handler = key_handler.button_handler;
 
@@ -470,7 +470,7 @@ void remove_mouse_button_handler(const std::string & id)
 
 Button_Actions get_key_button_action(Keys key)
 {
-    return at_value(button_actions, get_window_key_button_action(keys.at(key)));
+    return at_value(button_actions, get_window_key_button_action(KEYS.at(key)));
 }
 
 

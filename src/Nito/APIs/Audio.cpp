@@ -41,7 +41,7 @@ static map<string, ALuint> audio_sources;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void validate_no_openal_error(const string & description)
 {
-    static const map<ALCenum, const string> openal_error_messages
+    static const map<ALCenum, const string> OPENAL_ERROR_MESSAGES
     {
         { AL_INVALID_NAME      , "invalid name"      },
         { AL_INVALID_ENUM      , "invalid enum"      },
@@ -55,8 +55,8 @@ static void validate_no_openal_error(const string & description)
     if (error != AL_NO_ERROR)
     {
         const string error_message =
-            contains_key(openal_error_messages, error)
-            ? openal_error_messages.at(error)
+            contains_key(OPENAL_ERROR_MESSAGES, error)
+            ? OPENAL_ERROR_MESSAGES.at(error)
             : "an unknown OpenAL error occurred";
 
         throw runtime_error("OPENAL ERROR: " + description + ": " + error_message + "!");

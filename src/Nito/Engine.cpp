@@ -142,7 +142,7 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 };
 
 
-static vector<Update_Handler> engine_update_handlers
+static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
 {
     input_api_update,
     local_transform_update,
@@ -152,7 +152,7 @@ static vector<Update_Handler> engine_update_handlers
 };
 
 
-static map<string, const System_Entity_Handlers> engine_system_entity_handlers
+static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HANDLERS
 {
     NITO_SYSTEM_ENTITY_HANDLERS(button),
     NITO_SYSTEM_ENTITY_HANDLERS(camera),
@@ -165,7 +165,7 @@ static map<string, const System_Entity_Handlers> engine_system_entity_handlers
 };
 
 
-static map<string, const Component_Handlers> engine_component_handlers
+static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
 {
     {
         "transform",
@@ -497,16 +497,16 @@ int run_engine()
 
 
     // Load engine handlers.
-    for_each(engine_update_handlers, add_update_handler);
+    for_each(ENGINE_UPDATE_HANDLERS, add_update_handler);
 
     for_each(
-        engine_system_entity_handlers,
+        ENGINE_SYSTEM_ENTITY_HANDLERS,
         [](const string & name, const System_Entity_Handlers & system_entity_handlers) -> void
         {
             set_system_entity_handlers(name, system_entity_handlers.subscriber, system_entity_handlers.unsubscriber);
         });
 
-    for_each(engine_component_handlers, [](const string & type, const Component_Handlers & component_handlers) -> void
+    for_each(ENGINE_COMPONENT_HANDLERS, [](const string & type, const Component_Handlers & component_handlers) -> void
     {
         set_component_handlers(type, component_handlers.allocator, component_handlers.deallocator);
     });

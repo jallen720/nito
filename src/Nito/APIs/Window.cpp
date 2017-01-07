@@ -77,13 +77,13 @@ void init_glfw()
 
 void create_window(const Window_Config & window_config)
 {
-    static const map<string, const int> swap_intervals
+    static const map<string, const int> SWAP_INTERVALS
     {
         { "every_update"       , 1 },
         { "every_other_update" , 2 },
     };
 
-    static const map<string, const int> hint_keys
+    static const map<string, const int> HINT_KEYS
     {
         // Window related hints
         { "resizable", GLFW_RESIZABLE },
@@ -106,7 +106,7 @@ void create_window(const Window_Config & window_config)
     // Configure window hints.
     for_each(window_config.hints, [&](const string & hint_key, int hint_value) -> void
     {
-        glfwWindowHint(hint_keys.at(hint_key), hint_value);
+        glfwWindowHint(HINT_KEYS.at(hint_key), hint_value);
     });
 
 
@@ -131,13 +131,13 @@ void create_window(const Window_Config & window_config)
 
 
     // Window post-configuration
-    if (!contains_key(swap_intervals, window_config.refresh_rate))
+    if (!contains_key(SWAP_INTERVALS, window_config.refresh_rate))
     {
         throw runtime_error("ERROR: \"" + window_config.refresh_rate + "\" is not a valid refresh rate!");
     }
 
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(swap_intervals.at(window_config.refresh_rate));
+    glfwSwapInterval(SWAP_INTERVALS.at(window_config.refresh_rate));
     glfwSetWindowSizeCallback(window, window_size_callback);
 
 

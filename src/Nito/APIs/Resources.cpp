@@ -63,7 +63,7 @@ void init_freetype()
 
 void load_textures(const JSON & texture_group)
 {
-    static const map<string, const string> image_formats
+    static const map<string, const string> IMAGE_FORMATS
     {
         { "rgba" , "RGBA" },
         { "rgb"  , "RGB"  },
@@ -96,7 +96,7 @@ void load_textures(const JSON & texture_group)
         Blob blob;
         image.read(path);
         image.flip();
-        image.write(&blob, image_formats.at(texture.format));
+        image.write(&blob, IMAGE_FORMATS.at(texture.format));
 
 
         // Load texture dimensions from image.
@@ -117,7 +117,7 @@ void load_textures(const JSON & texture_group)
 
 void load_font(const JSON & config)
 {
-    static const map<string, string> font_texture_options
+    static const map<string, string> FONT_TEXTURE_OPTIONS
     {
         { "wrap_s"     , "clamp_to_edge" },
         { "wrap_t"     , "clamp_to_edge" },
@@ -151,7 +151,7 @@ void load_font(const JSON & config)
         // Create texture from font face.
         Texture texture;
         texture.format = "r";
-        texture.options = font_texture_options;
+        texture.options = FONT_TEXTURE_OPTIONS;
         FT_GlyphSlot glyph = face->glyph;
         const FT_Bitmap & bitmap = glyph->bitmap;
         unsigned int width = bitmap.width;

@@ -73,15 +73,15 @@ void button_subscribe(Entity entity)
 
 void button_unsubscribe(Entity entity)
 {
-    static const auto dud = []() -> void {};
+    static const auto DUD = []() -> void {};
 
 
     // Unsubscribe entity's event handlers.
     UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_ui_mouse_event_handlers[entity];
-    ui_mouse_event_handlers->mouse_enter_handler = dud;
-    ui_mouse_event_handlers->mouse_exit_handler = dud;
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::PRESS] = dud;
-    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::RELEASE] = dud;
+    ui_mouse_event_handlers->mouse_enter_handler = DUD;
+    ui_mouse_event_handlers->mouse_exit_handler = DUD;
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::PRESS] = DUD;
+    ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::RELEASE] = DUD;
     remove(entity_ui_mouse_event_handlers, entity);
 }
 

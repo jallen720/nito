@@ -132,7 +132,7 @@ Vertex_Attribute::Types Vertex_Attribute::types
 };
 
 
-static const map<string, const GLenum> capabilities
+static const map<string, const GLenum> CAPABILITIES
 {
     { "blend"        , GL_BLEND        },
     { "depth_test"   , GL_DEPTH_TEST   },
@@ -256,7 +256,7 @@ static void set_uniform(
 
 static void validate_no_opengl_error(const string & description)
 {
-    static const map<GLenum, const string> opengl_error_messages
+    static const map<GLenum, const string> OPENGL_ERROR_MESSAGES
     {
         { GL_INVALID_ENUM                  , "invalid enum"                  },
         { GL_INVALID_VALUE                 , "invalid value"                 },
@@ -272,8 +272,8 @@ static void validate_no_opengl_error(const string & description)
     if (error != GL_NO_ERROR)
     {
         const string error_message =
-            contains_key(opengl_error_messages, error)
-            ? opengl_error_messages.at(error)
+            contains_key(OPENGL_ERROR_MESSAGES, error)
+            ? OPENGL_ERROR_MESSAGES.at(error)
             : "an unknown OpenGL error occurred";
 
         throw runtime_error("OPENGL ERROR: " + description + ": " + error_message + "!");
@@ -340,7 +340,7 @@ void init_glew()
 
 void configure_opengl(const OpenGL_Config & opengl_config)
 {
-    static const map<string, const GLbitfield> clear_flag_masks
+    static const map<string, const GLbitfield> CLEAR_FLAG_MASKS
     {
         { "color_buffer_bit"   , GL_COLOR_BUFFER_BIT   },
         { "depth_buffer_bit"   , GL_DEPTH_BUFFER_BIT   },
@@ -348,7 +348,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
         { "stencil_buffer_bit" , GL_STENCIL_BUFFER_BIT },
     };
 
-    static const map<string, const GLenum> blending_factors
+    static const map<string, const GLenum> BLENDING_FACTORS
     {
         { "zero"                     , GL_ZERO                     },
         { "one"                      , GL_ONE                      },
@@ -375,7 +375,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
     // Configure capabilities.
     for (const string & capability : opengl_config.capabilities)
     {
-        glEnable(capabilities.at(capability));
+        glEnable(CAPABILITIES.at(capability));
     }
 
 
@@ -387,24 +387,24 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
     for (const string & clear_flag : opengl_config.clear_flags)
     {
-        clear_flags |= clear_flag_masks.at(clear_flag);
+        clear_flags |= CLEAR_FLAG_MASKS.at(clear_flag);
     }
 
 
     // Configure blending if enabled.
-    if (glIsEnabled(capabilities.at("blend")))
+    if (glIsEnabled(CAPABILITIES.at("blend")))
     {
         const OpenGL_Config::Blending & blending = opengl_config.blending;
 
 
         // Validate source & destination blending factor options.
-        if (!contains_key(blending_factors, blending.source_factor))
+        if (!contains_key(BLENDING_FACTORS, blending.source_factor))
         {
             throw runtime_error(
                 "ERROR: source blending factor \"" + blending.source_factor + "\" is not a valid blending factor!");
         }
 
-        if (!contains_key(blending_factors, blending.destination_factor))
+        if (!contains_key(BLENDING_FACTORS, blending.destination_factor))
         {
             throw runtime_error(
                 "ERROR: destination blending factor \"" + blending.destination_factor + "\" is not a valid blending " +
@@ -413,8 +413,8 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 
         glBlendFunc(
-            blending_factors.at(blending.source_factor),
-            blending_factors.at(blending.destination_factor));
+            BLENDING_FACTORS.at(blending.source_factor),
+            BLENDING_FACTORS.at(blending.destination_factor));
     }
 
 
@@ -447,7 +447,7 @@ void configure_opengl(const OpenGL_Config & opengl_config)
 
 void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 {
-    static const map<string, const GLenum> shader_types
+    static const map<string, const GLenum> SHADER_TYPES
     {
         { "vertex"   , GL_VERTEX_SHADER   },
         { "fragment" , GL_FRAGMENT_SHADER },
@@ -463,12 +463,12 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
         // Create and compile shader objects from sources.
         for_each(shader_pipeline.shader_sources, [&](const string & shader_type, const vector<string> & sources) -> void
         {
-            if (!contains_key(shader_types, shader_type))
+            if (!contains_key(SHADER_TYPES, shader_type))
             {
                 throw runtime_error("ERROR: " + shader_type + " is not a valid shader type!");
             }
 
-            GLuint shader_object = glCreateShader(shader_types.at(shader_type));
+            GLuint shader_object = glCreateShader(SHADER_TYPES.at(shader_type));
             compile_shader_object(shader_object, sources);
             shader_objects.push_back(shader_object);
         });
@@ -518,7 +518,7 @@ void load_shader_pipelines(const vector<Shader_Pipeline> & shader_pipelines)
 
 void load_texture_data(const Texture & texture, const void * data, const string & identifier)
 {
-    static const map<string, const GLint> texture_option_keys
+    static const map<string, const GLint> TEXTURE_OPTION_KEYS
     {
         { "wrap_s"     , GL_TEXTURE_WRAP_S     },
         { "wrap_t"     , GL_TEXTURE_WRAP_T     },
@@ -526,7 +526,7 @@ void load_texture_data(const Texture & texture, const void * data, const string 
         { "mag_filter" , GL_TEXTURE_MAG_FILTER },
     };
 
-    static const map<string, const GLint> texture_option_values
+    static const map<string, const GLint> TEXTURE_OPTION_VALUES
     {
         // Wrap values
         { "repeat"          , GL_REPEAT          },
@@ -538,7 +538,7 @@ void load_texture_data(const Texture & texture, const void * data, const string 
         { "nearest" , GL_NEAREST },
     };
 
-    static const map<string, const GLint> internal_formats
+    static const map<string, const GLint> INTERNAL_FORMATS
     {
         { "rgba" , GL_RGBA },
         { "rgb"  , GL_RGB  },
@@ -548,7 +548,7 @@ void load_texture_data(const Texture & texture, const void * data, const string 
 
     // Create new texture object that will be used to load texture data.
     const Dimensions & dimensions = texture.dimensions;
-    const GLuint internal_format = internal_formats.at(texture.format);
+    const GLuint internal_format = INTERNAL_FORMATS.at(texture.format);
     GLuint texture_object;
     glGenTextures(1, &texture_object);
     glBindTexture(GL_TEXTURE_2D, texture_object);
@@ -559,8 +559,8 @@ void load_texture_data(const Texture & texture, const void * data, const string 
     {
         glTexParameteri(
             GL_TEXTURE_2D,
-            texture_option_keys.at(option_key),
-            texture_option_values.at(option_value));
+            TEXTURE_OPTION_KEYS.at(option_key),
+            TEXTURE_OPTION_VALUES.at(option_value));
     });
 
 
@@ -593,16 +593,16 @@ void load_texture_data(const Texture & texture, const void * data, const string 
 void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, const vector<GLuint> & index_data)
 {
     // Vertex attribute specification
-    static const vector<Vertex_Attribute> vertex_attributes
+    static const vector<Vertex_Attribute> VERTEX_ATTRIBUTES
     {
         create_vertex_attribute("float", 3, GL_FALSE), // Position
         create_vertex_attribute("float", 2, GL_FALSE), // UV
     };
 
-    static const GLsizei vertex_stride =
+    static const GLsizei VERTEX_STRIDE =
         accumulate(
             (GLsizei)0,
-            vertex_attributes,
+            VERTEX_ATTRIBUTES,
             [](GLsizei total, const Vertex_Attribute & vertex_attribute) -> GLsizei
             {
                 return total + vertex_attribute.size;
@@ -643,9 +643,9 @@ void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, co
     // Define pointers to vertex attributes.
     size_t current_attribute_offset = 0;
 
-    for (GLuint attribute_index = 0u; attribute_index < vertex_attributes.size(); attribute_index++)
+    for (GLuint attribute_index = 0u; attribute_index < VERTEX_ATTRIBUTES.size(); attribute_index++)
     {
-        const Vertex_Attribute & vertex_attribute = vertex_attributes[attribute_index];
+        const Vertex_Attribute & vertex_attribute = VERTEX_ATTRIBUTES[attribute_index];
         glEnableVertexAttribArray(attribute_index);
 
         glVertexAttribPointer(
@@ -653,7 +653,7 @@ void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, co
             vertex_attribute.element_count,      // Number of attribute elements
             vertex_attribute.type.gl_type,       // Type of attribute elements
             vertex_attribute.is_normalized,      // Should attribute elements be normalized?
-            vertex_stride,                       // Stride between attributes
+            VERTEX_STRIDE,                       // Stride between attributes
             (GLvoid *)current_attribute_offset); // Pointer offset to first element of attribute
 
         current_attribute_offset += vertex_attribute.size;
@@ -675,14 +675,14 @@ void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, co
 
 void load_render_layer(const string & name, const string & render_space)
 {
-    static const map<string, const Render_Layer::Space> render_spaces
+    static const map<string, const Render_Layer::Space> RENDER_SPACES
     {
         { "world"    , Render_Layer::Space::WORLD    },
         { "viewport" , Render_Layer::Space::VIEWPORT },
     };
 
     Render_Layer & render_layer = render_layers[name];
-    render_layer.space = render_spaces.at(render_space);
+    render_layer.space = RENDER_SPACES.at(render_space);
 }
 
 
@@ -727,7 +727,7 @@ void render(const Render_Canvas & render_canvas)
 
 
     // Configure scissor test if enabled.
-    if (glIsEnabled(capabilities.at("scissor_test")))
+    if (glIsEnabled(CAPABILITIES.at("scissor_test")))
     {
         glScissor(
             canvas_x,

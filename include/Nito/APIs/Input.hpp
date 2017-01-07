@@ -168,6 +168,25 @@ enum class Controller_Axes
 };
 
 
+enum DS4_Buttons
+{
+    SQUARE,
+    X,
+    CIRCLE,
+    TRIANGLE,
+    L1,
+    R1,
+    L2,
+    R2,
+    SHARE,
+    START,
+    L3,
+    R3,
+    PS,
+    TOUCHPAD,
+};
+
+
 using Mouse_Position_Handler = std::function<void(const glm::dvec2 &)>;
 using Mouse_Button_Handler = std::function<void(const Mouse_Buttons, const Button_Actions)>;
 

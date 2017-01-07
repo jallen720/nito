@@ -80,7 +80,7 @@ static void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & ev
 
 static void mouse_position_handler(const dvec2 & mouse_position)
 {
-    for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
+    for_each(entity_states, [&](Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {
         bool is_mouse_currently_over_entity =
             is_mouse_over(mouse_position, entity_state.dimensions, entity_state.transform);
@@ -110,9 +110,9 @@ static void mouse_position_handler(const dvec2 & mouse_position)
 }
 
 
-static void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions button_action)
+static void mouse_button_handler(Mouse_Buttons mouse_button, Button_Actions button_action)
 {
-    for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
+    for_each(entity_states, [&](Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {
         // Only handle mouse button events if mouse is over entity.
         if (entity_state.is_mouse_over)
@@ -146,7 +146,7 @@ void ui_mouse_event_dispatcher_init()
 }
 
 
-void ui_mouse_event_dispatcher_subscribe(const Entity entity)
+void ui_mouse_event_dispatcher_subscribe(Entity entity)
 {
     entity_states[entity] =
     {
@@ -158,7 +158,7 @@ void ui_mouse_event_dispatcher_subscribe(const Entity entity)
 }
 
 
-void ui_mouse_event_dispatcher_unsubscribe(const Entity entity)
+void ui_mouse_event_dispatcher_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
 }

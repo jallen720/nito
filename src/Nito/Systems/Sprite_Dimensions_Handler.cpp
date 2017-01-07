@@ -19,7 +19,7 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void sprite_dimensions_handler_subscribe(const Entity entity)
+void sprite_dimensions_handler_subscribe(Entity entity)
 {
     auto entity_sprite = (Sprite *)get_component(entity, "sprite");
     auto entity_dimensions = (Dimensions *)get_component(entity, "dimensions");
@@ -39,7 +39,7 @@ void sprite_dimensions_handler_subscribe(const Entity entity)
 }
 
 
-void sprite_dimensions_handler_unsubscribe(const Entity /*entity*/) {}
+void sprite_dimensions_handler_unsubscribe(Entity /*entity*/) {}
 
 
 } // namespace Nito

@@ -32,7 +32,7 @@ static map<Entity, UI_Mouse_Event_Handlers *> entity_ui_mouse_event_handlers;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void button_subscribe(const Entity entity)
+void button_subscribe(Entity entity)
 {
     auto button = (Button *)get_component(entity, "button");
     auto sprite = (Sprite *)get_component(entity, "sprite");
@@ -71,7 +71,7 @@ void button_subscribe(const Entity entity)
 }
 
 
-void button_unsubscribe(const Entity entity)
+void button_unsubscribe(Entity entity)
 {
     static const auto dud = []() -> void {};
 

@@ -140,7 +140,7 @@ void stop_audio_source(const string & identifier)
 
 void clean_openal()
 {
-    for_each(audio_sources, [](const string & /*identifier*/, const ALuint audio_source) -> void
+    for_each(audio_sources, [](const string & /*identifier*/, ALuint audio_source) -> void
     {
         // Ensure audio source is not playing before deleting.
         alSourceStop(audio_source);
@@ -148,7 +148,7 @@ void clean_openal()
         alDeleteSources(1, &audio_source);
     });
 
-    for_each(buffers, [](const string & /*path*/, const ALuint buffer) -> void
+    for_each(buffers, [](const string & /*path*/, ALuint buffer) -> void
     {
         alDeleteBuffers(1, &buffer);
     });

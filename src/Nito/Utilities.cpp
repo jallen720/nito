@@ -34,12 +34,12 @@ static const vec3 ROTATION_AXIS(0.0f, 0.0f, 1.0f);
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 mat4 calculate_model_matrix(
-    const float model_width,
-    const float model_height,
+    float model_width,
+    float model_height,
     const vec3 & model_origin,
     const vec3 & model_position,
     const vec3 & model_scale,
-    const float model_rotation)
+    float model_rotation)
 {
     mat4 model_matrix;
     const vec3 model_origin_offset = model_origin * vec3(model_width, model_height, 0.0f) * model_scale;
@@ -54,12 +54,12 @@ mat4 calculate_model_matrix(
 
 
 mat4 calculate_view_matrix(
-    const float view_width,
-    const float view_height,
+    float view_width,
+    float view_height,
     const vec3 & view_origin,
     const vec3 & view_position,
     const vec3 & view_scale,
-    const float view_rotation)
+    float view_rotation)
 {
     mat4 view_matrix;
     const vec3 view_origin_offset = view_origin * vec3(view_width, view_height, 0.0f);

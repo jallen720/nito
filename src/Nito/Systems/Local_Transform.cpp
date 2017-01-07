@@ -52,7 +52,7 @@ static map<Entity, Local_Transform_State> entity_states;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static void calculate_transform(
-    const Entity entity,
+    Entity entity,
     const map<Entity, Entity> & entity_parents,
     map<Entity, const Transform *> & calculated_transforms)
 {
@@ -90,7 +90,7 @@ static void calculate_transform(
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void local_transform_subscribe(const Entity entity)
+void local_transform_subscribe(Entity entity)
 {
     entity_states[entity] =
     {
@@ -101,7 +101,7 @@ void local_transform_subscribe(const Entity entity)
 }
 
 
-void local_transform_unsubscribe(const Entity entity)
+void local_transform_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
 }
@@ -112,12 +112,12 @@ void local_transform_update()
     map<Entity, Entity> entity_parents;
     map<Entity, const Transform *> calculated_transforms;
 
-    for_each(entity_states, [&](const Entity entity, const Local_Transform_State & state) -> void
+    for_each(entity_states, [&](Entity entity, const Local_Transform_State & state) -> void
     {
         entity_parents[entity] = get_entity(*state.parent_id);
     });
 
-    for_each(entity_parents, [&](const Entity entity, const Entity /*parent*/) -> void
+    for_each(entity_parents, [&](Entity entity, Entity /*parent*/) -> void
     {
         if (!contains_key(calculated_transforms, entity))
         {

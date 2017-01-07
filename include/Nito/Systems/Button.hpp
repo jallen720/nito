@@ -13,8 +13,8 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void button_subscribe(const Entity entity);
-void button_unsubscribe(const Entity entity);
+void button_subscribe(Entity entity);
+void button_unsubscribe(Entity entity);
 void button_update();
 
 

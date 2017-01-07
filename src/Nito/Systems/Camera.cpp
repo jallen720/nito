@@ -48,7 +48,7 @@ static bool entity_subscribed()
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void camera_subscribe(const Entity entity)
+void camera_subscribe(Entity entity)
 {
     if (entity_subscribed())
     {
@@ -61,7 +61,7 @@ void camera_subscribe(const Entity entity)
 }
 
 
-void camera_unsubscribe(const Entity /*entity*/)
+void camera_unsubscribe(Entity /*entity*/)
 {
     entity_camera = nullptr;
     entity_dimensions = nullptr;

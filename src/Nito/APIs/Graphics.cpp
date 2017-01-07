@@ -146,10 +146,7 @@ static const map<string, const GLenum> capabilities
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static Vertex_Attribute create_vertex_attribute(
-    const string & type_name,
-    const GLint element_count,
-    const GLboolean is_normalized)
+static Vertex_Attribute create_vertex_attribute(const string & type_name, GLint element_count, GLboolean is_normalized)
 {
     if (!contains_key(Vertex_Attribute::types, type_name))
     {
@@ -169,9 +166,9 @@ static Vertex_Attribute create_vertex_attribute(
 
 
 static void validate_parameter_is(
-    const GLuint shader_entity,
-    const GLenum parameter,
-    const GLint expected_parameter_value,
+    GLuint shader_entity,
+    GLenum parameter,
+    GLint expected_parameter_value,
     void (* get_parameter)(GLuint, GLenum, GLint *),
     void (* get_info_log)(GLuint, GLsizei, GLsizei *, GLchar *))
 {
@@ -191,7 +188,7 @@ static void validate_parameter_is(
 }
 
 
-static void compile_shader_object(const GLuint shader_object, const vector<string> & sources)
+static void compile_shader_object(GLuint shader_object, const vector<string> & sources)
 {
     // Attach sources and compile shader_object.
     const size_t source_count = sources.size();
@@ -216,7 +213,7 @@ static void compile_shader_object(const GLuint shader_object, const vector<strin
 }
 
 
-static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec3 & uniform_value)
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vec3 & uniform_value)
 {
     glUniform3f(
         glGetUniformLocation(shader_program, uniform_name),
@@ -226,7 +223,7 @@ static void set_uniform(const GLuint shader_program, const GLchar * uniform_name
 }
 
 
-static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
 {
     glUniform4f(
         glGetUniformLocation(shader_program, uniform_name),
@@ -237,17 +234,17 @@ static void set_uniform(const GLuint shader_program, const GLchar * uniform_name
 }
 
 
-static void set_uniform(const GLuint shader_program, const GLchar * uniform_name, const GLint uniform_value)
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, GLint uniform_value)
 {
     glUniform1i(glGetUniformLocation(shader_program, uniform_name), uniform_value);
 }
 
 
 static void set_uniform(
-    const GLuint shader_program,
+    GLuint shader_program,
     const GLchar * uniform_name,
     const mat4 & uniform_value,
-    const GLboolean transpose = GL_FALSE)
+    GLboolean transpose = GL_FALSE)
 {
     glUniformMatrix4fv(
         glGetUniformLocation(shader_program, uniform_name),
@@ -284,14 +281,14 @@ static void validate_no_opengl_error(const string & description)
 }
 
 
-static void bind_texture(const GLuint texture_object, const GLuint texture_unit)
+static void bind_texture(GLuint texture_object, GLuint texture_unit)
 {
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, texture_object);
 }
 
 
-static void set_shader_pipeline_uniforms(const GLuint shader_program, const Render_Data::Uniforms * uniforms)
+static void set_shader_pipeline_uniforms(GLuint shader_program, const Render_Data::Uniforms * uniforms)
 {
     for_each(*uniforms, [&](const string & uniform_name, const Uniform & uniform) -> void
     {
@@ -606,7 +603,7 @@ void load_vertex_data(const string & id, const vector<GLfloat> & vertex_data, co
         accumulate(
             (GLsizei)0,
             vertex_attributes,
-            [](const GLsizei total, const Vertex_Attribute & vertex_attribute) -> GLsizei
+            [](GLsizei total, const Vertex_Attribute & vertex_attribute) -> GLsizei
             {
                 return total + vertex_attribute.size;
             });
@@ -745,7 +742,7 @@ void render(const Render_Canvas & render_canvas)
 
 
     // Set projection matrices for all shader programs.
-    for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void
+    for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, GLuint shader_program) -> void
     {
         glUseProgram(shader_program);
         set_uniform(shader_program, "projection", projection_matrix);
@@ -759,7 +756,7 @@ void render(const Render_Canvas & render_canvas)
 
 
         // Sort render layer order.
-        sort(render_layer.order, [&](const int a, const int b) -> bool
+        sort(render_layer.order, [&](int a, int b) -> bool
         {
             return render_datas[a].model_matrix[3][2] >
                    render_datas[b].model_matrix[3][2];
@@ -772,7 +769,7 @@ void render(const Render_Canvas & render_canvas)
             ? render_canvas.view_matrix
             : mat4();
 
-        for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, const GLuint shader_program) -> void
+        for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, GLuint shader_program) -> void
         {
             glUseProgram(shader_program);
             set_uniform(shader_program, "view", layer_view_matrix);

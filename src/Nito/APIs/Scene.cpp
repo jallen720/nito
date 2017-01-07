@@ -61,7 +61,7 @@ static map<string, vector<string>> component_requirements;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static string get_system_requirement_message(
-    const Entity entity,
+    Entity entity,
     const string & system_name,
     const string & requirement_name,
     const string & requirement_type)

@@ -51,7 +51,7 @@ static map<Entity, Renderer_State> entity_states;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void renderer_subscribe(const Entity entity)
+void renderer_subscribe(Entity entity)
 {
     entity_states[entity] =
     {
@@ -63,7 +63,7 @@ void renderer_subscribe(const Entity entity)
 }
 
 
-void renderer_unsubscribe(const Entity entity)
+void renderer_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
 }
@@ -71,7 +71,7 @@ void renderer_unsubscribe(const Entity entity)
 
 void renderer_update()
 {
-    for_each(entity_states, [](const Entity /*entity*/, Renderer_State & entity_state) -> void
+    for_each(entity_states, [](Entity /*entity*/, Renderer_State & entity_state) -> void
     {
         const Sprite * entity_sprite = entity_state.sprite;
         const Transform * entity_transform = entity_state.transform;

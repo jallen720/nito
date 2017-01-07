@@ -13,8 +13,8 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void camera_subscribe(const Entity entity);
-void camera_unsubscribe(const Entity entity);
+void camera_subscribe(Entity entity);
+void camera_unsubscribe(Entity entity);
 void camera_update();
 
 

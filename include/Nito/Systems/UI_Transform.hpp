@@ -14,8 +14,8 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ui_transform_init();
-void ui_transform_subscribe(const Entity entity);
-void ui_transform_unsubscribe(const Entity entity);
+void ui_transform_subscribe(Entity entity);
+void ui_transform_unsubscribe(Entity entity);
 
 
 } // namespace Nito

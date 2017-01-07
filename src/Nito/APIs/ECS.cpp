@@ -88,7 +88,7 @@ static void validate_component_has_handlers(const string & type)
 }
 
 
-static void delete_entity(const Entity entity)
+static void delete_entity(Entity entity)
 {
     vector<string> & subscriptions = entity_subscriptions[entity];
     Components & components = entity_components[entity];
@@ -152,7 +152,7 @@ Entity generate_entity(const map<string, Component> & components, const vector<s
 }
 
 
-void add_component(const Entity entity, const string & type, Component component)
+void add_component(Entity entity, const string & type, Component component)
 {
     if (component == nullptr)
     {
@@ -164,14 +164,14 @@ void add_component(const Entity entity, const string & type, Component component
 }
 
 
-void add_component(const Entity entity, const string & type, const JSON & data)
+void add_component(Entity entity, const string & type, const JSON & data)
 {
     validate_component_has_handlers(type);
     add_component(entity, type, component_allocators.at(type)(data));
 }
 
 
-Component get_component(const Entity entity, const string & type)
+Component get_component(Entity entity, const string & type)
 {
     if (!has_component(entity, type))
     {
@@ -183,7 +183,7 @@ Component get_component(const Entity entity, const string & type)
 }
 
 
-bool has_component(const Entity entity, const string & type)
+bool has_component(Entity entity, const string & type)
 {
     return contains_key(entity_components, entity) &&
            contains_key(entity_components.at(entity), type);
@@ -210,7 +210,7 @@ void set_system_entity_handlers(
 }
 
 
-void subscribe_to_system(const Entity entity, const string & system_name)
+void subscribe_to_system(Entity entity, const string & system_name)
 {
     if (!contains_key(system_subscribers, system_name))
     {
@@ -230,7 +230,7 @@ void subscribe_to_system(const Entity entity, const string & system_name)
 }
 
 
-void unsubscribe_from_system(const Entity entity, const string & system_name)
+void unsubscribe_from_system(Entity entity, const string & system_name)
 {
     if (!contains_key(system_unsubscribers, system_name))
     {
@@ -252,7 +252,7 @@ void unsubscribe_from_system(const Entity entity, const string & system_name)
 
 Entity get_entity(const string & id)
 {
-    const vector<Entity> entities_with_ids = filter(entities, [](const Entity entity) -> bool
+    const vector<Entity> entities_with_ids = filter(entities, [](Entity entity) -> bool
     {
         return has_component(entity, "id");
     });
@@ -271,7 +271,7 @@ Entity get_entity(const string & id)
 }
 
 
-void flag_entity_for_deletion(const Entity entity)
+void flag_entity_for_deletion(Entity entity)
 {
     // Only flag entity if it hasn't already been flagged.
     if (!contains(entities_to_delete, entity))

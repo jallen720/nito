@@ -104,7 +104,7 @@ void create_window(const Window_Config & window_config)
 
 
     // Configure window hints.
-    for_each(window_config.hints, [&](const string & hint_key, const int hint_value) -> void
+    for_each(window_config.hints, [&](const string & hint_key, int hint_value) -> void
     {
         glfwWindowHint(hint_keys.at(hint_key), hint_value);
     });

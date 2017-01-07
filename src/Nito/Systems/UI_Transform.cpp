@@ -34,7 +34,7 @@ void ui_transform_init()
 }
 
 
-void ui_transform_subscribe(const Entity entity)
+void ui_transform_subscribe(Entity entity)
 {
     auto transform = (Transform *)get_component(entity, "transform");
     auto ui_transform = (UI_Transform *)get_component(entity, "ui_transform");
@@ -42,7 +42,7 @@ void ui_transform_subscribe(const Entity entity)
 }
 
 
-void ui_transform_unsubscribe(const Entity /*entity*/) {}
+void ui_transform_unsubscribe(Entity /*entity*/) {}
 
 
 } // namespace Nito

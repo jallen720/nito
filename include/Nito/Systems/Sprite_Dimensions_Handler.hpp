@@ -13,8 +13,8 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void sprite_dimensions_handler_subscribe(const Entity entity);
-void sprite_dimensions_handler_unsubscribe(const Entity entity);
+void sprite_dimensions_handler_subscribe(Entity entity);
+void sprite_dimensions_handler_unsubscribe(Entity entity);
 
 
 } // namespace Nito

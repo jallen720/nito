@@ -297,7 +297,7 @@ static void validate_handler_not_set(const map<string, T> & handlers, const stri
 }
 
 
-static void trigger_controller_button_handlers(const int controller, const int button, const unsigned char action)
+static void trigger_controller_button_handlers(int controller, int button, unsigned char action)
 {
     for_each(
         controller_button_handlers,
@@ -317,7 +317,7 @@ static void trigger_controller_button_handlers(const int controller, const int b
 }
 
 
-static void validate_controller_is_connected(const int controller)
+static void validate_controller_is_connected(int controller)
 {
     if (!controller_states[controller].is_connected)
     {
@@ -383,11 +383,7 @@ void input_api_update()
 }
 
 
-void set_key_handler(
-    const string & id,
-    const Keys key,
-    const Button_Actions button_action,
-    const function<void()> & handler)
+void set_key_handler(const string & id, Keys key, Button_Actions button_action, const function<void()> & handler)
 {
     validate_handler_not_set(key_handlers, "key", id);
 
@@ -404,10 +400,10 @@ void set_key_handler(
 
 void set_controller_button_handler(
     const string & id,
-    const int button,
-    const Button_Actions button_action,
+    int button,
+    Button_Actions button_action,
     const function<void()> & handler,
-    const int controller)
+    int controller)
 {
     validate_handler_not_set(controller_button_handlers, "controller button", id);
 
@@ -425,10 +421,10 @@ void set_controller_button_handler(
 
 void set_controller_button_handler(
     const string & id,
-    const DS4_Buttons button,
-    const Button_Actions button_action,
+    DS4_Buttons button,
+    Button_Actions button_action,
     const function<void()> & handler,
-    const int controller)
+    int controller)
 {
     set_controller_button_handler(id, (int)button, button_action, handler, controller);
 }
@@ -472,13 +468,13 @@ void remove_mouse_button_handler(const std::string & id)
 }
 
 
-Button_Actions get_key_button_action(const Keys key)
+Button_Actions get_key_button_action(Keys key)
 {
     return at_value(button_actions, get_window_key_button_action(keys.at(key)));
 }
 
 
-Button_Actions get_controller_button_action(const int controller_button, const int controller)
+Button_Actions get_controller_button_action(int controller_button, int controller)
 {
     validate_controller_is_connected(controller);
     const Controller_State & controller_state = controller_states[controller];
@@ -495,13 +491,13 @@ Button_Actions get_controller_button_action(const int controller_button, const i
 }
 
 
-Button_Actions get_controller_button_action(const DS4_Buttons controller_button, const int controller)
+Button_Actions get_controller_button_action(DS4_Buttons controller_button, int controller)
 {
     return get_controller_button_action((int)controller_button, controller);
 }
 
 
-float get_controller_axis(const int controller_axis, const int controller)
+float get_controller_axis(int controller_axis, int controller)
 {
     if (!controller_states[controller].is_connected)
     {
@@ -523,7 +519,7 @@ float get_controller_axis(const int controller_axis, const int controller)
 }
 
 
-float get_controller_axis(const DS4_Axes controller_axis, const int controller)
+float get_controller_axis(DS4_Axes controller_axis, int controller)
 {
     return get_controller_axis((int)controller_axis, controller);
 }

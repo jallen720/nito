@@ -13,8 +13,8 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void local_transform_subscribe(const Entity entity);
-void local_transform_unsubscribe(const Entity entity);
+void local_transform_subscribe(Entity entity);
+void local_transform_unsubscribe(Entity entity);
 void local_transform_update();
 
 

@@ -64,7 +64,7 @@ static map<Entity, Text_Renderer_State> entity_states;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void text_renderer_subscribe(const Entity entity)
+void text_renderer_subscribe(Entity entity)
 {
     Text_Renderer_State & entity_state = entity_states[entity];
     auto entity_dimensions = (Dimensions *)get_component(entity, "dimensions");
@@ -120,7 +120,7 @@ void text_renderer_subscribe(const Entity entity)
 }
 
 
-void text_renderer_unsubscribe(const Entity entity)
+void text_renderer_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
 }
@@ -128,7 +128,7 @@ void text_renderer_unsubscribe(const Entity entity)
 
 void text_renderer_update()
 {
-    for_each(entity_states, [](const Entity /*entity*/, Text_Renderer_State & entity_state) -> void
+    for_each(entity_states, [](Entity /*entity*/, Text_Renderer_State & entity_state) -> void
     {
         const Transform * entity_transform = entity_state.transform;
         const Dimensions * entity_dimensions = entity_state.dimensions;

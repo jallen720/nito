@@ -54,7 +54,7 @@ struct Uniform
     }
     type;
 
-    void * data;
+    const void * data;
 };
 
 

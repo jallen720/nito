@@ -54,6 +54,8 @@ struct System_Entity_Handlers
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void add_update_handler(const Update_Handler & update_handler);
 int run_engine();
+float get_time_scale();
+void set_time_scale(float value);
 
 template<typename T>
 Component_Allocator get_component_allocator();

@@ -79,6 +79,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static const string DEFAULT_SCENE_NAME = "default";
+static float time_scale;
 static vector<Update_Handler> update_handlers;
 
 
@@ -608,6 +609,10 @@ void add_update_handler(const Update_Handler & update_handler)
 
 int run_engine()
 {
+    // Initialize time scale to 1.
+    set_time_scale(1.0f);
+
+
     // Validate and load Nito installation root path from environment.
     const char * env_nito_path = getenv("NITO_PATH");
 
@@ -779,6 +784,23 @@ int run_engine()
     terminate_glfw();
     clean_openal();
     return 0;
+}
+
+
+float get_time_scale()
+{
+    return time_scale;
+}
+
+
+void set_time_scale(float value)
+{
+    if (value < 0.0f || value > 1.0f)
+    {
+        throw runtime_error("ERROR: time scale must be set to a value between 0 and 1!");
+    }
+
+    time_scale = value;
 }
 
 

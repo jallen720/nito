@@ -40,7 +40,7 @@ void button_subscribe(const Entity entity)
     entity_ui_mouse_event_handlers[entity] = ui_mouse_event_handlers;
 
 
-    // Settup ui_mouse_event_handlers to update sprite texture path from button; make left mouse release event trigger
+    // Set up ui_mouse_event_handlers to update sprite texture path from button; make left mouse release event trigger
     // Button's click handler.
     const string default_button_texture_path = sprite->texture_path;
 

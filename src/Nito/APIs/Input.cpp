@@ -227,7 +227,7 @@ static map<Button_Actions, const int> button_actions
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int action, int /*mods*/)
+static void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int action, int /*mods*/)
 {
     for_each(key_handlers, [=](const string & /*id*/, const Key_Handler & key_handler) -> void
     {
@@ -244,7 +244,7 @@ void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code*/, int
 }
 
 
-void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, double y_position)
+static void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, double y_position)
 {
     mouse_position.x = x_position;
 
@@ -261,7 +261,7 @@ void window_mouse_position_handler(GLFWwindow * /*window*/, double x_position, d
 }
 
 
-void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
+static void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
 {
     static map<int, const Mouse_Buttons> mouse_buttons
     {
@@ -279,7 +279,7 @@ void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action
 }
 
 
-void window_created_handler()
+static void window_created_handler()
 {
     set_window_key_handler(window_key_handler);
     set_window_mouse_position_handler(window_mouse_position_handler);
@@ -288,7 +288,7 @@ void window_created_handler()
 
 
 template<typename T>
-void validate_handler_not_set(const map<string, T> & handlers, const string & name, const string & id)
+static void validate_handler_not_set(const map<string, T> & handlers, const string & name, const string & id)
 {
     if (contains_key(handlers, id))
     {
@@ -297,7 +297,7 @@ void validate_handler_not_set(const map<string, T> & handlers, const string & na
 }
 
 
-void trigger_controller_button_handlers(const int controller, const int button, const unsigned char action)
+static void trigger_controller_button_handlers(const int controller, const int button, const unsigned char action)
 {
     for_each(
         controller_button_handlers,
@@ -314,6 +314,15 @@ void trigger_controller_button_handlers(const int controller, const int button, 
                 }
             }
         });
+}
+
+
+static void validate_controller_is_connected(const int controller)
+{
+    if (!controller_states[controller].is_connected)
+    {
+        throw runtime_error("ERROR: controller " + to_string(controller) + " is not connected!");
+    }
 }
 
 
@@ -455,15 +464,6 @@ void remove_mouse_button_handler(const std::string & id)
 Button_Actions get_key_button_action(const Keys key)
 {
     return at_value(button_actions, get_window_key_button_action(keys.at(key)));
-}
-
-
-static void validate_controller_is_connected(const int controller)
-{
-    if (!controller_states[controller].is_connected)
-    {
-        throw runtime_error("ERROR: controller " + to_string(controller) + " is not connected!");
-    }
 }
 
 

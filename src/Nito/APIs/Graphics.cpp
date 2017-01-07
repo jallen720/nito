@@ -191,7 +191,7 @@ static void validate_parameter_is(
 }
 
 
-static void compile_shader_object(const GLuint shader_object, const vector<string> sources)
+static void compile_shader_object(const GLuint shader_object, const vector<string> & sources)
 {
     // Attach sources and compile shader_object.
     const size_t source_count = sources.size();

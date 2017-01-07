@@ -71,7 +71,7 @@ static string get_system_requirement_message(
 }
 
 
-void load_scene(const string & name)
+static void load_scene(const string & name)
 {
     if (!scene_exists(name))
     {

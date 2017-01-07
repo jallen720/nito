@@ -51,7 +51,7 @@ static map<Entity, Local_Transform_State> entity_states;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void calculate_transform(
+static void calculate_transform(
     const Entity entity,
     const map<Entity, Entity> & entity_parents,
     map<Entity, const Transform *> & calculated_transforms)

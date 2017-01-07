@@ -487,7 +487,10 @@ static const map<string, const Button_Actions> button_action_mappings
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void load_resources(const string & root_path, const string & version_source, const string & vertex_attributes_source)
+static void load_resources(
+    const string & root_path,
+    const string & version_source,
+    const string & vertex_attributes_source)
 {
     // Load render layers
     const string render_layers_path = root_path + "resources/configs/render_layers.json";

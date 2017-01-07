@@ -57,7 +57,7 @@ static map<Entity, UI_Mouse_Event_Dispatcher_State> entity_states;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimensions, const Transform * transform)
+static bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimensions, const Transform * transform)
 {
     const float width = dimensions->width;
     const float height = dimensions->height;
@@ -69,7 +69,7 @@ bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimensions, 
 }
 
 
-void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
+static void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
 {
     if (event_handler)
     {
@@ -78,7 +78,7 @@ void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_han
 }
 
 
-void mouse_position_handler(const dvec2 & mouse_position)
+static void mouse_position_handler(const dvec2 & mouse_position)
 {
     for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {
@@ -110,7 +110,7 @@ void mouse_position_handler(const dvec2 & mouse_position)
 }
 
 
-void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions button_action)
+static void mouse_button_handler(const Mouse_Buttons mouse_button, const Button_Actions button_action)
 {
     for_each(entity_states, [&](const Entity /*entity*/, UI_Mouse_Event_Dispatcher_State & entity_state) -> void
     {

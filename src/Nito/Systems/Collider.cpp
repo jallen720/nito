@@ -40,8 +40,8 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Collider_State
 {
-    const Collider * collider;
     const Transform * transform;
+    const Collider * collider;
 };
 
 
@@ -62,8 +62,8 @@ void collider_subscribe(Entity entity)
 {
     entity_states[entity] =
     {
-        (Collider *)get_component(entity, "collider"),
         (Transform *)get_component(entity, "transform"),
+        (Collider *)get_component(entity, "collider"),
     };
 }
 
@@ -97,6 +97,7 @@ void collider_update()
             {
                 return;
             }
+
 
             const Transform * other_entity_transform = other_entity_state.transform;
 

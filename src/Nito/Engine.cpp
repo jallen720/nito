@@ -345,7 +345,7 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
             get_component_allocator<string>(),
             get_component_deallocator<string>(),
         }
-    }
+    },
 };
 
 

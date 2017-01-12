@@ -27,5 +27,9 @@
     "camera":
     [
         "camera"
+    ],
+    "collider":
+    [
+        "collider"
     ]
 }

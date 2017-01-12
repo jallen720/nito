@@ -33,6 +33,7 @@
 #include "Nito/Systems/Text_Renderer.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
+#include "Nito/Systems/Collider.hpp"
 
 
 using std::string;
@@ -148,6 +149,9 @@ static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
     local_transform_update,
     renderer_update,
     text_renderer_update,
+    collider_update,
+
+    // Should come after all update handlers that will affect renderable data (renderers, colliders, etc.).
     camera_update,
 };
 
@@ -162,6 +166,7 @@ static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HAND
     NITO_SYSTEM_ENTITY_HANDLERS(ui_mouse_event_dispatcher),
     NITO_SYSTEM_ENTITY_HANDLERS(ui_transform),
     NITO_SYSTEM_ENTITY_HANDLERS(sprite_dimensions_handler),
+    NITO_SYSTEM_ENTITY_HANDLERS(collider),
 };
 
 
@@ -344,6 +349,21 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             get_component_allocator<string>(),
             get_component_deallocator<string>(),
+        }
+    },
+    {
+        "collider",
+        {
+            [](const JSON & data) -> Component
+            {
+                return new Collider
+                {
+                    data["render"],
+                    data["radius"],
+                    {},
+                };
+            },
+            get_component_deallocator<Collider>(),
         }
     },
 };

@@ -6,6 +6,8 @@
 #include <functional>
 #include <glm/glm.hpp>
 
+#include "Nito/APIs/ECS.hpp"
+
 
 namespace Nito
 {
@@ -76,6 +78,14 @@ struct Text
     std::string font;
     glm::vec3 color;
     std::string value;
+};
+
+
+struct Collider
+{
+    bool render;
+    float radius;
+    std::function<void(Entity)> collision_handler;
 };
 
 

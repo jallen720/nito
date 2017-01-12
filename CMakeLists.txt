@@ -25,6 +25,6 @@ module_dependency("FreeType2")
 module_dependency("Cpp_Utils")
 add_lib(SHARED)
 
-# Tests
-test_module_dependency("GoogleTest")
-add_lib_tests()
+# # Tests
+# test_module_dependency("GoogleTest")
+# add_lib_tests()

@@ -35,6 +35,7 @@
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
 #include "Nito/Systems/Circle_Collider.hpp"
+#include "Nito/Systems/Line_Collider.hpp"
 
 
 using std::string;
@@ -152,6 +153,7 @@ static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
     renderer_update,
     text_renderer_update,
     circle_collider_update,
+    line_collider_update,
 
     // Should come after all update handlers that will affect renderable data (renderers, colliders, etc.).
     camera_update,
@@ -169,6 +171,7 @@ static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HAND
     NITO_SYSTEM_ENTITY_HANDLERS(ui_transform),
     NITO_SYSTEM_ENTITY_HANDLERS(sprite_dimensions_handler),
     NITO_SYSTEM_ENTITY_HANDLERS(circle_collider),
+    NITO_SYSTEM_ENTITY_HANDLERS(line_collider),
 };
 
 
@@ -378,6 +381,48 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
                 };
             },
             get_component_deallocator<Circle_Collider>(),
+        }
+    },
+    {
+        "line_collider",
+        {
+            [](const JSON & data) -> Component
+            {
+                vec3 offset;
+                float size = 0.0f;
+
+                if (contains_key(data, "offset"))
+                {
+                    const JSON & offset_data = data["offset"];
+
+                    if (contains_key(offset_data, "x"))
+                    {
+                        offset.x = offset_data["x"];
+                    }
+
+                    if (contains_key(offset_data, "y"))
+                    {
+                        offset.y = offset_data["y"];
+                    }
+
+                    if (contains_key(offset_data, "z"))
+                    {
+                        offset.z = offset_data["z"];
+                    }
+                }
+
+                if (contains_key(data, "size"))
+                {
+                    size = data["size"];
+                }
+
+                return new Line_Collider
+                {
+                    size,
+                    offset,
+                };
+            },
+            get_component_deallocator<Line_Collider>(),
         }
     },
 };
@@ -652,6 +697,18 @@ int run_engine()
 
     circle_collider_index_data.push_back(0);
     load_vertex_data("circle_collider", circle_collider_vertex_data, circle_collider_index_data);
+
+
+    // Load line collider vertex data.
+    const vector<GLfloat> line_collider_vertex_data
+    {
+        // Position        // UV
+        -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+    };
+
+    const vector<GLuint> line_collider_index_data { 0, 1 };
+    load_vertex_data("line_collider", line_collider_vertex_data, line_collider_index_data);
 
 
     // Load engine resources first, then project resources.

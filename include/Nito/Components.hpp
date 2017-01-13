@@ -94,4 +94,11 @@ struct Circle_Collider
 };
 
 
+struct Line_Collider
+{
+    float size;
+    glm::vec3 offset;
+};
+
+
 } // namespace Nito

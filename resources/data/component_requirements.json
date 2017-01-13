@@ -31,5 +31,9 @@
     "circle_collider":
     [
         "circle_collider"
+    ],
+    "line_collider":
+    [
+        "line_collider"
     ]
 }

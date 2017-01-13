@@ -52,5 +52,11 @@
         "transform",
         "collider",
         "circle_collider"
+    ],
+    "line_collider":
+    [
+        "transform",
+        "collider",
+        "line_collider"
     ]
 }

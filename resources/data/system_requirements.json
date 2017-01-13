@@ -47,9 +47,10 @@
         "transform",
         "ui_transform"
     ],
-    "collider":
+    "circle_collider":
     [
         "transform",
-        "collider"
+        "collider",
+        "circle_collider"
     ]
 }

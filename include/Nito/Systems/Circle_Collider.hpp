@@ -13,9 +13,9 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void collider_subscribe(Entity entity);
-void collider_unsubscribe(Entity entity);
-void collider_update();
+void circle_collider_subscribe(Entity entity);
+void circle_collider_unsubscribe(Entity entity);
+void circle_collider_update();
 
 
 } // namespace Nito

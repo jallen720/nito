@@ -1,4 +1,4 @@
-#include "Nito/Systems/Collider.hpp"
+#include "Nito/Systems/Circle_Collider.hpp"
 
 #include <map>
 #include <string>
@@ -10,6 +10,7 @@
 #include "Nito/Components.hpp"
 #include "Nito/Utilities.hpp"
 #include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/Physics.hpp"
 
 
 using std::map;
@@ -17,8 +18,6 @@ using std::string;
 using std::function;
 
 // glm/glm.hpp
-using glm::distance;
-using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
@@ -38,10 +37,11 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Collider_State
+struct Circle_Collider_State
 {
     const Transform * transform;
     const Collider * collider;
+    const Circle_Collider * circle_collider;
 };
 
 
@@ -50,7 +50,7 @@ struct Collider_State
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static map<Entity, Collider_State> entity_states;
+static map<Entity, Circle_Collider_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,67 +58,38 @@ static map<Entity, Collider_State> entity_states;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void collider_subscribe(Entity entity)
+void circle_collider_subscribe(Entity entity)
 {
+    auto transform = (Transform *)get_component(entity, "transform");
+    auto collider = (Collider *)get_component(entity, "collider");
+    auto circle_collider = (Circle_Collider *)get_component(entity, "circle_collider");
+
     entity_states[entity] =
     {
-        (Transform *)get_component(entity, "transform"),
-        (Collider *)get_component(entity, "collider"),
+        transform,
+        collider,
+        circle_collider,
     };
+
+    load_collider_data(entity, transform, collider, circle_collider);
 }
 
 
-void collider_unsubscribe(Entity entity)
+void circle_collider_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
+    remove_collider_data(entity);
 }
 
 
-void collider_update()
+void circle_collider_update()
 {
     static float pixels_per_unit = get_pixels_per_unit();
 
-
-    // TODO: could be optimized with an overload of for_each().
-    for_each(entity_states, [=](Entity entity, Collider_State & entity_state) -> void
+    for_each(entity_states, [=](Entity /*entity*/, Circle_Collider_State & entity_state) -> void
     {
-        const Transform * entity_transform = entity_state.transform;
-        const Collider * entity_collider = entity_state.collider;
-        const vec3 & entity_position = entity_transform->position;
-        const vec3 & entity_scale = entity_transform->scale;
-        const float entity_radius = entity_collider->radius;
-
-
-        // Check for collisions with other colliders.
-        for_each(entity_states, [&](Entity other_entity, Collider_State & other_entity_state) -> void
-        {
-            // Don't check for collisions against self.
-            if (other_entity == entity)
-            {
-                return;
-            }
-
-
-            const Transform * other_entity_transform = other_entity_state.transform;
-
-            const float collision_distance =
-                (entity_radius * entity_scale.x) +
-                (other_entity_state.collider->radius * other_entity_transform->scale.x);
-
-            if (distance((vec2)entity_position, (vec2)other_entity_transform->position) <= collision_distance)
-            {
-                const function<void(Entity)> & entity_collision_handler = entity_collider->collision_handler;
-
-                if (entity_collision_handler)
-                {
-                    entity_collision_handler(other_entity);
-                }
-            }
-        });
-
-
         // Render collider if flagged.
-        if (entity_collider->render)
+        if (entity_state.collider->render)
         {
             static const vec4 COLOR(0.0f, 0.7f, 0.0f, 1.0f);
 
@@ -133,7 +104,8 @@ void collider_update()
             static const vec3 ORIGIN(0.0f);
             static const float ROTATION = 0.0f;
 
-            const float dimensional_size = entity_radius * pixels_per_unit * 2;
+            const Transform * entity_transform = entity_state.transform;
+            const float dimensional_size = entity_state.circle_collider->radius * pixels_per_unit * 2;
 
             load_render_data(
                 {
@@ -147,8 +119,8 @@ void collider_update()
                         dimensional_size,
                         dimensional_size,
                         ORIGIN,
-                        entity_position,
-                        entity_scale,
+                        entity_transform->position,
+                        entity_transform->scale,
                         ROTATION)
                 });
         }

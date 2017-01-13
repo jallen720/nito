@@ -28,8 +28,8 @@
     [
         "camera"
     ],
-    "collider":
+    "circle_collider":
     [
-        "collider"
+        "circle_collider"
     ]
 }

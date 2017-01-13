@@ -25,6 +25,7 @@
 #include "Nito/APIs/Resources.hpp"
 #include "Nito/APIs/Scene.hpp"
 #include "Nito/APIs/Window.hpp"
+#include "Nito/APIs/Physics.hpp"
 #include "Nito/Systems/Button.hpp"
 #include "Nito/Systems/Camera.hpp"
 #include "Nito/Systems/Local_Transform.hpp"
@@ -33,7 +34,7 @@
 #include "Nito/Systems/Text_Renderer.hpp"
 #include "Nito/Systems/UI_Mouse_Event_Dispatcher.hpp"
 #include "Nito/Systems/UI_Transform.hpp"
-#include "Nito/Systems/Collider.hpp"
+#include "Nito/Systems/Circle_Collider.hpp"
 
 
 using std::string;
@@ -146,10 +147,11 @@ static const Component_Handlers TRANSFORM_COMPONENT_HANDLERS
 static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
 {
     input_api_update,
+    physics_api_update,
     local_transform_update,
     renderer_update,
     text_renderer_update,
-    collider_update,
+    circle_collider_update,
 
     // Should come after all update handlers that will affect renderable data (renderers, colliders, etc.).
     camera_update,
@@ -166,7 +168,7 @@ static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HAND
     NITO_SYSTEM_ENTITY_HANDLERS(ui_mouse_event_dispatcher),
     NITO_SYSTEM_ENTITY_HANDLERS(ui_transform),
     NITO_SYSTEM_ENTITY_HANDLERS(sprite_dimensions_handler),
-    NITO_SYSTEM_ENTITY_HANDLERS(collider),
+    NITO_SYSTEM_ENTITY_HANDLERS(circle_collider),
 };
 
 
@@ -359,11 +361,23 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
                 return new Collider
                 {
                     data["render"],
-                    data["radius"],
                     {},
                 };
             },
             get_component_deallocator<Collider>(),
+        }
+    },
+    {
+        "circle_collider",
+        {
+            [](const JSON & data) -> Component
+            {
+                return new Circle_Collider
+                {
+                    data["radius"],
+                };
+            },
+            get_component_deallocator<Circle_Collider>(),
         }
     },
 };

@@ -78,7 +78,7 @@ void line_collider_subscribe(Entity entity)
 
 void line_collider_unsubscribe(Entity entity)
 {
-    // remove(entity_states, entity);
+    remove(entity_states, entity);
     // remove_collider_data(entity);
 }
 

@@ -684,9 +684,12 @@ int run_engine()
     });
 
 
+    // Cleanup
     destroy_graphics();
     terminate_glfw();
     clean_openal();
+
+
     return 0;
 }
 

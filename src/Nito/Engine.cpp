@@ -633,25 +633,25 @@ int run_engine()
     load_vertex_data(get_default_vertex_container_id(), default_vertex_data, default_index_data);
 
 
-    // Load collider vertex data.
+    // Load circle collider vertex data.
     const float PI = 3.14159;
-    vector<GLfloat> collider_vertex_data;
-    vector<GLuint> collider_index_data;
+    vector<GLfloat> circle_collider_vertex_data;
+    vector<GLuint> circle_collider_index_data;
     float radius = 0.5f;
     int index = 0;
 
     for (float angle = 0.0f; angle <= 2 * PI; angle += 0.25f)
     {
-        collider_vertex_data.push_back(radius * cos(angle));
-        collider_vertex_data.push_back(radius * sin(angle));
-        collider_vertex_data.push_back(0.0f);
-        collider_vertex_data.push_back(0.0f);
-        collider_vertex_data.push_back(0.0f);
-        collider_index_data.push_back(index++);
+        circle_collider_vertex_data.push_back(radius * cos(angle));
+        circle_collider_vertex_data.push_back(radius * sin(angle));
+        circle_collider_vertex_data.push_back(0.0f);
+        circle_collider_vertex_data.push_back(0.0f);
+        circle_collider_vertex_data.push_back(0.0f);
+        circle_collider_index_data.push_back(index++);
     }
 
-    collider_index_data.push_back(0);
-    load_vertex_data("collider", collider_vertex_data, collider_index_data);
+    circle_collider_index_data.push_back(0);
+    load_vertex_data("circle_collider", circle_collider_vertex_data, circle_collider_index_data);
 
 
     // Load engine resources first, then project resources.

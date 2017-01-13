@@ -100,7 +100,7 @@ void circle_collider_update()
 
             static const string LAYER_NAME("world");
             static const string SHADER_PIPELINE_NAME("color");
-            static const string VERTEX_CONTAINER_ID("collider");
+            static const string VERTEX_CONTAINER_ID("circle_collider");
             static const vec3 ORIGIN(0.0f);
             static const float ROTATION = 0.0f;
 

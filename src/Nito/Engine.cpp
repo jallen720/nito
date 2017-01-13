@@ -18,6 +18,7 @@
 #include "Cpp_Utils/String.hpp"
 
 #include "Nito/Components.hpp"
+#include "Nito/Collider_Component.hpp"
 #include "Nito/APIs/Audio.hpp"
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"

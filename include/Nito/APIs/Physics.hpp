@@ -2,6 +2,7 @@
 
 
 #include "Nito/Components.hpp"
+#include "Nito/Collider_Component.hpp"
 #include "Nito/APIs/ECS.hpp"
 
 

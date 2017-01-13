@@ -81,13 +81,6 @@ struct Text
 };
 
 
-struct Collider
-{
-    bool render;
-    std::function<void(Entity)> collision_handler;
-};
-
-
 struct Circle_Collider
 {
     float radius;

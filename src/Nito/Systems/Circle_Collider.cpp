@@ -97,6 +97,8 @@ void circle_collider_update()
 
             const Transform * entity_transform = entity_state.transform;
             const float dimensional_size = entity_state.circle_collider->radius * pixels_per_unit * 2;
+            vec3 position = entity_transform->position;
+            position.z = -1.0f;
 
             load_render_data(
                 {
@@ -110,7 +112,7 @@ void circle_collider_update()
                         dimensional_size,
                         dimensional_size,
                         Collider::ORIGIN,
-                        entity_transform->position,
+                        position,
                         entity_transform->scale,
                         ROTATION)
                 });

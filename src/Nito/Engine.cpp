@@ -389,38 +389,13 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             [](const JSON & data) -> Component
             {
-                vec3 offset;
-                float size = 0.0f;
-
-                if (contains_key(data, "offset"))
-                {
-                    const JSON & offset_data = data["offset"];
-
-                    if (contains_key(offset_data, "x"))
-                    {
-                        offset.x = offset_data["x"];
-                    }
-
-                    if (contains_key(offset_data, "y"))
-                    {
-                        offset.y = offset_data["y"];
-                    }
-
-                    if (contains_key(offset_data, "z"))
-                    {
-                        offset.z = offset_data["z"];
-                    }
-                }
-
-                if (contains_key(data, "size"))
-                {
-                    size = data["size"];
-                }
+                const JSON & start_data = data["start"];
+                const JSON & end_data = data["end"];
 
                 return new Line_Collider
                 {
-                    size,
-                    offset,
+                    vec3(start_data["x"], start_data["y"], 0.0f),
+                    vec3(end_data["x"], end_data["y"], 0.0f),
                 };
             },
             get_component_deallocator<Line_Collider>(),
@@ -704,10 +679,10 @@ int run_engine()
     const vector<GLfloat> line_collider_vertex_data
     {
         // Position        // UV
-        -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-         0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-         0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-         0.0f, 0.1f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, 0.1f, 0.0f, 0.0f, 0.0f,
     };
 
     const vector<GLuint> line_collider_index_data { 0, 1, 2, 3 };

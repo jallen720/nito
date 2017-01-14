@@ -89,8 +89,8 @@ struct Circle_Collider
 
 struct Line_Collider
 {
-    float size;
-    glm::vec3 offset;
+    glm::vec3 start;
+    glm::vec3 end;
 };
 
 

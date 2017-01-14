@@ -19,6 +19,7 @@ using std::string;
 using std::function;
 
 // glm/glm.hpp
+using glm::distance;
 using glm::vec3;
 using glm::vec4;
 
@@ -96,7 +97,9 @@ void line_collider_update()
 
             const Transform * entity_transform = entity_state.transform;
             const Line_Collider * entity_line_collider = entity_state.line_collider;
-            vec3 local_position = entity_line_collider->offset;
+            const vec3 & entity_line_collider_start = entity_line_collider->start;
+            const vec3 & entity_line_collider_end = entity_line_collider->end;
+            vec3 local_position = entity_line_collider_start;
             local_position.z = -1.0f;
 
             load_render_data(
@@ -108,7 +111,7 @@ void line_collider_update()
                     &VERTEX_CONTAINER_ID,
                     &Collider::UNIFORMS,
                     calculate_model_matrix(
-                        entity_line_collider->size * pixels_per_unit,
+                        distance(entity_line_collider_start, entity_line_collider_end) * pixels_per_unit,
                         pixels_per_unit,
                         Collider::ORIGIN,
                         get_child_world_position(entity_transform, local_position),

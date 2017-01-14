@@ -706,9 +706,11 @@ int run_engine()
         // Position        // UV
         -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
          0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.1f, 0.0f, 0.0f, 0.0f,
     };
 
-    const vector<GLuint> line_collider_index_data { 0, 1 };
+    const vector<GLuint> line_collider_index_data { 0, 1, 2, 3 };
     load_vertex_data("line_collider", line_collider_vertex_data, line_collider_index_data);
 
 

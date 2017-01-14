@@ -700,6 +700,7 @@ void render(const Render_Canvas & render_canvas)
     {
         { Render_Modes::TRIANGLES  , GL_TRIANGLES  },
         { Render_Modes::LINE_STRIP , GL_LINE_STRIP },
+        { Render_Modes::LINES      , GL_LINES      },
     };
 
     const float canvas_x = 0.0f;

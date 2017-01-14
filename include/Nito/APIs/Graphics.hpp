@@ -62,6 +62,7 @@ enum class Render_Modes
 {
     TRIANGLES,
     LINE_STRIP,
+    LINES,
 };
 
 

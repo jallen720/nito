@@ -101,7 +101,7 @@ void line_collider_update()
 
             load_render_data(
                 {
-                    Render_Modes::LINE_STRIP,
+                    Render_Modes::LINES,
                     &Collider::LAYER_NAME,
                     nullptr,
                     &Collider::SHADER_PIPELINE_NAME,
@@ -109,7 +109,7 @@ void line_collider_update()
                     &Collider::UNIFORMS,
                     calculate_model_matrix(
                         entity_line_collider->size * pixels_per_unit,
-                        1,
+                        pixels_per_unit,
                         Collider::ORIGIN,
                         get_child_world_position(entity_transform, local_position),
                         entity_transform->scale,

@@ -96,8 +96,8 @@ void line_collider_update()
 
             const Transform * entity_transform = entity_state.transform;
             const Line_Collider * entity_line_collider = entity_state.line_collider;
-            vec3 position = entity_transform->position + entity_line_collider->offset;
-            position.z = -1.0f;
+            vec3 local_position = entity_line_collider->offset;
+            local_position.z = -1.0f;
 
             load_render_data(
                 {
@@ -111,7 +111,7 @@ void line_collider_update()
                         entity_line_collider->size * pixels_per_unit,
                         1,
                         Collider::ORIGIN,
-                        position,
+                        get_child_world_position(entity_transform, local_position),
                         entity_transform->scale,
                         entity_transform->rotation)
                 });

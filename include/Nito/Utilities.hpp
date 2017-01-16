@@ -32,6 +32,7 @@ glm::mat4 calculate_view_matrix(
     float view_rotation);
 
 glm::vec3 get_child_world_position(const Transform * parent_transform, const glm::vec3 & child_local_position);
+float angle(const glm::vec3 & vector_a, const glm::vec3 & vector_b);
 
 
 } // namespace Nito

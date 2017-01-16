@@ -1,6 +1,7 @@
 #include "Nito/Utilities.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
 
 #include "Nito/APIs/Graphics.hpp"
 
@@ -80,6 +81,14 @@ vec3 get_child_world_position(const Transform * parent_transform, const vec3 & c
     position = scale(position, parent_transform->scale);
     position = translate(position, child_local_position);
     return vec3(position[3][0], position[3][1], position[3][2]);
+}
+
+
+float angle(const vec3 & vector_a, const vec3 & vector_b)
+{
+    return atan2(
+        (vector_a.x * vector_b.y) - (vector_a.y * vector_b.x),
+        (vector_a.x * vector_b.x) + (vector_a.y * vector_b.y));
 }
 
 

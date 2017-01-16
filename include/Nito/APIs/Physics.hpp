@@ -15,13 +15,13 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void load_collider_data(
+void load_circle_collider_data(
     Entity entity,
     const Transform * transform,
     const Collider * collider,
     const Circle_Collider * circle_collider);
 
-void remove_collider_data(Entity entity);
+void remove_circle_collider_data(Entity entity);
 void physics_api_update();
 
 

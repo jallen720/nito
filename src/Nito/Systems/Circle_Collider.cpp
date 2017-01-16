@@ -72,14 +72,14 @@ void circle_collider_subscribe(Entity entity)
         circle_collider,
     };
 
-    load_collider_data(entity, transform, collider, circle_collider);
+    load_circle_collider_data(entity, transform, collider, circle_collider);
 }
 
 
 void circle_collider_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
-    remove_collider_data(entity);
+    remove_circle_collider_data(entity);
 }
 
 

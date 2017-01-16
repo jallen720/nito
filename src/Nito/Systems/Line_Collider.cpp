@@ -2,26 +2,25 @@
 
 #include <map>
 #include <string>
-#include <functional>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Components.hpp"
-#include "Nito/Collider_Component.hpp"
 #include "Nito/Utilities.hpp"
+#include "Nito/Collider_Component.hpp"
 #include "Nito/APIs/Graphics.hpp"
 #include "Nito/APIs/Physics.hpp"
 
 
 using std::map;
 using std::string;
-using std::function;
 
 // glm/glm.hpp
 using glm::distance;
+using glm::degrees;
+using glm::normalize;
 using glm::vec3;
-using glm::vec4;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::remove;
@@ -44,6 +43,8 @@ struct Line_Collider_State
     const Transform * transform;
     const Collider * collider;
     const Line_Collider * line_collider;
+    vec3 world_start;
+    vec3 world_end;
 };
 
 
@@ -71,6 +72,8 @@ void line_collider_subscribe(Entity entity)
         transform,
         collider,
         line_collider,
+        vec3(),
+        vec3(),
     };
 
     // load_collider_data(entity, transform, collider, line_collider);
@@ -94,13 +97,20 @@ void line_collider_update()
         if (entity_state.collider->render)
         {
             static const string VERTEX_CONTAINER_ID("line_collider");
+            static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
 
             const Transform * entity_transform = entity_state.transform;
             const Line_Collider * entity_line_collider = entity_state.line_collider;
             const vec3 & entity_line_collider_start = entity_line_collider->start;
             const vec3 & entity_line_collider_end = entity_line_collider->end;
-            vec3 local_position = entity_line_collider_start;
-            local_position.z = -1.0f;
+            vec3 & entity_world_start = entity_state.world_start;
+            entity_world_start = get_child_world_position(entity_transform, entity_line_collider_start);
+            entity_state.world_end = get_child_world_position(entity_transform, entity_line_collider_end);
+            vec3 position = entity_world_start;
+            position.z = -1.0f;
+
+            float rotation =
+                degrees(angle(BASE_ANGLE_VECTOR, normalize(entity_line_collider_end - entity_line_collider_start)));
 
             load_render_data(
                 {
@@ -114,9 +124,9 @@ void line_collider_update()
                         distance(entity_line_collider_start, entity_line_collider_end) * pixels_per_unit,
                         pixels_per_unit,
                         Collider::ORIGIN,
-                        get_child_world_position(entity_transform, local_position),
+                        position,
                         entity_transform->scale,
-                        entity_transform->rotation)
+                        entity_transform->rotation + rotation)
                 });
         }
     });

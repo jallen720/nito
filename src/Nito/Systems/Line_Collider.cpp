@@ -63,27 +63,18 @@ static map<Entity, Line_Collider_State> entity_states;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void line_collider_subscribe(Entity entity)
 {
-    auto transform = (Transform *)get_component(entity, "transform");
-    auto collider = (Collider *)get_component(entity, "collider");
-    auto line_collider = (Line_Collider *)get_component(entity, "line_collider");
-
-    entity_states[entity] =
-    {
-        transform,
-        collider,
-        line_collider,
-        vec3(),
-        vec3(),
-    };
-
-    // load_collider_data(entity, transform, collider, line_collider);
+    Line_Collider_State & line_collider_state = entity_states[entity];
+    line_collider_state.transform = (Transform *)get_component(entity, "transform");
+    line_collider_state.collider = (Collider *)get_component(entity, "collider");
+    line_collider_state.line_collider = (Line_Collider *)get_component(entity, "line_collider");
+    load_line_collider_data(entity, &line_collider_state.world_start, &line_collider_state.world_end);
 }
 
 
 void line_collider_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
-    // remove_collider_data(entity);
+    remove_line_collider_data(entity);
 }
 
 
@@ -93,19 +84,23 @@ void line_collider_update()
 
     for_each(entity_states, [=](Entity /*entity*/, Line_Collider_State & entity_state) -> void
     {
+        const Transform * entity_transform = entity_state.transform;
+        const Line_Collider * entity_line_collider = entity_state.line_collider;
+        const vec3 & entity_line_collider_start = entity_line_collider->start;
+        const vec3 & entity_line_collider_end = entity_line_collider->end;
+        vec3 & entity_world_start = entity_state.world_start;
+
+
+        // Update world start and end positions for line collider.
+        entity_world_start = get_child_world_position(entity_transform, entity_line_collider_start);
+        entity_state.world_end = get_child_world_position(entity_transform, entity_line_collider_end);
+
+
         // Render collider if flagged.
         if (entity_state.collider->render)
         {
             static const string VERTEX_CONTAINER_ID("line_collider");
             static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
-
-            const Transform * entity_transform = entity_state.transform;
-            const Line_Collider * entity_line_collider = entity_state.line_collider;
-            const vec3 & entity_line_collider_start = entity_line_collider->start;
-            const vec3 & entity_line_collider_end = entity_line_collider->end;
-            vec3 & entity_world_start = entity_state.world_start;
-            entity_world_start = get_child_world_position(entity_transform, entity_line_collider_start);
-            entity_state.world_end = get_child_world_position(entity_transform, entity_line_collider_end);
             vec3 position = entity_world_start;
             position.z = -1.0f;
 

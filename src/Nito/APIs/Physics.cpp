@@ -125,8 +125,7 @@ void physics_api_update()
             const Transform * circle_b_transform = circle_b_data.transform;
 
             const float collision_distance =
-                (circle_radius * circle_scale.x) +
-                (circle_b_data.circle_collider->radius * circle_b_transform->scale.x);
+                circle_radius + (circle_b_data.circle_collider->radius * circle_b_transform->scale.x);
 
             if (distance((vec2)circle_position, (vec2)circle_b_transform->position) <= collision_distance)
             {

@@ -186,10 +186,9 @@ void physics_api_update()
                     // t1 is the intersection, and it's closer than t2 (since t1 uses -B - discriminant) Impale, Poke
                     collisions.push_back(line_entity);
                 }
-
-                // here t1 didn't intersect so we are either started inside the sphere or completely past it
-                if (t2 >= 0 && t2 <= 1)
+                else if (t2 >= 0 && t2 <= 1)
                 {
+                    // here t1 didn't intersect so we are either started inside the sphere or completely past it
                     // ExitWound
                     collisions.push_back(line_entity);
                 }

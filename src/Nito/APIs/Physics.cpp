@@ -107,7 +107,7 @@ void physics_api_update()
         const Transform * circle_transform = circle_data.transform;
         const vec3 & circle_position = circle_transform->position;
         const vec3 & circle_scale = circle_transform->scale;
-        const float circle_radius = circle_data.circle_collider->radius;
+        const float circle_radius = circle_data.circle_collider->radius * circle_scale.x;
         const function<void(Entity)> & circle_collision_handler = circle_data.collider->collision_handler;
         vector<Entity> collisions;
 

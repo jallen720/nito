@@ -173,12 +173,12 @@ void physics_api_update()
                 float t2 = (-B + discriminant) / (2 * A);
 
                 // 3 HIT cases:
-                // --|-----|-->           --|-->  |          |   --|-->
-                // Impale(t1 hit,t2 hit), Poke(t1 hit,t2>1), ExitWound(t1<0, t2 hit),
+                // --|-----|-->            --|-->  |             |   --|-->
+                // Impale(t1 hit, t2 hit)  Poke(t1 hit, t2 > 1)  ExitWound(t1 < 0, t2 hit)
 
                 // 3 MISS cases:
-                // --> |     |            |     | -->       | --> |
-                // FallShort (t1>1,t2>1), Past (t1<0,t2<0), CompletelyInside(t1<0, t2>1)
+                // --> |     |                |     | -->           | --> |
+                // FallShort(t1 > 1, t2 > 1)  Past(t1 < 0, t2 < 0)  CompletelyInside(t1 < 0, t2 > 1)
 
                 if (t1 >= 0.0f && t1 <= 1.0f)
                 {

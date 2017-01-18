@@ -63,6 +63,39 @@ static map<Entity, Line_Collider_Data> line_collider_datas;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Utilities
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void trigger_collision_handlers(
+    Entity collider_entity,
+    const function<void(Entity)> & collider_entity_handler,
+    const map<Entity, const Collider *> & collisions)
+{
+    // Trigger collider entity's collision handler if it is set.
+    if (collider_entity_handler)
+    {
+        for_each(collisions, [&](Entity collision_entity, const Collider * /*collision_entity_collider*/) -> void
+        {
+            collider_entity_handler(collision_entity);
+        });
+    }
+
+
+    // Trigger all collision entities' collision handlers if they are set.
+    for_each(collisions, [=](Entity /*collision_entity*/, const Collider * collision_entity_collider) -> void
+    {
+        const function<void(Entity)> & collision_entity_handler = collision_entity_collider->collision_handler;
+
+        if (collision_entity_handler)
+        {
+            collision_entity_handler(collider_entity);
+        }
+    });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,12 +139,13 @@ void remove_line_collider_data(Entity entity)
 
 void physics_api_update()
 {
-    Circle_Collider_Data_Iterator it = circle_collider_datas.begin();
+    Circle_Collider_Data_Iterator circles_iterator = circle_collider_datas.begin();
 
-    while (it != circle_collider_datas.end())
+    // Check for circle collider collisions.
+    while (circles_iterator != circle_collider_datas.end())
     {
-        const Entity circle_entity = it->first;
-        const Circle_Collider_Data & circle_data = it->second;
+        const Entity circle_entity = circles_iterator->first;
+        const Circle_Collider_Data & circle_data = circles_iterator->second;
         const Transform * circle_transform = circle_data.transform;
         const vec3 & circle_position = circle_transform->position;
         const vec3 & circle_scale = circle_transform->scale;
@@ -121,7 +155,7 @@ void physics_api_update()
 
 
         // Check for collisions with other circle colliders.
-        for_each(circle_collider_datas, ++it, [&](
+        for_each(circle_collider_datas, ++circles_iterator, [&](
             Entity circle_b_entity,
             const Circle_Collider_Data & circle_b_data) -> void
         {
@@ -199,26 +233,7 @@ void physics_api_update()
         });
 
 
-        // Trigger collision handler for all collisions if one was set.
-        if (circle_collision_handler)
-        {
-            for_each(collisions, [&](Entity collision_entity, const Collider * /*collision_entity_collider*/) -> void
-            {
-                circle_collision_handler(collision_entity);
-            });
-        }
-
-
-        // Trigger all collisions' collision handlers if they are set.
-        for_each(collisions, [=](Entity /*collision_entity*/, const Collider * collision_entity_collider) -> void
-        {
-            const function<void(Entity)> & collision_entity_handler = collision_entity_collider->collision_handler;
-
-            if (collision_entity_handler)
-            {
-                collision_entity_handler(circle_entity);
-            }
-        });
+        trigger_collision_handlers(circle_entity, circle_collision_handler, collisions);
     };
 }
 

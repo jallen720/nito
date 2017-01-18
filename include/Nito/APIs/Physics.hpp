@@ -19,8 +19,8 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void load_circle_collider_data(
     Entity entity,
-    const Transform * transform,
     const Collider * collider,
+    const Transform * transform,
     const Circle_Collider * circle_collider);
 
 void load_line_collider_data(Entity entity, const glm::vec3 * line_start, const glm::vec3 * line_end);

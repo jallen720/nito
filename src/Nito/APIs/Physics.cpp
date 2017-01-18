@@ -64,8 +64,8 @@ static map<Entity, Line_Collider_Data> line_collider_datas;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void load_circle_collider_data(
     Entity entity,
-    const Transform * transform,
     const Collider * collider,
+    const Transform * transform,
     const Circle_Collider * circle_collider)
 {
     circle_collider_datas[entity] =

@@ -43,9 +43,13 @@ struct Circle_Collider_Data
 
 struct Line_Collider_Data
 {
+    const Collider * collider;
     const vec3 * start;
     const vec3 * end;
 };
+
+
+using Circle_Collider_Data_Iterator = map<Entity, Circle_Collider_Data>::const_iterator;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,10 +81,11 @@ void load_circle_collider_data(
 }
 
 
-void load_line_collider_data(Entity entity, const vec3 * line_start, const vec3 * line_end)
+void load_line_collider_data(Entity entity, const Collider * collider, const vec3 * line_start, const vec3 * line_end)
 {
     line_collider_datas[entity] =
     {
+        collider,
         line_start,
         line_end,
     };
@@ -101,27 +106,25 @@ void remove_line_collider_data(Entity entity)
 
 void physics_api_update()
 {
-    // TODO: could be optimized with an overload of for_each().
-    for_each(circle_collider_datas, [=](Entity circle_entity, Circle_Collider_Data & circle_data) -> void
+    Circle_Collider_Data_Iterator it = circle_collider_datas.begin();
+
+    while (it != circle_collider_datas.end())
     {
+        const Entity circle_entity = it->first;
+        const Circle_Collider_Data & circle_data = it->second;
         const Transform * circle_transform = circle_data.transform;
         const vec3 & circle_position = circle_transform->position;
         const vec3 & circle_scale = circle_transform->scale;
         const float circle_radius = circle_data.circle_collider->radius * circle_scale.x;
         const function<void(Entity)> & circle_collision_handler = circle_data.collider->collision_handler;
-        vector<Entity> collisions;
+        map<Entity, const Collider *> collisions;
 
 
         // Check for collisions with other circle colliders.
-        for_each(circle_collider_datas, [&](Entity circle_b_entity, Circle_Collider_Data & circle_b_data) -> void
+        for_each(circle_collider_datas, ++it, [&](
+            Entity circle_b_entity,
+            const Circle_Collider_Data & circle_b_data) -> void
         {
-            // Don't check for collisions against self.
-            if (circle_b_entity == circle_entity)
-            {
-                return;
-            }
-
-
             const Transform * circle_b_transform = circle_b_data.transform;
 
             const float collision_distance =
@@ -129,7 +132,7 @@ void physics_api_update()
 
             if (distance((vec2)circle_position, (vec2)circle_b_transform->position) <= collision_distance)
             {
-                collisions.push_back(circle_b_entity);
+                collisions[circle_b_entity] = circle_b_data.collider;
             }
         });
 
@@ -183,12 +186,12 @@ void physics_api_update()
                 if (t1 >= 0.0f && t1 <= 1.0f)
                 {
                     // t1 is the intersection, and it's closer than t2 (since t1 uses -B - discriminant) Impale, Poke
-                    collisions.push_back(line_entity);
+                    collisions[line_entity] = line_data.collider;
                 }
                 else if (t2 >= 0.0f && t2 <= 1.0f)
                 {
                     // here t1 didn't intersect so we are either started inside the sphere or completely past it
-                    collisions.push_back(line_entity);
+                    collisions[line_entity] = line_data.collider;
                 }
             }
         });
@@ -197,9 +200,24 @@ void physics_api_update()
         // Trigger collision handler for all collisions if one was set.
         if (circle_collision_handler)
         {
-            for_each(collisions, circle_collision_handler);
+            for_each(collisions, [&](Entity collision_entity, const Collider * /*collision_entity_collider*/) -> void
+            {
+                circle_collision_handler(collision_entity);
+            });
         }
-    });
+
+
+        // Trigger all collisions' collision handlers if they are set.
+        for_each(collisions, [=](Entity /*collision_entity*/, const Collider * collision_entity_collider) -> void
+        {
+            const function<void(Entity)> & collision_entity_handler = collision_entity_collider->collision_handler;
+
+            if (collision_entity_handler)
+            {
+                collision_entity_handler(circle_entity);
+            }
+        });
+    };
 }
 
 

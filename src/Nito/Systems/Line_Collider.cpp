@@ -63,11 +63,12 @@ static map<Entity, Line_Collider_State> entity_states;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void line_collider_subscribe(Entity entity)
 {
+    auto collider = (Collider *)get_component(entity, "collider");
     Line_Collider_State & line_collider_state = entity_states[entity];
     line_collider_state.transform = (Transform *)get_component(entity, "transform");
-    line_collider_state.collider = (Collider *)get_component(entity, "collider");
+    line_collider_state.collider = collider;
     line_collider_state.line_collider = (Line_Collider *)get_component(entity, "line_collider");
-    load_line_collider_data(entity, &line_collider_state.world_start, &line_collider_state.world_end);
+    load_line_collider_data(entity, collider, &line_collider_state.world_start, &line_collider_state.world_end);
 }
 
 

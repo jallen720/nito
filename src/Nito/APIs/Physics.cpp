@@ -178,24 +178,26 @@ void physics_api_update()
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
             const Collider * line_collider = line_data.collider;
-            const vec3 * start = line_data.start;
-            const vec3 * end = line_data.end;
-            const float start_x = start->x;
-            const float start_y = start->y;
-            const float end_x = end->x;
-            const float end_y = end->y;
+            const vec3 * line_start = line_data.start;
+            const vec3 * line_end = line_data.end;
+            const float line_start_x = line_start->x;
+            const float line_start_y = line_start->y;
+            const float line_end_x = line_end->x;
+            const float line_end_y = line_end->y;
             const float circle_x = circle_position.x;
             const float circle_y = circle_position.y;
-            const float direction_x = end_x - start_x;
-            const float direction_y = end_y - start_y;
-            const float start_circle_offset_x = start_x - circle_x;
-            const float start_circle_offset_y = start_y - circle_y;
-            const float A = (direction_x * direction_x) + (direction_y * direction_y);
-            const float B = 2 * ((direction_x * start_circle_offset_x) + (direction_y * start_circle_offset_y));
+            const float line_direction_x = line_end_x - line_start_x;
+            const float line_direction_y = line_end_y - line_start_y;
+            const float line_start_circle_offset_x = line_start_x - circle_x;
+            const float line_start_circle_offset_y = line_start_y - circle_y;
+            const float A = (line_direction_x * line_direction_x) + (line_direction_y * line_direction_y);
+
+            const float B =
+                2 * ((line_direction_x * line_start_circle_offset_x) + (line_direction_y * line_start_circle_offset_y));
 
             const float C =
-                (start_circle_offset_x * start_circle_offset_x) +
-                (start_circle_offset_y * start_circle_offset_y) -
+                (line_start_circle_offset_x * line_start_circle_offset_x) +
+                (line_start_circle_offset_y * line_start_circle_offset_y) -
                 (circle_radius * circle_radius);
 
             float discriminant = B * B - 4 * A * C;
@@ -267,7 +269,9 @@ void physics_api_update()
             const vec3 * line_b_end = line_b_data.end;
             const float line_b_start_x = line_b_start->x;
             const float line_b_start_y = line_b_start->y;
-            const vec3 CmP(line_b_start_x - line_start_x, line_b_start_y - line_start_y, 0.0f);
+            const float line_starts_offset_x = line_b_start_x - line_start_x;
+            const float line_starts_offset_y = line_b_start_y - line_start_y;
+            const vec3 CmP(line_starts_offset_x, line_starts_offset_y, 0.0f);
             const vec3 s(line_b_end->x - line_b_start_x, line_b_end->y - line_b_start_y, 0.0f);
             const float CmPxr = (CmP.x * r.y) - (CmP.y * r.x);
             const float CmPxs = (CmP.x * s.y) - (CmP.y * s.x);
@@ -277,8 +281,8 @@ void physics_api_update()
             {
                 // Lines are collinear, and so intersect if they have any overlap.
 
-                if ((line_b_start_x - line_start_x < 0.0f) != (line_b_start_x - line_end_x < 0.0f) ||
-                    (line_b_start_y - line_start_y < 0.0f) != (line_b_start_y - line_end_y < 0.0f))
+                if ((line_starts_offset_x < 0.0f) != (line_b_start_x - line_end_x < 0.0f) ||
+                    (line_starts_offset_y < 0.0f) != (line_b_start_y - line_end_y < 0.0f))
                 {
                     collisions[line_b_entity] = line_b_collider;
                 }

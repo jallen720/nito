@@ -174,6 +174,7 @@ void physics_api_update()
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
+            const Collider * line_collider = line_data.collider;
             const vec3 * start = line_data.start;
             const vec3 * end = line_data.end;
             const float start_x = start->x;
@@ -222,12 +223,12 @@ void physics_api_update()
                 if (t1 >= 0.0f && t1 <= 1.0f)
                 {
                     // t1 is the intersection, and it's closer than t2 (since t1 uses -B - discriminant) Impale, Poke
-                    collisions[line_entity] = line_data.collider;
+                    collisions[line_entity] = line_collider;
                 }
                 else if (t2 >= 0.0f && t2 <= 1.0f)
                 {
                     // here t1 didn't intersect so we are either started inside the sphere or completely past it
-                    collisions[line_entity] = line_data.collider;
+                    collisions[line_entity] = line_collider;
                 }
             }
         });

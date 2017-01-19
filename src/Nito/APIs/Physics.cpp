@@ -50,6 +50,7 @@ struct Line_Collider_Data
 
 
 using Circle_Collider_Data_Iterator = map<Entity, Circle_Collider_Data>::const_iterator;
+using Line_Collider_Data_Iterator = map<Entity, Line_Collider_Data>::const_iterator;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +141,8 @@ void remove_line_collider_data(Entity entity)
 void physics_api_update()
 {
     Circle_Collider_Data_Iterator circles_iterator = circle_collider_datas.begin();
+    Line_Collider_Data_Iterator lines_iterator = line_collider_datas.begin();
+
 
     // Check for circle collider collisions.
     while (circles_iterator != circle_collider_datas.end())
@@ -236,6 +239,71 @@ void physics_api_update()
 
         trigger_collision_handlers(circle_entity, circle_collision_handler, collisions);
     };
+
+
+    // Check for line collider collisions that have not already been checked.
+    while (lines_iterator != line_collider_datas.end())
+    {
+        const Entity line_entity = lines_iterator->first;
+        const Line_Collider_Data & line_data = lines_iterator->second;
+        const function<void(Entity)> & line_collision_handler = line_data.collider->collision_handler;
+        const vec3 * line_start = line_data.start;
+        const vec3 * line_end = line_data.end;
+        const float line_start_x = line_start->x;
+        const float line_start_y = line_start->y;
+        const float line_end_x = line_end->x;
+        const float line_end_y = line_end->y;
+        const vec3 r(line_end_x - line_start_x, line_end_y - line_start_y, 0.0f);
+        map<Entity, const Collider *> collisions;
+
+
+        // Check for collisions with other line colliders.
+        for_each(line_collider_datas, ++lines_iterator, [&](
+            Entity line_b_entity,
+            const Line_Collider_Data & line_b_data) -> void
+        {
+            const Collider * line_b_collider = line_b_data.collider;
+            const vec3 * line_b_start = line_b_data.start;
+            const vec3 * line_b_end = line_b_data.end;
+            const float line_b_start_x = line_b_start->x;
+            const float line_b_start_y = line_b_start->y;
+            const vec3 CmP(line_b_start_x - line_start_x, line_b_start_y - line_start_y, 0.0f);
+            const vec3 s(line_b_end->x - line_b_start_x, line_b_end->y - line_b_start_y, 0.0f);
+            const float CmPxr = (CmP.x * r.y) - (CmP.y * r.x);
+            const float CmPxs = (CmP.x * s.y) - (CmP.y * s.x);
+            const float rxs = (r.x * s.y) - (r.y * s.x);
+
+            if (CmPxr == 0.0f)
+            {
+                // Lines are collinear, and so intersect if they have any overlap.
+
+                if ((line_b_start_x - line_start_x < 0.0f) != (line_b_start_x - line_end_x < 0.0f) ||
+                    (line_b_start_y - line_start_y < 0.0f) != (line_b_start_y - line_end_y < 0.0f))
+                {
+                    collisions[line_b_entity] = line_b_collider;
+                }
+            }
+            else if (rxs == 0.0f)
+            {
+                // Lines are parallel (no possible intersection).
+            }
+            else
+            {
+                float rxsr = 1.0f / rxs;
+                float t = CmPxs * rxsr;
+                float u = CmPxr * rxsr;
+
+                if (t >= 0.0f && t <= 1.0f &&
+                    u >= 0.0f && u <= 1.0f)
+                {
+                    collisions[line_b_entity] = line_b_collider;
+                }
+            }
+        });
+
+
+        trigger_collision_handlers(line_entity, line_collision_handler, collisions);
+    }
 }
 
 

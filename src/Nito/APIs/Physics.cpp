@@ -35,15 +35,15 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Circle_Collider_Data
 {
+    const Collision_Handler * collision_handler;
     const Transform * transform;
-    const Collider * collider;
     const Circle_Collider * circle_collider;
 };
 
 
 struct Line_Collider_Data
 {
-    const Collider * collider;
+    const Collision_Handler * collision_handler;
     const vec3 * start;
     const vec3 * end;
 };
@@ -69,27 +69,27 @@ static map<Entity, Line_Collider_Data> line_collider_datas;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void trigger_collision_handlers(
     Entity collider_entity,
-    const function<void(Entity)> & collider_entity_handler,
-    const map<Entity, const Collider *> & collisions)
+    const Collision_Handler * collider_entity_handler,
+    const map<Entity, const Collision_Handler *> & collisions)
 {
     // Trigger collider entity's collision handler if it is set.
-    if (collider_entity_handler)
+    if (*collider_entity_handler)
     {
-        for_each(collisions, [&](Entity collision_entity, const Collider * /*collision_entity_collider*/) -> void
+        for_each(collisions, [&](
+            Entity collision_entity,
+            const Collision_Handler * /*collision_entity_collider*/) -> void
         {
-            collider_entity_handler(collision_entity);
+            (*collider_entity_handler)(collision_entity);
         });
     }
 
 
     // Trigger all collision entities' collision handlers if they are set.
-    for_each(collisions, [=](Entity /*collision_entity*/, const Collider * collision_entity_collider) -> void
+    for_each(collisions, [=](Entity /*collision_entity*/, const Collision_Handler * collision_entity_handler) -> void
     {
-        const function<void(Entity)> & collision_entity_handler = collision_entity_collider->collision_handler;
-
-        if (collision_entity_handler)
+        if (*collision_entity_handler)
         {
-            collision_entity_handler(collider_entity);
+            (*collision_entity_handler)(collider_entity);
         }
     });
 }
@@ -102,24 +102,28 @@ void trigger_collision_handlers(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void load_circle_collider_data(
     Entity entity,
-    const Collider * collider,
+    const Collision_Handler * collision_handler,
     const Transform * transform,
     const Circle_Collider * circle_collider)
 {
     circle_collider_datas[entity] =
     {
+        collision_handler,
         transform,
-        collider,
         circle_collider,
     };
 }
 
 
-void load_line_collider_data(Entity entity, const Collider * collider, const vec3 * line_start, const vec3 * line_end)
+void load_line_collider_data(
+    Entity entity,
+    const Collision_Handler * collision_handler,
+    const vec3 * line_start,
+    const vec3 * line_end)
 {
     line_collider_datas[entity] =
     {
-        collider,
+        collision_handler,
         line_start,
         line_end,
     };
@@ -153,8 +157,7 @@ void physics_api_update()
         const vec3 & circle_position = circle_transform->position;
         const vec3 & circle_scale = circle_transform->scale;
         const float circle_radius = circle_data.circle_collider->radius * circle_scale.x;
-        const function<void(Entity)> & circle_collision_handler = circle_data.collider->collision_handler;
-        map<Entity, const Collider *> collisions;
+        map<Entity, const Collision_Handler *> collisions;
 
 
         // Check for collisions with other circle colliders.
@@ -169,7 +172,7 @@ void physics_api_update()
 
             if (distance((vec2)circle_position, (vec2)circle_b_transform->position) <= collision_distance)
             {
-                collisions[circle_b_entity] = circle_b_data.collider;
+                collisions[circle_b_entity] = circle_b_data.collision_handler;
             }
         });
 
@@ -177,7 +180,7 @@ void physics_api_update()
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
-            const Collider * line_collider = line_data.collider;
+            const Collision_Handler * line_collision_handler = line_data.collision_handler;
             const vec3 * line_start = line_data.start;
             const vec3 * line_end = line_data.end;
             const float line_start_x = line_start->x;
@@ -228,18 +231,18 @@ void physics_api_update()
                 if (t1 >= 0.0f && t1 <= 1.0f)
                 {
                     // t1 is the intersection, and it's closer than t2 (since t1 uses -B - discriminant) Impale, Poke
-                    collisions[line_entity] = line_collider;
+                    collisions[line_entity] = line_collision_handler;
                 }
                 else if (t2 >= 0.0f && t2 <= 1.0f)
                 {
                     // here t1 didn't intersect so we are either started inside the sphere or completely past it
-                    collisions[line_entity] = line_collider;
+                    collisions[line_entity] = line_collision_handler;
                 }
             }
         });
 
 
-        trigger_collision_handlers(circle_entity, circle_collision_handler, collisions);
+        trigger_collision_handlers(circle_entity, circle_data.collision_handler, collisions);
     };
 
 
@@ -248,7 +251,6 @@ void physics_api_update()
     {
         const Entity line_entity = lines_iterator->first;
         const Line_Collider_Data & line_data = lines_iterator->second;
-        const function<void(Entity)> & line_collision_handler = line_data.collider->collision_handler;
         const vec3 * line_start = line_data.start;
         const vec3 * line_end = line_data.end;
         const float line_start_x = line_start->x;
@@ -256,7 +258,7 @@ void physics_api_update()
         const float line_end_x = line_end->x;
         const float line_end_y = line_end->y;
         const vec3 r(line_end_x - line_start_x, line_end_y - line_start_y, 0.0f);
-        map<Entity, const Collider *> collisions;
+        map<Entity, const Collision_Handler *> collisions;
 
 
         // Check for collisions with other line colliders.
@@ -264,7 +266,7 @@ void physics_api_update()
             Entity line_b_entity,
             const Line_Collider_Data & line_b_data) -> void
         {
-            const Collider * line_b_collider = line_b_data.collider;
+            const Collision_Handler * line_b_collision_handler = line_b_data.collision_handler;
             const vec3 * line_b_start = line_b_data.start;
             const vec3 * line_b_end = line_b_data.end;
             const float line_b_start_x = line_b_start->x;
@@ -284,7 +286,7 @@ void physics_api_update()
                 if ((line_starts_offset_x < 0.0f) != (line_b_start_x - line_end_x < 0.0f) ||
                     (line_starts_offset_y < 0.0f) != (line_b_start_y - line_end_y < 0.0f))
                 {
-                    collisions[line_b_entity] = line_b_collider;
+                    collisions[line_b_entity] = line_b_collision_handler;
                 }
             }
             else if (rxs == 0.0f)
@@ -300,13 +302,13 @@ void physics_api_update()
                 if (t >= 0.0f && t <= 1.0f &&
                     u >= 0.0f && u <= 1.0f)
                 {
-                    collisions[line_b_entity] = line_b_collider;
+                    collisions[line_b_entity] = line_b_collision_handler;
                 }
             }
         });
 
 
-        trigger_collision_handlers(line_entity, line_collision_handler, collisions);
+        trigger_collision_handlers(line_entity, line_data.collision_handler, collisions);
     }
 }
 

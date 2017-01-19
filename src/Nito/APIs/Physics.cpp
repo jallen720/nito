@@ -214,8 +214,8 @@ void physics_api_update()
 
                 // Either solution may be on or off the ray so need to test both t1 is always the smaller value, because
                 // BOTH discriminant and A are non-negative.
-                float t1 = (-B - discriminant) / (2 * A);
-                float t2 = (-B + discriminant) / (2 * A);
+                const float t1 = (-B - discriminant) / (2 * A);
+                const float t2 = (-B + discriminant) / (2 * A);
 
                 // 3 HIT cases:
                 // --|-----|-->            --|-->  |             |   --|-->
@@ -293,9 +293,9 @@ void physics_api_update()
             }
             else
             {
-                float rxsr = 1.0f / rxs;
-                float t = CmPxs * rxsr;
-                float u = CmPxr * rxsr;
+                const float rxsr = 1.0f / rxs;
+                const float t = CmPxs * rxsr;
+                const float u = CmPxr * rxsr;
 
                 if (t >= 0.0f && t <= 1.0f &&
                     u >= 0.0f && u <= 1.0f)

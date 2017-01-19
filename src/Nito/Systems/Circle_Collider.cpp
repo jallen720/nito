@@ -85,7 +85,7 @@ void circle_collider_unsubscribe(Entity entity)
 
 void circle_collider_update()
 {
-    static float pixels_per_unit = get_pixels_per_unit();
+    const float pixels_per_unit = get_pixels_per_unit();
 
     for_each(entity_states, [=](Entity /*entity*/, Circle_Collider_State & entity_state) -> void
     {

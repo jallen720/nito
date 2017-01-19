@@ -86,7 +86,7 @@ void line_collider_unsubscribe(Entity entity)
 
 void line_collider_update()
 {
-    static float pixels_per_unit = get_pixels_per_unit();
+    const float pixels_per_unit = get_pixels_per_unit();
 
     for_each(entity_states, [=](Entity /*entity*/, Line_Collider_State & entity_state) -> void
     {
@@ -107,6 +107,7 @@ void line_collider_update()
         {
             static const string VERTEX_CONTAINER_ID("line_collider");
             static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
+
             vec3 position = entity_world_start;
             position.z = -1.0f;
 

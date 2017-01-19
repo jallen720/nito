@@ -2,11 +2,11 @@
 
 
 #include <string>
-#include <functional>
 #include <glm/glm.hpp>
 
 #include "Nito/APIs/ECS.hpp"
 #include "Nito/APIs/Graphics.hpp"
+#include "Nito/APIs/Physics.hpp"
 
 
 namespace Nito
@@ -24,7 +24,7 @@ struct Collider
 
 
     bool render;
-    std::function<void(Entity)> collision_handler;
+    Collision_Handler collision_handler;
 };
 
 

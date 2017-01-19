@@ -38,7 +38,7 @@ struct Circle_Collider_Data
     const Collision_Handler * collision_handler;
     const vec3 * position;
     const vec3 * scale;
-    const Circle_Collider * circle_collider;
+    const float * radius;
 };
 
 
@@ -106,14 +106,14 @@ void load_circle_collider_data(
     const Collision_Handler * collision_handler,
     const vec3 * position,
     const vec3 * scale,
-    const Circle_Collider * circle_collider)
+    const float * radius)
 {
     circle_collider_datas[entity] =
     {
         collision_handler,
         position,
         scale,
-        circle_collider,
+        radius,
     };
 }
 
@@ -157,7 +157,7 @@ void physics_api_update()
         const Entity circle_entity = circles_iterator->first;
         const Circle_Collider_Data & circle_data = circles_iterator->second;
         const vec3 * circle_position = circle_data.position;
-        const float circle_radius = circle_data.circle_collider->radius * circle_data.scale->x;
+        const float circle_radius = *circle_data.radius * circle_data.scale->x;
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -167,7 +167,7 @@ void physics_api_update()
             const Circle_Collider_Data & circle_b_data) -> void
         {
             const float collision_distance =
-                circle_radius + (circle_b_data.circle_collider->radius * circle_b_data.scale->x);
+                circle_radius + (*circle_b_data.radius * circle_b_data.scale->x);
 
             if (distance((vec2)(*circle_position), (vec2)(*circle_b_data.position)) <= collision_distance)
             {

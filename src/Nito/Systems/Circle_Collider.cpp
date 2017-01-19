@@ -77,7 +77,7 @@ void circle_collider_subscribe(Entity entity)
         &collider->collision_handler,
         &transform->position,
         &transform->scale,
-        circle_collider);
+        &circle_collider->radius);
 }
 
 

@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Nito/Components.hpp"
 #include "Nito/APIs/ECS.hpp"
 
 
@@ -29,7 +28,7 @@ void load_circle_collider_data(
     const Collision_Handler * collision_handler,
     const glm::vec3 * position,
     const glm::vec3 * scale,
-    const Circle_Collider * circle_collider);
+    const float * radius);
 
 void load_line_collider_data(
     Entity entity,

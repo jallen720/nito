@@ -36,7 +36,8 @@ namespace Nito
 struct Circle_Collider_Data
 {
     const Collision_Handler * collision_handler;
-    const Transform * transform;
+    const vec3 * position;
+    const vec3 * scale;
     const Circle_Collider * circle_collider;
 };
 
@@ -103,13 +104,15 @@ void trigger_collision_handlers(
 void load_circle_collider_data(
     Entity entity,
     const Collision_Handler * collision_handler,
-    const Transform * transform,
+    const vec3 * position,
+    const vec3 * scale,
     const Circle_Collider * circle_collider)
 {
     circle_collider_datas[entity] =
     {
         collision_handler,
-        transform,
+        position,
+        scale,
         circle_collider,
     };
 }
@@ -153,10 +156,8 @@ void physics_api_update()
     {
         const Entity circle_entity = circles_iterator->first;
         const Circle_Collider_Data & circle_data = circles_iterator->second;
-        const Transform * circle_transform = circle_data.transform;
-        const vec3 & circle_position = circle_transform->position;
-        const vec3 & circle_scale = circle_transform->scale;
-        const float circle_radius = circle_data.circle_collider->radius * circle_scale.x;
+        const vec3 * circle_position = circle_data.position;
+        const float circle_radius = circle_data.circle_collider->radius * circle_data.scale->x;
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -165,12 +166,10 @@ void physics_api_update()
             Entity circle_b_entity,
             const Circle_Collider_Data & circle_b_data) -> void
         {
-            const Transform * circle_b_transform = circle_b_data.transform;
-
             const float collision_distance =
-                circle_radius + (circle_b_data.circle_collider->radius * circle_b_transform->scale.x);
+                circle_radius + (circle_b_data.circle_collider->radius * circle_b_data.scale->x);
 
-            if (distance((vec2)circle_position, (vec2)circle_b_transform->position) <= collision_distance)
+            if (distance((vec2)(*circle_position), (vec2)(*circle_b_data.position)) <= collision_distance)
             {
                 collisions[circle_b_entity] = circle_b_data.collision_handler;
             }
@@ -187,8 +186,8 @@ void physics_api_update()
             const float line_start_y = line_start->y;
             const float line_end_x = line_end->x;
             const float line_end_y = line_end->y;
-            const float circle_x = circle_position.x;
-            const float circle_y = circle_position.y;
+            const float circle_x = circle_position->x;
+            const float circle_y = circle_position->y;
             const float line_direction_x = line_end_x - line_start_x;
             const float line_direction_y = line_end_y - line_start_y;
             const float line_start_circle_offset_x = line_start_x - circle_x;

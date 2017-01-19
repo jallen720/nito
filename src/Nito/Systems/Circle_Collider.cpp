@@ -72,7 +72,12 @@ void circle_collider_subscribe(Entity entity)
         circle_collider,
     };
 
-    load_circle_collider_data(entity, &collider->collision_handler, transform, circle_collider);
+    load_circle_collider_data(
+        entity,
+        &collider->collision_handler,
+        &transform->position,
+        &transform->scale,
+        circle_collider);
 }
 
 

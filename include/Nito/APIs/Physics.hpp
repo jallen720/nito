@@ -27,7 +27,8 @@ using Collision_Handler = std::function<void(Entity)>;
 void load_circle_collider_data(
     Entity entity,
     const Collision_Handler * collision_handler,
-    const Transform * transform,
+    const glm::vec3 * position,
+    const glm::vec3 * scale,
     const Circle_Collider * circle_collider);
 
 void load_line_collider_data(

@@ -111,7 +111,7 @@ void line_collider_update()
             vec3 position = entity_world_start;
             position.z = -1.0f;
 
-            float rotation =
+            const float rotation =
                 degrees(angle(BASE_ANGLE_VECTOR, normalize(entity_line_collider_end - entity_line_collider_start)));
 
             load_render_data(

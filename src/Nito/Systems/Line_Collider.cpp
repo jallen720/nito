@@ -40,7 +40,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Line_Collider_State
 {
-    const Transform * transform;
+    Transform * transform;
     const Collider * collider;
     const Line_Collider * line_collider;
     vec3 world_start;
@@ -64,8 +64,9 @@ static map<Entity, Line_Collider_State> entity_states;
 void line_collider_subscribe(Entity entity)
 {
     auto collider = (Collider *)get_component(entity, "collider");
+    auto transform = (Transform *)get_component(entity, "transform");
     Line_Collider_State & line_collider_state = entity_states[entity];
-    line_collider_state.transform = (Transform *)get_component(entity, "transform");
+    line_collider_state.transform = transform;
     line_collider_state.collider = collider;
     line_collider_state.line_collider = (Line_Collider *)get_component(entity, "line_collider");
 
@@ -73,7 +74,8 @@ void line_collider_subscribe(Entity entity)
         entity,
         &collider->collision_handler,
         &line_collider_state.world_start,
-        &line_collider_state.world_end);
+        &line_collider_state.world_end,
+        &transform->position);
 }
 
 

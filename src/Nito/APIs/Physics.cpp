@@ -36,7 +36,9 @@ namespace Nito
 struct Circle_Collider_Data
 {
     const Collision_Handler * collision_handler;
-    const vec3 * position;
+    vec3 * position;
+    const bool * sends_collision;
+    const bool * receives_collision;
     const vec3 * scale;
     const float * radius;
 };
@@ -45,6 +47,7 @@ struct Circle_Collider_Data
 struct Line_Collider_Data
 {
     const Collision_Handler * collision_handler;
+    vec3 * position;
     const vec3 * start;
     const vec3 * end;
 };
@@ -104,14 +107,18 @@ void trigger_collision_handlers(
 void load_circle_collider_data(
     Entity entity,
     const Collision_Handler * collision_handler,
-    const vec3 * position,
-    const vec3 * scale,
-    const float * radius)
+    const bool * sends_collision,
+    const bool * receives_collision,
+    const float * radius,
+    vec3 * position,
+    const vec3 * scale)
 {
     circle_collider_datas[entity] =
     {
         collision_handler,
         position,
+        sends_collision,
+        receives_collision,
         scale,
         radius,
     };
@@ -122,11 +129,13 @@ void load_line_collider_data(
     Entity entity,
     const Collision_Handler * collision_handler,
     const vec3 * line_start,
-    const vec3 * line_end)
+    const vec3 * line_end,
+    vec3 * position)
 {
     line_collider_datas[entity] =
     {
         collision_handler,
+        position,
         line_start,
         line_end,
     };
@@ -156,8 +165,10 @@ void physics_api_update()
     {
         const Entity circle_entity = circles_iterator->first;
         const Circle_Collider_Data & circle_data = circles_iterator->second;
-        const vec3 * circle_position = circle_data.position;
+        vec3 * circle_position = circle_data.position;
         const float circle_radius = *circle_data.radius * circle_data.scale->x;
+        const bool circle_sends_collision = *circle_data.sends_collision;
+        const bool circle_receives_collision = *circle_data.receives_collision;
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -166,12 +177,41 @@ void physics_api_update()
             Entity circle_b_entity,
             const Circle_Collider_Data & circle_b_data) -> void
         {
+            vec3 * circle_b_position = circle_b_data.position;
+            const float actual_distance = distance((vec2)(*circle_position), (vec2)(*circle_b_position));
+
             const float collision_distance =
                 circle_radius + (*circle_b_data.radius * circle_b_data.scale->x);
 
-            if (distance((vec2)(*circle_position), (vec2)(*circle_b_data.position)) <= collision_distance)
+            if (actual_distance <= collision_distance)
             {
                 collisions[circle_b_entity] = circle_b_data.collision_handler;
+
+
+                // Resolve collision.
+                const bool receiving = circle_sends_collision && *circle_b_data.receives_collision;
+                const bool sending = *circle_b_data.sends_collision && circle_receives_collision;
+
+                if (receiving && sending)
+                {
+                    const vec3 correction =
+                        normalize(*circle_position - *circle_b_position) *
+                        (collision_distance - actual_distance) /
+                        2.0f;
+
+                    (*circle_position) += correction;
+                    (*circle_b_position) -= correction;
+                }
+                else if (receiving)
+                {
+                    (*circle_b_position) +=
+                        normalize(*circle_b_position - *circle_position) * (collision_distance - actual_distance);
+                }
+                else if (sending)
+                {
+                    (*circle_position) +=
+                        normalize(*circle_position - *circle_b_position) * (collision_distance - actual_distance);
+                }
             }
         });
 

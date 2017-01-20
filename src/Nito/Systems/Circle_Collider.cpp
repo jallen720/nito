@@ -40,7 +40,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct Circle_Collider_State
 {
-    const Transform * transform;
+    Transform * transform;
     const Collider * collider;
     const Circle_Collider * circle_collider;
 };
@@ -75,9 +75,11 @@ void circle_collider_subscribe(Entity entity)
     load_circle_collider_data(
         entity,
         &collider->collision_handler,
+        &collider->sends_collision,
+        &collider->receives_collision,
+        &circle_collider->radius,
         &transform->position,
-        &transform->scale,
-        &circle_collider->radius);
+        &transform->scale);
 }
 
 

@@ -362,9 +362,24 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             [](const JSON & data) -> Component
             {
+                bool send_collision = false;
+                bool receives_collision = false;
+
+                if (contains_key(data, "send_collision"))
+                {
+                    send_collision = data["send_collision"];
+                }
+
+                if (contains_key(data, "receives_collision"))
+                {
+                    receives_collision = data["receives_collision"];
+                }
+
                 return new Collider
                 {
                     data["render"],
+                    send_collision,
+                    receives_collision,
                     {},
                 };
             },

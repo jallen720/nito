@@ -227,7 +227,6 @@ void physics_api_update()
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
-            const Collision_Handler * line_collision_handler = line_data.collision_handler;
             const vec3 * line_start = line_data.start;
             const vec3 * line_end = line_data.end;
             const bool line_sends_collision = *line_data.sends_collision;
@@ -286,7 +285,7 @@ void physics_api_update()
 
                 if (is_collision)
                 {
-                    collisions[line_entity] = line_collision_handler;
+                    collisions[line_entity] = line_data.collision_handler;
 
 
                     // Resolve collision.

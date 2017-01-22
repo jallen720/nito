@@ -36,20 +36,20 @@ namespace Nito
 struct Circle_Collider_Data
 {
     const Collision_Handler * collision_handler;
-    vec3 * position;
     const bool * sends_collision;
     const bool * receives_collision;
-    const vec3 * scale;
     const float * radius;
+    const vec3 * scale;
+    vec3 * position;
 };
 
 
 struct Line_Collider_Data
 {
     const Collision_Handler * collision_handler;
-    vec3 * position;
     const vec3 * start;
     const vec3 * end;
+    vec3 * position;
 };
 
 
@@ -116,11 +116,11 @@ void load_circle_collider_data(
     circle_collider_datas[entity] =
     {
         collision_handler,
-        position,
         sends_collision,
         receives_collision,
-        scale,
         radius,
+        scale,
+        position,
     };
 }
 
@@ -135,9 +135,9 @@ void load_line_collider_data(
     line_collider_datas[entity] =
     {
         collision_handler,
-        position,
         line_start,
         line_end,
+        position,
     };
 }
 

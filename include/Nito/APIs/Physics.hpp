@@ -35,6 +35,8 @@ void load_circle_collider_data(
 void load_line_collider_data(
     Entity entity,
     const Collision_Handler * collision_handler,
+    const bool * sends_collision,
+    const bool * receives_collision,
     const glm::vec3 * line_start,
     const glm::vec3 * line_end,
     glm::vec3 * position);

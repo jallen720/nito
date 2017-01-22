@@ -73,6 +73,8 @@ void line_collider_subscribe(Entity entity)
     load_line_collider_data(
         entity,
         &collider->collision_handler,
+        &collider->sends_collision,
+        &collider->receives_collision,
         &line_collider_state.world_start,
         &line_collider_state.world_end,
         &transform->position);

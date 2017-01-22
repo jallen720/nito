@@ -164,6 +164,7 @@ void physics_api_update()
 {
     Circle_Collider_Data_Iterator circles_iterator = circle_collider_datas.begin();
     Line_Collider_Data_Iterator lines_iterator = line_collider_datas.begin();
+    map<vec3 *, vector<vec3>> collision_corrections;
 
 
     // Check for circle collider collisions.
@@ -196,29 +197,27 @@ void physics_api_update()
                 collisions[circle_b_entity] = circle_b_data.collision_handler;
 
 
-                // Resolve collision.
+                // Calculate collision corrections if necessary.
                 const bool receiving = circle_sends_collision && *circle_b_data.receives_collision;
                 const bool sending = *circle_b_data.sends_collision && circle_receives_collision;
 
+                const vec3 correction =
+                    normalize(*circle_b_position - *circle_position) *
+                    (collision_distance - actual_distance);
+
                 if (receiving && sending)
                 {
-                    const vec3 correction =
-                        normalize(*circle_position - *circle_b_position) *
-                        (collision_distance - actual_distance) /
-                        2.0f;
-
-                    (*circle_position) += correction;
-                    (*circle_b_position) -= correction;
+                    const vec3 shared_correction = correction / 2.0f;
+                    collision_corrections[circle_b_position].push_back(shared_correction);
+                    collision_corrections[circle_position].push_back(-shared_correction);
                 }
                 else if (receiving)
                 {
-                    (*circle_b_position) +=
-                        normalize(*circle_b_position - *circle_position) * (collision_distance - actual_distance);
+                    collision_corrections[circle_b_position].push_back(correction);
                 }
                 else if (sending)
                 {
-                    (*circle_position) +=
-                        normalize(*circle_position - *circle_b_position) * (collision_distance - actual_distance);
+                    collision_corrections[circle_position].push_back(-correction);
                 }
             }
         });
@@ -288,7 +287,7 @@ void physics_api_update()
                     collisions[line_entity] = line_data.collision_handler;
 
 
-                    // Resolve collision.
+                    // Calculate collision corrections if necessary.
                     if (line_sends_collision && circle_receives_collision)
                     {
                         const float x0 = circle_position_x;
@@ -308,7 +307,7 @@ void physics_api_update()
 
 
                         const float correction_distance = circle_radius - circle_line_normal_distance;
-                        (*circle_position) += correction_distance * line_normal;
+                        collision_corrections[circle_position].push_back(correction_distance * line_normal);
                     }
                 }
             }
@@ -383,6 +382,29 @@ void physics_api_update()
 
         trigger_collision_handlers(line_entity, line_data.collision_handler, collisions);
     }
+
+
+    // Resolve collisions.
+    for_each(collision_corrections, [](vec3 * position, const vector<vec3> & corrections) -> void
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+
+        for (const vec3 & correction : corrections)
+        {
+            if (fabsf(correction.x) > fabsf(x))
+            {
+                x = correction.x;
+            }
+
+            if (fabsf(correction.y) > fabsf(y))
+            {
+                y = correction.y;
+            }
+        }
+
+        (*position) += vec3(x, y, 0.0f);
+    });
 }
 
 

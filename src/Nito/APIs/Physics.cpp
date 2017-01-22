@@ -242,7 +242,7 @@ void physics_api_update()
                 (line_start_circle_offset_y * line_start_circle_offset_y) -
                 (circle_radius * circle_radius);
 
-            float discriminant = B * B - 4 * A * C;
+            float discriminant = (B * B) - (4 * A * C);
 
             if (discriminant < 0)
             {
@@ -253,28 +253,29 @@ void physics_api_update()
                 // Ray didn't totally miss sphere, so there is a solution to the equation.
 
                 discriminant = sqrt(discriminant);
-
-                // Either solution may be on or off the ray so need to test both t1 is always the smaller value, because
-                // BOTH discriminant and A are non-negative.
-                const float t1 = (-B - discriminant) / (2 * A);
-                const float t2 = (-B + discriminant) / (2 * A);
+                const float intersection_a = (-B - discriminant) / (2 * A);
+                const float intersection_b = (-B + discriminant) / (2 * A);
 
                 // 3 HIT cases:
-                // --|-----|-->            --|-->  |             |   --|-->
-                // Impale(t1 hit, t2 hit)  Poke(t1 hit, t2 > 1)  ExitWound(t1 < 0, t2 hit)
+                //     --|-----|-->
+                //     --|-->  |
+                //       |   --|-->
 
                 // 3 MISS cases:
-                // --> |     |                |     | -->           | --> |
-                // FallShort(t1 > 1, t2 > 1)  Past(t1 < 0, t2 < 0)  CompletelyInside(t1 < 0, t2 > 1)
+                // --> |     |
+                //     |     | -->
+                //     | --> |
 
-                if (t1 >= 0.0f && t1 <= 1.0f)
+                if (intersection_a >= 0.0f && intersection_a <= 1.0f)
                 {
-                    // t1 is the intersection, and it's closer than t2 (since t1 uses -B - discriminant) Impale, Poke
+                    // intersection_a is the intersection, and it's closer than intersection_b (since intersection_a
+                    // uses -B - discriminant).
                     collisions[line_entity] = line_collision_handler;
                 }
-                else if (t2 >= 0.0f && t2 <= 1.0f)
+                else if (intersection_b >= 0.0f && intersection_b <= 1.0f)
                 {
-                    // here t1 didn't intersect so we are either started inside the sphere or completely past it
+                    // Here intersection_a didn't intersect so we are either started inside the sphere or completely
+                    // past it.
                     collisions[line_entity] = line_collision_handler;
                 }
             }

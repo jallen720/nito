@@ -256,6 +256,7 @@ void physics_api_update()
                 const float intersection_a = (-B - discriminant) / (2 * A);
                 const float intersection_b = (-B + discriminant) / (2 * A);
 
+
                 // 3 HIT cases:
                 //     --|-----|-->
                 //     --|-->  |
@@ -265,17 +266,18 @@ void physics_api_update()
                 // --> |     |
                 //     |     | -->
                 //     | --> |
-
-                if (intersection_a >= 0.0f && intersection_a <= 1.0f)
-                {
+                const bool is_collision =
                     // intersection_a is the intersection, and it's closer than intersection_b (since intersection_a
                     // uses -B - discriminant).
-                    collisions[line_entity] = line_collision_handler;
-                }
-                else if (intersection_b >= 0.0f && intersection_b <= 1.0f)
-                {
+                    (intersection_a >= 0.0f && intersection_a <= 1.0f) ||
+
                     // Here intersection_a didn't intersect so we are either started inside the sphere or completely
                     // past it.
+                    (intersection_b >= 0.0f && intersection_b <= 1.0f);
+
+
+                if (is_collision)
+                {
                     collisions[line_entity] = line_collision_handler;
                 }
             }

@@ -230,12 +230,14 @@ void physics_api_update()
             const Collision_Handler * line_collision_handler = line_data.collision_handler;
             const vec3 * line_start = line_data.start;
             const vec3 * line_end = line_data.end;
+            const bool line_sends_collision = *line_data.sends_collision;
             const float line_start_x = line_start->x;
             const float line_start_y = line_start->y;
             const float line_end_x = line_end->x;
             const float line_end_y = line_end->y;
             const float line_direction_x = line_end_x - line_start_x;
             const float line_direction_y = line_end_y - line_start_y;
+            const vec3 line_normal = normalize(vec3(-line_direction_y, line_direction_x, 0.0f));
             const float line_start_circle_offset_x = line_start_x - circle_position_x;
             const float line_start_circle_offset_y = line_start_y - circle_position_y;
             const float A = (line_direction_x * line_direction_x) + (line_direction_y * line_direction_y);
@@ -285,6 +287,30 @@ void physics_api_update()
                 if (is_collision)
                 {
                     collisions[line_entity] = line_collision_handler;
+
+
+                    // Resolve collision.
+                    if (line_sends_collision && circle_receives_collision)
+                    {
+                        const float x0 = circle_position_x;
+                        const float x1 = line_start_x;
+                        const float x2 = line_end_x;
+                        const float y0 = circle_position_y;
+                        const float y1 = line_start_y;
+                        const float y2 = line_end_y;
+                        const float xd = line_direction_x;
+                        const float yd = line_direction_y;
+
+
+                        // Source: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+                        const float circle_line_normal_distance =
+                            fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1)) /
+                            sqrtf((yd * yd) + (xd * xd));
+
+
+                        const float correction_distance = circle_radius - circle_line_normal_distance;
+                        (*circle_position) += correction_distance * line_normal;
+                    }
                 }
             }
         });

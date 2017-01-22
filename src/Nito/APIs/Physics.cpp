@@ -169,6 +169,8 @@ void physics_api_update()
         const float circle_radius = *circle_data.radius * circle_data.scale->x;
         const bool circle_sends_collision = *circle_data.sends_collision;
         const bool circle_receives_collision = *circle_data.receives_collision;
+        const float circle_x = circle_position->x;
+        const float circle_y = circle_position->y;
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -226,8 +228,6 @@ void physics_api_update()
             const float line_start_y = line_start->y;
             const float line_end_x = line_end->x;
             const float line_end_y = line_end->y;
-            const float circle_x = circle_position->x;
-            const float circle_y = circle_position->y;
             const float line_direction_x = line_end_x - line_start_x;
             const float line_direction_y = line_end_y - line_start_y;
             const float line_start_circle_offset_x = line_start_x - circle_x;

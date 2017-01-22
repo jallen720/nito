@@ -258,7 +258,7 @@ void physics_api_update()
             {
                 // Ray didn't totally miss sphere, so there is a solution to the equation.
 
-                discriminant = sqrt(discriminant);
+                discriminant = sqrtf(discriminant);
                 const float intersection_a = (-B - discriminant) / (2 * A);
                 const float intersection_b = (-B + discriminant) / (2 * A);
 

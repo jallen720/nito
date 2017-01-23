@@ -387,23 +387,14 @@ void physics_api_update()
     // Resolve collisions.
     for_each(collision_corrections, [](vec3 * position, const vector<vec3> & corrections) -> void
     {
-        float x = 0.0f;
-        float y = 0.0f;
+        vec3 final_correction;
 
         for (const vec3 & correction : corrections)
         {
-            if (fabsf(correction.x) > fabsf(x))
-            {
-                x = correction.x;
-            }
-
-            if (fabsf(correction.y) > fabsf(y))
-            {
-                y = correction.y;
-            }
+            final_correction += correction;
         }
 
-        (*position) += vec3(x, y, 0.0f);
+        (*position) += final_correction / (float)corrections.size();
     });
 }
 

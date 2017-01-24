@@ -391,10 +391,18 @@ void physics_api_update()
 
         for (const vec3 & correction : corrections)
         {
-            final_correction += correction;
+            if (fabsf(correction.x) > fabsf(final_correction.x))
+            {
+                final_correction.x = correction.x;
+            }
+
+            if (fabsf(correction.y) > fabsf(final_correction.y))
+            {
+                final_correction.y = correction.y;
+            }
         }
 
-        (*position) += final_correction / (float)corrections.size();
+        (*position) += final_correction;
     });
 }
 

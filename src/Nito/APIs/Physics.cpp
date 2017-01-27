@@ -172,12 +172,13 @@ void physics_api_update()
     {
         const Entity circle_entity = circles_iterator->first;
         const Circle_Collider_Data & circle_data = circles_iterator->second;
-        vec3 * circle_position = circle_data.position;
+        vec3 * circle_data_position = circle_data.position;
+        const float circle_position_x = circle_data_position->x;
+        const float circle_position_y = circle_data_position->y;
+        const vec3 circle_position(circle_position_x, circle_position_y, 0.0f);
         const float circle_radius = *circle_data.radius * circle_data.scale->x;
         const bool circle_sends_collision = *circle_data.sends_collision;
         const bool circle_receives_collision = *circle_data.receives_collision;
-        const float circle_position_x = circle_position->x;
-        const float circle_position_y = circle_position->y;
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -186,8 +187,9 @@ void physics_api_update()
             Entity circle_b_entity,
             const Circle_Collider_Data & circle_b_data) -> void
         {
-            vec3 * circle_b_position = circle_b_data.position;
-            const float actual_distance = distance((vec2)(*circle_position), (vec2)(*circle_b_position));
+            vec3 * circle_b_data_position = circle_b_data.position;
+            const vec3 circle_b_position(circle_b_data_position->x, circle_b_data_position->y, 0.0f);
+            const float actual_distance = distance(circle_position, circle_b_position);
 
             const float collision_distance =
                 circle_radius + (*circle_b_data.radius * circle_b_data.scale->x);
@@ -202,22 +204,22 @@ void physics_api_update()
                 const bool sending = *circle_b_data.sends_collision && circle_receives_collision;
 
                 const vec3 correction =
-                    normalize(*circle_b_position - *circle_position) *
+                    normalize(circle_b_position - circle_position) *
                     (collision_distance - actual_distance);
 
                 if (receiving && sending)
                 {
                     const vec3 shared_correction = correction / 2.0f;
-                    collision_corrections[circle_b_position].push_back(shared_correction);
-                    collision_corrections[circle_position].push_back(-shared_correction);
+                    collision_corrections[circle_b_data_position].push_back(shared_correction);
+                    collision_corrections[circle_data_position].push_back(-shared_correction);
                 }
                 else if (receiving)
                 {
-                    collision_corrections[circle_b_position].push_back(correction);
+                    collision_corrections[circle_b_data_position].push_back(correction);
                 }
                 else if (sending)
                 {
-                    collision_corrections[circle_position].push_back(-correction);
+                    collision_corrections[circle_data_position].push_back(-correction);
                 }
             }
         });
@@ -307,7 +309,7 @@ void physics_api_update()
 
 
                         const float correction_distance = circle_radius - circle_line_normal_distance;
-                        collision_corrections[circle_position].push_back(correction_distance * line_normal);
+                        collision_corrections[circle_data_position].push_back(correction_distance * line_normal);
                     }
                 }
             }

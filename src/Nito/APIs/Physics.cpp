@@ -73,7 +73,7 @@ static map<Entity, Line_Collider_Data> line_collider_datas;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trigger_collision_handlers(
+static void trigger_collision_handlers(
     Entity collider_entity,
     const Collision_Handler * collider_entity_handler,
     const map<Entity, const Collision_Handler *> & collisions)

@@ -37,6 +37,7 @@
 #include "Nito/Systems/UI_Transform.hpp"
 #include "Nito/Systems/Circle_Collider.hpp"
 #include "Nito/Systems/Line_Collider.hpp"
+#include "Nito/Systems/Rectangle_Collider.hpp"
 
 
 using std::string;
@@ -155,6 +156,7 @@ static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
     text_renderer_update,
     circle_collider_update,
     line_collider_update,
+    rectangle_collider_update,
 
     // Should come after all update handlers that will affect renderable data (renderers, colliders, etc.).
     camera_update,
@@ -173,6 +175,7 @@ static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HAND
     NITO_SYSTEM_ENTITY_HANDLERS(sprite_dimensions_handler),
     NITO_SYSTEM_ENTITY_HANDLERS(circle_collider),
     NITO_SYSTEM_ENTITY_HANDLERS(line_collider),
+    NITO_SYSTEM_ENTITY_HANDLERS(rectangle_collider),
 };
 
 
@@ -414,6 +417,20 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
                 };
             },
             get_component_deallocator<Line_Collider>(),
+        }
+    },
+    {
+        "rectangle_collider",
+        {
+            [](const JSON & data) -> Component
+            {
+                return new Rectangle_Collider
+                {
+                    data["width"],
+                    data["height"],
+                };
+            },
+            get_component_deallocator<Rectangle_Collider>(),
         }
     },
 };
@@ -702,6 +719,11 @@ int run_engine()
 
     const vector<GLuint> line_collider_index_data { 0, 1, 2, 3 };
     load_vertex_data("line_collider", line_collider_vertex_data, line_collider_index_data);
+
+
+    // Load rectangle collider vertex data.
+    const vector<GLuint> rectangle_collider_index_data { 0, 1, 1, 2, 2, 3, 3, 0 };
+    load_vertex_data("rectangle_collider", default_vertex_data, rectangle_collider_index_data);
 
 
     // Load engine resources first, then project resources.

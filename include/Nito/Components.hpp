@@ -94,4 +94,11 @@ struct Line_Collider
 };
 
 
+struct Rectangle_Collider
+{
+    float width;
+    float height;
+};
+
+
 } // namespace Nito

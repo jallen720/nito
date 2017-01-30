@@ -233,8 +233,11 @@ void physics_api_update()
             const bool line_sends_collision = *line_data.sends_collision;
             const float line_start_x = line_start->x;
             const float line_start_y = line_start->y;
+            const vec3 line_start_2d(line_start_x, line_start_y, 0.0f);
             const float line_end_x = line_end->x;
             const float line_end_y = line_end->y;
+            const vec3 line_end_2d(line_end_x, line_end_y, 0.0f);
+            const float line_length = distance(line_start_2d, line_end_2d);
             const float line_direction_x = line_end_x - line_start_x;
             const float line_direction_y = line_end_y - line_start_y;
             const vec3 line_normal = normalize(vec3(-line_direction_y, line_direction_x, 0.0f));
@@ -292,24 +295,48 @@ void physics_api_update()
                     // Calculate collision corrections if necessary.
                     if (line_sends_collision && circle_receives_collision)
                     {
-                        const float x0 = circle_position_x;
-                        const float x1 = line_start_x;
-                        const float x2 = line_end_x;
-                        const float y0 = circle_position_y;
-                        const float y1 = line_start_y;
-                        const float y2 = line_end_y;
-                        const float xd = line_direction_x;
-                        const float yd = line_direction_y;
+                        const float line_start_circle_distance = distance(line_start_2d, circle_position_2d);
+                        const float line_end_circle_distance = distance(line_end_2d, circle_position_2d);
 
 
-                        // Source: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-                        const float circle_line_normal_distance =
-                            fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1)) /
-                            sqrtf((yd * yd) + (xd * xd));
+                        // Line start is inside circle.
+                        if (line_start_circle_distance < circle_radius &&
+                            distance(line_end_2d, circle_position_2d) > line_length)
+                        {
+                            collision_corrections[circle_data_position].push_back(
+                                normalize(circle_position_2d - line_start_2d) *
+                                (circle_radius - line_start_circle_distance));
+                        }
+                        // Line end is inside circle.
+                        else if (line_end_circle_distance < circle_radius &&
+                                 distance(line_start_2d, circle_position_2d) > line_length)
+                        {
+                            collision_corrections[circle_data_position].push_back(
+                                normalize(circle_position_2d - line_end_2d) *
+                                (circle_radius - line_end_circle_distance));
+                        }
+                        // Line passes through circle.
+                        else
+                        {
+                            const float x0 = circle_position_x;
+                            const float x1 = line_start_x;
+                            const float x2 = line_end_x;
+                            const float y0 = circle_position_y;
+                            const float y1 = line_start_y;
+                            const float y2 = line_end_y;
+                            const float xd = line_direction_x;
+                            const float yd = line_direction_y;
 
 
-                        const float correction_distance = circle_radius - circle_line_normal_distance;
-                        collision_corrections[circle_data_position].push_back(correction_distance * line_normal);
+                            // Source: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+                            const float circle_line_normal_distance =
+                                fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1)) /
+                                sqrtf((yd * yd) + (xd * xd));
+
+
+                            const float correction_distance = circle_radius - circle_line_normal_distance;
+                            collision_corrections[circle_data_position].push_back(correction_distance * line_normal);
+                        }
                     }
                 }
             }

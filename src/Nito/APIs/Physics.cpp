@@ -175,7 +175,7 @@ void physics_api_update()
         vec3 * circle_data_position = circle_data.position;
         const float circle_position_x = circle_data_position->x;
         const float circle_position_y = circle_data_position->y;
-        const vec3 circle_position(circle_position_x, circle_position_y, 0.0f);
+        const vec3 circle_position_2d(circle_position_x, circle_position_y, 0.0f);
         const float circle_radius = *circle_data.radius * circle_data.scale->x;
         const bool circle_sends_collision = *circle_data.sends_collision;
         const bool circle_receives_collision = *circle_data.receives_collision;
@@ -188,8 +188,8 @@ void physics_api_update()
             const Circle_Collider_Data & circle_b_data) -> void
         {
             vec3 * circle_b_data_position = circle_b_data.position;
-            const vec3 circle_b_position(circle_b_data_position->x, circle_b_data_position->y, 0.0f);
-            const float actual_distance = distance(circle_position, circle_b_position);
+            const vec3 circle_b_position_2d(circle_b_data_position->x, circle_b_data_position->y, 0.0f);
+            const float actual_distance = distance(circle_position_2d, circle_b_position_2d);
 
             const float collision_distance =
                 circle_radius + (*circle_b_data.radius * circle_b_data.scale->x);
@@ -204,7 +204,7 @@ void physics_api_update()
                 const bool sending = *circle_b_data.sends_collision && circle_receives_collision;
 
                 const vec3 correction =
-                    normalize(circle_b_position - circle_position) *
+                    normalize(circle_b_position_2d - circle_position_2d) *
                     (collision_distance - actual_distance);
 
                 if (receiving && sending)

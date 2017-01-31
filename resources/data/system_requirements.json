@@ -58,5 +58,11 @@
         "transform",
         "collider",
         "line_collider"
+    ],
+    "polygon_collider":
+    [
+        "transform",
+        "collider",
+        "polygon_collider"
     ]
 }

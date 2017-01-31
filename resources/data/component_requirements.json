@@ -35,5 +35,9 @@
     "line_collider":
     [
         "line_collider"
+    ],
+    "polygon_collider":
+    [
+        "polygon_collider"
     ]
 }

@@ -13,9 +13,9 @@ namespace Nito
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void rectangle_collider_subscribe(Entity entity);
-void rectangle_collider_unsubscribe(Entity entity);
-void rectangle_collider_update();
+void polygon_collider_subscribe(Entity entity);
+void polygon_collider_unsubscribe(Entity entity);
+void polygon_collider_update();
 
 
 } // namespace Nito

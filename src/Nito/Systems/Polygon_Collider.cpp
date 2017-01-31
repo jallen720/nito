@@ -1,4 +1,4 @@
-#include "Nito/Systems/Rectangle_Collider.hpp"
+#include "Nito/Systems/Polygon_Collider.hpp"
 
 #include <map>
 #include <string>
@@ -38,11 +38,11 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct Rectangle_Collider_State
+struct Polygon_Collider_State
 {
     Transform * transform;
     const Collider * collider;
-    const Rectangle_Collider * rectangle_collider;
+    const Polygon_Collider * polygon_collider;
 };
 
 
@@ -51,7 +51,7 @@ struct Rectangle_Collider_State
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static map<Entity, Rectangle_Collider_State> entity_states;
+static map<Entity, Polygon_Collider_State> entity_states;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,50 +59,50 @@ static map<Entity, Rectangle_Collider_State> entity_states;
 // Interface
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void rectangle_collider_subscribe(Entity entity)
+void polygon_collider_subscribe(Entity entity)
 {
     auto collider = (Collider *)get_component(entity, "collider");
     auto transform = (Transform *)get_component(entity, "transform");
-    auto rectangle_collider = (Rectangle_Collider *)get_component(entity, "rectangle_collider");
-    Rectangle_Collider_State & rectangle_collider_state = entity_states[entity];
-    rectangle_collider_state.transform = transform;
-    rectangle_collider_state.collider = collider;
-    rectangle_collider_state.rectangle_collider = rectangle_collider;
+    auto polygon_collider = (Polygon_Collider *)get_component(entity, "polygon_collider");
+    Polygon_Collider_State & polygon_collider_state = entity_states[entity];
+    polygon_collider_state.transform = transform;
+    polygon_collider_state.collider = collider;
+    polygon_collider_state.polygon_collider = polygon_collider;
 
-    // load_rectangle_collider_data(
+    // load_polygon_collider_data(
     //     entity,
     //     &collider->collision_handler,
     //     &collider->sends_collision,
     //     &collider->receives_collision,
-    //     &rectangle_collider->width,
-    //     &rectangle_collider->height,
+    //     &polygon_collider->width,
+    //     &polygon_collider->height,
     //     &transform->position);
 }
 
 
-void rectangle_collider_unsubscribe(Entity entity)
+void polygon_collider_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
-    // remove_rectangle_collider_data(entity);
+    // remove_polygon_collider_data(entity);
 }
 
 
-void rectangle_collider_update()
+void polygon_collider_update()
 {
     const float pixels_per_unit = get_pixels_per_unit();
 
-    for_each(entity_states, [=](Entity /*entity*/, Rectangle_Collider_State & entity_state) -> void
+    for_each(entity_states, [=](Entity /*entity*/, Polygon_Collider_State & entity_state) -> void
     {
         const Transform * entity_transform = entity_state.transform;
-        const Rectangle_Collider * entity_rectangle_collider = entity_state.rectangle_collider;
-        const float entity_rectangle_collider_width = entity_rectangle_collider->width;
-        const float entity_rectangle_collider_height = entity_rectangle_collider->height;
+        const Polygon_Collider * entity_polygon_collider = entity_state.polygon_collider;
+        const float entity_polygon_collider_width = entity_polygon_collider->width;
+        const float entity_polygon_collider_height = entity_polygon_collider->height;
 
 
         // Render collider if flagged.
         if (entity_state.collider->render)
         {
-            static const string VERTEX_CONTAINER_ID("rectangle_collider");
+            static const string VERTEX_CONTAINER_ID("line_collider");
             static const vec3 ORIGIN(0.5f, 0.5f, 0.0f);
 
             vec3 position = entity_transform->position;
@@ -117,8 +117,8 @@ void rectangle_collider_update()
                     &VERTEX_CONTAINER_ID,
                     &Collider::UNIFORMS,
                     calculate_model_matrix(
-                        entity_rectangle_collider_width * pixels_per_unit,
-                        entity_rectangle_collider_height * pixels_per_unit,
+                        entity_polygon_collider_width * pixels_per_unit,
+                        entity_polygon_collider_height * pixels_per_unit,
                         ORIGIN,
                         position,
                         entity_transform->scale,

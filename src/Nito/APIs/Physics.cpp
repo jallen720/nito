@@ -51,7 +51,6 @@ struct Line_Collider_Data
     const bool * receives_collision;
     const vec3 * start;
     const vec3 * end;
-    vec3 * position;
 };
 
 
@@ -133,8 +132,7 @@ void load_line_collider_data(
     const bool * sends_collision,
     const bool * receives_collision,
     const vec3 * line_start,
-    const vec3 * line_end,
-    vec3 * position)
+    const vec3 * line_end)
 {
     line_collider_datas[entity] =
     {
@@ -143,7 +141,6 @@ void load_line_collider_data(
         receives_collision,
         line_start,
         line_end,
-        position,
     };
 }
 

@@ -100,6 +100,34 @@ static void trigger_collision_handlers(
 }
 
 
+static vec3 get_intersection(
+    const vec3 & line_a_start,
+    const vec3 & line_a_end,
+    const vec3 & line_b_start,
+    const vec3 & line_b_end)
+{
+    // Source: https://en.wikipedia.org/wiki/Line-line_intersection
+
+    const float x1 = line_a_start.x;
+    const float x2 = line_a_end.x;
+    const float x3 = line_b_start.x;
+    const float x4 = line_b_end.x;
+    const float y1 = line_a_start.y;
+    const float y2 = line_a_end.y;
+    const float y3 = line_b_start.y;
+    const float y4 = line_b_end.y;
+    const float denominator = ((x1 - x2) * (y3 - y4)) - ((y1 - y2) * (x3 - x4));
+
+    const float intersection_x =
+        ((((x1 * y2) - (y1 * x2)) * (x3 - x4)) - ((x1 - x2) * ((x3 * y4) - (y3 * x4)))) / denominator;
+
+    const float intersection_y =
+        ((((x1 * y2) - (y1 * x2)) * (y3 - y4)) - ((y1 - y2) * ((x3 * y4) - (y3 * x4)))) / denominator;
+
+    return vec3(intersection_x, intersection_y, 0.0f);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -295,18 +323,24 @@ void physics_api_update()
                         const float line_start_circle_distance = distance(line_start_2d, circle_position_2d);
                         const float line_end_circle_distance = distance(line_end_2d, circle_position_2d);
 
+                        const vec3 circle_line_normal_intersection = get_intersection(
+                            line_start_2d,
+                            line_end_2d,
+                            circle_position_2d,
+                            circle_position_2d - line_normal);
 
-                        // Line start is inside circle.
+
+                        // Line start is inside circle and off line.
                         if (line_start_circle_distance < circle_radius &&
-                            distance(line_end_2d, circle_position_2d) > line_length)
+                            distance(line_end_2d, circle_line_normal_intersection) > line_length)
                         {
                             collision_corrections[circle_data_position].push_back(
                                 normalize(circle_position_2d - line_start_2d) *
                                 (circle_radius - line_start_circle_distance));
                         }
-                        // Line end is inside circle.
+                        // Line end is inside circle and off line.
                         else if (line_end_circle_distance < circle_radius &&
-                                 distance(line_start_2d, circle_position_2d) > line_length)
+                                 distance(line_start_2d, circle_line_normal_intersection) > line_length)
                         {
                             collision_corrections[circle_data_position].push_back(
                                 normalize(circle_position_2d - line_end_2d) *

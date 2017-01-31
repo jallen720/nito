@@ -89,7 +89,7 @@ struct Circle_Collider
 
 struct Line_Collider
 {
-    glm::vec3 start;
+    glm::vec3 begin;
     glm::vec3 end;
 };
 

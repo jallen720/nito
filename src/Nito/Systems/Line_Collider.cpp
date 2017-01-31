@@ -43,7 +43,7 @@ struct Line_Collider_State
     Transform * transform;
     const Collider * collider;
     const Line_Collider * line_collider;
-    vec3 world_start;
+    vec3 world_begin;
     vec3 world_end;
 };
 
@@ -75,7 +75,7 @@ void line_collider_subscribe(Entity entity)
         &collider->collision_handler,
         &collider->sends_collision,
         &collider->receives_collision,
-        &line_collider_state.world_start,
+        &line_collider_state.world_begin,
         &line_collider_state.world_end);
 }
 
@@ -95,13 +95,13 @@ void line_collider_update()
     {
         const Transform * entity_transform = entity_state.transform;
         const Line_Collider * entity_line_collider = entity_state.line_collider;
-        const vec3 & entity_line_collider_start = entity_line_collider->start;
+        const vec3 & entity_line_collider_begin = entity_line_collider->begin;
         const vec3 & entity_line_collider_end = entity_line_collider->end;
-        vec3 & entity_world_start = entity_state.world_start;
+        vec3 & entity_world_begin = entity_state.world_begin;
 
 
-        // Update world start and end positions for line collider.
-        entity_world_start = get_child_world_position(entity_transform, entity_line_collider_start);
+        // Update world begin and end positions for line collider.
+        entity_world_begin = get_child_world_position(entity_transform, entity_line_collider_begin);
         entity_state.world_end = get_child_world_position(entity_transform, entity_line_collider_end);
 
 
@@ -111,11 +111,11 @@ void line_collider_update()
             static const string VERTEX_CONTAINER_ID("line_collider");
             static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
 
-            vec3 position = entity_world_start;
+            vec3 position = entity_world_begin;
             position.z = -1.0f;
 
             const float rotation =
-                degrees(angle(BASE_ANGLE_VECTOR, normalize(entity_line_collider_end - entity_line_collider_start)));
+                degrees(angle(BASE_ANGLE_VECTOR, normalize(entity_line_collider_end - entity_line_collider_begin)));
 
             load_render_data(
                 {
@@ -126,7 +126,7 @@ void line_collider_update()
                     &VERTEX_CONTAINER_ID,
                     &Collider::UNIFORMS,
                     calculate_model_matrix(
-                        distance(entity_line_collider_start, entity_line_collider_end) * pixels_per_unit,
+                        distance(entity_line_collider_begin, entity_line_collider_end) * pixels_per_unit,
                         pixels_per_unit,
                         Collider::ORIGIN,
                         position,

@@ -407,12 +407,12 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             [](const JSON & data) -> Component
             {
-                const JSON & start_data = data["start"];
+                const JSON & begin_data = data["begin"];
                 const JSON & end_data = data["end"];
 
                 return new Line_Collider
                 {
-                    vec3(start_data["x"], start_data["y"], 0.0f),
+                    vec3(begin_data["x"], begin_data["y"], 0.0f),
                     vec3(end_data["x"], end_data["y"], 0.0f),
                 };
             },

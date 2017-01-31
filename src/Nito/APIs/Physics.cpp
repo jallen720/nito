@@ -49,7 +49,7 @@ struct Line_Collider_Data
     const Collision_Handler * collision_handler;
     const bool * sends_collision;
     const bool * receives_collision;
-    const vec3 * start;
+    const vec3 * begin;
     const vec3 * end;
 };
 
@@ -101,20 +101,20 @@ static void trigger_collision_handlers(
 
 
 static vec3 get_intersection(
-    const vec3 & line_a_start,
+    const vec3 & line_a_begin,
     const vec3 & line_a_end,
-    const vec3 & line_b_start,
+    const vec3 & line_b_begin,
     const vec3 & line_b_end)
 {
     // Source: https://en.wikipedia.org/wiki/Line-line_intersection
 
-    const float x1 = line_a_start.x;
+    const float x1 = line_a_begin.x;
     const float x2 = line_a_end.x;
-    const float x3 = line_b_start.x;
+    const float x3 = line_b_begin.x;
     const float x4 = line_b_end.x;
-    const float y1 = line_a_start.y;
+    const float y1 = line_a_begin.y;
     const float y2 = line_a_end.y;
-    const float y3 = line_b_start.y;
+    const float y3 = line_b_begin.y;
     const float y4 = line_b_end.y;
     const float denominator = ((x1 - x2) * (y3 - y4)) - ((y1 - y2) * (x3 - x4));
 
@@ -159,7 +159,7 @@ void load_line_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
-    const vec3 * line_start,
+    const vec3 * line_begin,
     const vec3 * line_end)
 {
     line_collider_datas[entity] =
@@ -167,7 +167,7 @@ void load_line_collider_data(
         collision_handler,
         sends_collision,
         receives_collision,
-        line_start,
+        line_begin,
         line_end,
     };
 }
@@ -253,29 +253,29 @@ void physics_api_update()
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
-            const vec3 * line_start = line_data.start;
+            const vec3 * line_begin = line_data.begin;
             const vec3 * line_end = line_data.end;
             const bool line_sends_collision = *line_data.sends_collision;
-            const float line_start_x = line_start->x;
-            const float line_start_y = line_start->y;
-            const vec3 line_start_2d(line_start_x, line_start_y, 0.0f);
+            const float line_begin_x = line_begin->x;
+            const float line_begin_y = line_begin->y;
+            const vec3 line_begin_2d(line_begin_x, line_begin_y, 0.0f);
             const float line_end_x = line_end->x;
             const float line_end_y = line_end->y;
             const vec3 line_end_2d(line_end_x, line_end_y, 0.0f);
-            const float line_length = distance(line_start_2d, line_end_2d);
-            const float line_direction_x = line_end_x - line_start_x;
-            const float line_direction_y = line_end_y - line_start_y;
+            const float line_length = distance(line_begin_2d, line_end_2d);
+            const float line_direction_x = line_end_x - line_begin_x;
+            const float line_direction_y = line_end_y - line_begin_y;
             const vec3 line_normal = normalize(vec3(-line_direction_y, line_direction_x, 0.0f));
-            const float line_start_circle_offset_x = line_start_x - circle_position_x;
-            const float line_start_circle_offset_y = line_start_y - circle_position_y;
+            const float line_begin_circle_offset_x = line_begin_x - circle_position_x;
+            const float line_begin_circle_offset_y = line_begin_y - circle_position_y;
             const float A = (line_direction_x * line_direction_x) + (line_direction_y * line_direction_y);
 
             const float B =
-                2 * ((line_direction_x * line_start_circle_offset_x) + (line_direction_y * line_start_circle_offset_y));
+                2 * ((line_direction_x * line_begin_circle_offset_x) + (line_direction_y * line_begin_circle_offset_y));
 
             const float C =
-                (line_start_circle_offset_x * line_start_circle_offset_x) +
-                (line_start_circle_offset_y * line_start_circle_offset_y) -
+                (line_begin_circle_offset_x * line_begin_circle_offset_x) +
+                (line_begin_circle_offset_y * line_begin_circle_offset_y) -
                 (circle_radius * circle_radius);
 
             float discriminant = (B * B) - (4 * A * C);
@@ -320,27 +320,27 @@ void physics_api_update()
                     // Calculate collision corrections if necessary.
                     if (line_sends_collision && circle_receives_collision)
                     {
-                        const float line_start_circle_distance = distance(line_start_2d, circle_position_2d);
+                        const float line_begin_circle_distance = distance(line_begin_2d, circle_position_2d);
                         const float line_end_circle_distance = distance(line_end_2d, circle_position_2d);
 
                         const vec3 circle_line_normal_intersection = get_intersection(
-                            line_start_2d,
+                            line_begin_2d,
                             line_end_2d,
                             circle_position_2d,
                             circle_position_2d - line_normal);
 
 
-                        // Line start is inside circle and off line.
-                        if (line_start_circle_distance < circle_radius &&
+                        // Line begin is inside circle and off line.
+                        if (line_begin_circle_distance < circle_radius &&
                             distance(line_end_2d, circle_line_normal_intersection) > line_length)
                         {
                             collision_corrections[circle_data_position].push_back(
-                                normalize(circle_position_2d - line_start_2d) *
-                                (circle_radius - line_start_circle_distance));
+                                normalize(circle_position_2d - line_begin_2d) *
+                                (circle_radius - line_begin_circle_distance));
                         }
                         // Line end is inside circle and off line.
                         else if (line_end_circle_distance < circle_radius &&
-                                 distance(line_start_2d, circle_line_normal_intersection) > line_length)
+                                 distance(line_begin_2d, circle_line_normal_intersection) > line_length)
                         {
                             collision_corrections[circle_data_position].push_back(
                                 normalize(circle_position_2d - line_end_2d) *
@@ -350,10 +350,10 @@ void physics_api_update()
                         else
                         {
                             const float x0 = circle_position_x;
-                            const float x1 = line_start_x;
+                            const float x1 = line_begin_x;
                             const float x2 = line_end_x;
                             const float y0 = circle_position_y;
-                            const float y1 = line_start_y;
+                            const float y1 = line_begin_y;
                             const float y2 = line_end_y;
                             const float xd = line_direction_x;
                             const float yd = line_direction_y;
@@ -383,13 +383,13 @@ void physics_api_update()
     {
         const Entity line_entity = lines_iterator->first;
         const Line_Collider_Data & line_data = lines_iterator->second;
-        const vec3 * line_start = line_data.start;
+        const vec3 * line_begin = line_data.begin;
         const vec3 * line_end = line_data.end;
-        const float line_start_x = line_start->x;
-        const float line_start_y = line_start->y;
+        const float line_begin_x = line_begin->x;
+        const float line_begin_y = line_begin->y;
         const float line_end_x = line_end->x;
         const float line_end_y = line_end->y;
-        const vec3 r(line_end_x - line_start_x, line_end_y - line_start_y, 0.0f);
+        const vec3 r(line_end_x - line_begin_x, line_end_y - line_begin_y, 0.0f);
         map<Entity, const Collision_Handler *> collisions;
 
 
@@ -399,14 +399,14 @@ void physics_api_update()
             const Line_Collider_Data & line_b_data) -> void
         {
             const Collision_Handler * line_b_collision_handler = line_b_data.collision_handler;
-            const vec3 * line_b_start = line_b_data.start;
+            const vec3 * line_b_begin = line_b_data.begin;
             const vec3 * line_b_end = line_b_data.end;
-            const float line_b_start_x = line_b_start->x;
-            const float line_b_start_y = line_b_start->y;
-            const float line_starts_offset_x = line_b_start_x - line_start_x;
-            const float line_starts_offset_y = line_b_start_y - line_start_y;
-            const vec3 CmP(line_starts_offset_x, line_starts_offset_y, 0.0f);
-            const vec3 s(line_b_end->x - line_b_start_x, line_b_end->y - line_b_start_y, 0.0f);
+            const float line_b_begin_x = line_b_begin->x;
+            const float line_b_begin_y = line_b_begin->y;
+            const float line_begins_offset_x = line_b_begin_x - line_begin_x;
+            const float line_begins_offset_y = line_b_begin_y - line_begin_y;
+            const vec3 CmP(line_begins_offset_x, line_begins_offset_y, 0.0f);
+            const vec3 s(line_b_end->x - line_b_begin_x, line_b_end->y - line_b_begin_y, 0.0f);
             const float CmPxr = (CmP.x * r.y) - (CmP.y * r.x);
             const float CmPxs = (CmP.x * s.y) - (CmP.y * s.x);
             const float rxs = (r.x * s.y) - (r.y * s.x);
@@ -415,8 +415,8 @@ void physics_api_update()
             {
                 // Lines are collinear, and so intersect if they have any overlap.
 
-                if ((line_starts_offset_x < 0.0f) != (line_b_start_x - line_end_x < 0.0f) ||
-                    (line_starts_offset_y < 0.0f) != (line_b_start_y - line_end_y < 0.0f))
+                if ((line_begins_offset_x < 0.0f) != (line_b_begin_x - line_end_x < 0.0f) ||
+                    (line_begins_offset_y < 0.0f) != (line_b_begin_y - line_end_y < 0.0f))
                 {
                     collisions[line_b_entity] = line_b_collision_handler;
                 }

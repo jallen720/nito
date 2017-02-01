@@ -1,14 +1,21 @@
 #include "Nito/Utilities.hpp"
 
+#include <string>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
+#include "Nito/Collider_Component.hpp"
 #include "Nito/APIs/Graphics.hpp"
 
+
+using std::string;
 
 // glm/glm.hpp
 using glm::mat4;
 using glm::vec3;
+using glm::distance;
+using glm::degrees;
+using glm::normalize;
 
 // glm/gtc/matrix_transform.hpp
 using glm::translate;
@@ -89,6 +96,37 @@ float angle(const vec3 & vector_a, const vec3 & vector_b)
     return atan2(
         (vector_a.x * vector_b.y) - (vector_a.y * vector_b.x),
         (vector_a.x * vector_b.x) + (vector_a.y * vector_b.y));
+}
+
+
+void draw_line_collider(const vec3 & line_begin, const vec3 & line_end, const vec3 & scale)
+{
+    static const string VERTEX_CONTAINER_ID("line_collider");
+    static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
+
+    const float pixels_per_unit = get_pixels_per_unit();
+    vec3 position = line_begin;
+    position.z = -1.0f;
+
+    const float line_orientation =
+        degrees(angle(BASE_ANGLE_VECTOR, normalize(line_end - line_begin)));
+
+    load_render_data(
+        {
+            Render_Modes::LINES,
+            &Collider::LAYER_NAME,
+            nullptr,
+            &Collider::SHADER_PIPELINE_NAME,
+            &VERTEX_CONTAINER_ID,
+            &Collider::UNIFORMS,
+            calculate_model_matrix(
+                distance(line_begin, line_end) * pixels_per_unit,
+                pixels_per_unit,
+                Collider::ORIGIN,
+                position,
+                scale,
+                line_orientation)
+        });
 }
 
 

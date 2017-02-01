@@ -7,9 +7,8 @@
 #include "Cpp_Utils/Collection.hpp"
 
 #include "Nito/Components.hpp"
-#include "Nito/Utilities.hpp"
 #include "Nito/Collider_Component.hpp"
-#include "Nito/APIs/Graphics.hpp"
+#include "Nito/Utilities.hpp"
 #include "Nito/APIs/Physics.hpp"
 
 
@@ -17,9 +16,6 @@ using std::map;
 using std::string;
 
 // glm/glm.hpp
-using glm::distance;
-using glm::degrees;
-using glm::normalize;
 using glm::vec3;
 
 // Cpp_Utils/Map.hpp
@@ -89,50 +85,23 @@ void line_collider_unsubscribe(Entity entity)
 
 void line_collider_update()
 {
-    const float pixels_per_unit = get_pixels_per_unit();
-
     for_each(entity_states, [=](Entity /*entity*/, Line_Collider_State & entity_state) -> void
     {
         const Transform * entity_transform = entity_state.transform;
         const Line_Collider * entity_line_collider = entity_state.line_collider;
-        const vec3 & entity_line_collider_begin = entity_line_collider->begin;
-        const vec3 & entity_line_collider_end = entity_line_collider->end;
         vec3 & entity_world_begin = entity_state.world_begin;
+        vec3 & entity_world_end = entity_state.world_end;
 
 
         // Update world begin and end positions for line collider.
-        entity_world_begin = get_child_world_position(entity_transform, entity_line_collider_begin);
-        entity_state.world_end = get_child_world_position(entity_transform, entity_line_collider_end);
+        entity_world_begin = get_child_world_position(entity_transform, entity_line_collider->begin);
+        entity_world_end = get_child_world_position(entity_transform, entity_line_collider->end);
 
 
         // Render collider if flagged.
         if (entity_state.collider->render)
         {
-            static const string VERTEX_CONTAINER_ID("line_collider");
-            static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
-
-            vec3 position = entity_world_begin;
-            position.z = -1.0f;
-
-            const float rotation =
-                degrees(angle(BASE_ANGLE_VECTOR, normalize(entity_line_collider_end - entity_line_collider_begin)));
-
-            load_render_data(
-                {
-                    Render_Modes::LINES,
-                    &Collider::LAYER_NAME,
-                    nullptr,
-                    &Collider::SHADER_PIPELINE_NAME,
-                    &VERTEX_CONTAINER_ID,
-                    &Collider::UNIFORMS,
-                    calculate_model_matrix(
-                        distance(entity_line_collider_begin, entity_line_collider_end) * pixels_per_unit,
-                        pixels_per_unit,
-                        Collider::ORIGIN,
-                        position,
-                        entity_transform->scale,
-                        entity_transform->rotation + rotation)
-                });
+            draw_line_collider(entity_world_begin, entity_world_end, entity_transform->scale);
         }
     });
 }

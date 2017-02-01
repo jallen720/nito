@@ -424,11 +424,16 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             [](const JSON & data) -> Component
             {
-                return new Polygon_Collider
+                auto polygon_collider = new Polygon_Collider;
+                vector<vec3> & points = polygon_collider->points;
+                polygon_collider->wrap = contains_key(data, "wrap") ? data["wrap"].get<bool>() : false;
+
+                for (const JSON & point_data : data["points"])
                 {
-                    data["width"],
-                    data["height"],
-                };
+                    points.emplace_back(point_data["x"], point_data["y"], 0.0f);
+                }
+
+                return polygon_collider;
             },
             get_component_deallocator<Polygon_Collider>(),
         }

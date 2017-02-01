@@ -96,8 +96,8 @@ struct Line_Collider
 
 struct Polygon_Collider
 {
-    float width;
-    float height;
+    std::vector<glm::vec3> points;
+    bool wrap;
 };
 
 

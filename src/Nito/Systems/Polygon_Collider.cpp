@@ -85,21 +85,21 @@ void polygon_collider_subscribe(Entity entity)
     }
 
 
-    // load_polygon_collider_data(
-    //     entity,
-    //     &collider->collision_handler,
-    //     &collider->sends_collision,
-    //     &collider->receives_collision,
-    //     &polygon_collider->width,
-    //     &polygon_collider->height,
-    //     &transform->position);
+    load_polygon_collider_data(
+        entity,
+        &collider->collision_handler,
+        &collider->sends_collision,
+        &collider->receives_collision,
+        &line_begins,
+        &line_ends,
+        &transform->position);
 }
 
 
 void polygon_collider_unsubscribe(Entity entity)
 {
     remove(entity_states, entity);
-    // remove_polygon_collider_data(entity);
+    remove_polygon_collider_data(entity);
 }
 
 

@@ -54,8 +54,20 @@ struct Line_Collider_Data
 };
 
 
+struct Polygon_Collider_Data
+{
+    const Collision_Handler * collision_handler;
+    const bool * sends_collision;
+    const bool * receives_collision;
+    const vector<vec3> * begins;
+    const vector<vec3> * ends;
+    vec3 * position;
+};
+
+
 using Circle_Collider_Data_Iterator = map<Entity, Circle_Collider_Data>::const_iterator;
 using Line_Collider_Data_Iterator = map<Entity, Line_Collider_Data>::const_iterator;
+using Polygon_Collider_Data_Iterator = map<Entity, Polygon_Collider_Data>::const_iterator;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +77,7 @@ using Line_Collider_Data_Iterator = map<Entity, Line_Collider_Data>::const_itera
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static map<Entity, Circle_Collider_Data> circle_collider_datas;
 static map<Entity, Line_Collider_Data> line_collider_datas;
+static map<Entity, Polygon_Collider_Data> polygon_collider_datas;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,6 +316,27 @@ void load_line_collider_data(
 }
 
 
+void load_polygon_collider_data(
+    Entity entity,
+    const Collision_Handler * collision_handler,
+    const bool * sends_collision,
+    const bool * receives_collision,
+    const vector<vec3> * line_begins,
+    const vector<vec3> * line_ends,
+    vec3 * position)
+{
+    polygon_collider_datas[entity] =
+    {
+        collision_handler,
+        sends_collision,
+        receives_collision,
+        line_begins,
+        line_ends,
+        position,
+    };
+}
+
+
 void remove_circle_collider_data(Entity entity)
 {
     remove(circle_collider_datas, entity);
@@ -312,6 +346,12 @@ void remove_circle_collider_data(Entity entity)
 void remove_line_collider_data(Entity entity)
 {
     remove(line_collider_datas, entity);
+}
+
+
+void remove_polygon_collider_data(Entity entity)
+{
+    remove(polygon_collider_datas, entity);
 }
 
 
@@ -395,6 +435,38 @@ void physics_api_update()
                     collision_corrections[circle_data_position]))
             {
                 collisions[line_entity] = line_data.collision_handler;
+            }
+        });
+
+
+        // Check for collisions with polygon colliders.
+        for_each(polygon_collider_datas, [&](Entity polygon_entity, Polygon_Collider_Data & polygon_data) -> void
+        {
+            const vector<vec3> * begins = polygon_data.begins;
+            const vector<vec3> * ends = polygon_data.ends;
+            const int line_count = begins->size();
+            bool collision_detected = false;
+
+            for (int i = 0; i < line_count; i++)
+            {
+                if (check_line_circle_collision(
+                        &(*begins)[i],
+                        &(*ends)[i],
+                        circle_position_2d,
+                        circle_position_x,
+                        circle_position_y,
+                        circle_radius,
+                        *polygon_data.sends_collision,
+                        circle_receives_collision,
+                        collision_corrections[circle_data_position]))
+                {
+                    collision_detected = true;
+                }
+            }
+
+            if (collision_detected)
+            {
+                collisions[polygon_entity] = polygon_data.collision_handler;
             }
         });
 

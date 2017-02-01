@@ -82,7 +82,7 @@ static void trigger_collision_handlers(
     {
         for_each(collisions, [&](
             Entity collision_entity,
-            const Collision_Handler * /*collision_entity_collider*/) -> void
+            const Collision_Handler * /*collision_entity_handler*/) -> void
         {
             (*collider_entity_handler)(collision_entity);
         });

@@ -128,6 +128,136 @@ static vec3 get_intersection(
 }
 
 
+static bool check_line_circle_collision(
+    const vec3 * line_begin,
+    const vec3 * line_end,
+    const vec3 & circle_position_2d,
+    float circle_position_x,
+    float circle_position_y,
+    float circle_radius,
+    bool line_sends_collision,
+    bool circle_receives_collision,
+    vector<vec3> & circle_collision_corrections)
+{
+    const float line_begin_x = line_begin->x;
+    const float line_begin_y = line_begin->y;
+    const vec3 line_begin_2d(line_begin_x, line_begin_y, 0.0f);
+    const float line_end_x = line_end->x;
+    const float line_end_y = line_end->y;
+    const vec3 line_end_2d(line_end_x, line_end_y, 0.0f);
+    const float line_length = distance(line_begin_2d, line_end_2d);
+    const float line_direction_x = line_end_x - line_begin_x;
+    const float line_direction_y = line_end_y - line_begin_y;
+    const vec3 line_normal = normalize(vec3(-line_direction_y, line_direction_x, 0.0f));
+    const float line_begin_circle_offset_x = line_begin_x - circle_position_x;
+    const float line_begin_circle_offset_y = line_begin_y - circle_position_y;
+    const float A = (line_direction_x * line_direction_x) + (line_direction_y * line_direction_y);
+
+    const float B =
+        2 * ((line_direction_x * line_begin_circle_offset_x) + (line_direction_y * line_begin_circle_offset_y));
+
+    const float C =
+        (line_begin_circle_offset_x * line_begin_circle_offset_x) +
+        (line_begin_circle_offset_y * line_begin_circle_offset_y) -
+        (circle_radius * circle_radius);
+
+    float discriminant = (B * B) - (4 * A * C);
+
+    if (discriminant < 0)
+    {
+        // No intersection
+    }
+    else
+    {
+        // Ray didn't totally miss sphere, so there is a solution to the equation.
+
+        discriminant = sqrtf(discriminant);
+        const float intersection_a = (-B - discriminant) / (2 * A);
+        const float intersection_b = (-B + discriminant) / (2 * A);
+
+
+        // 3 HIT cases:
+        //     --|-----|-->
+        //     --|-->  |
+        //       |   --|-->
+
+        // 3 MISS cases:
+        // --> |     |
+        //     |     | -->
+        //     | --> |
+        const bool is_collision =
+            // intersection_a is the intersection, and it's closer than intersection_b (since intersection_a
+            // uses -B - discriminant).
+            (intersection_a >= 0.0f && intersection_a <= 1.0f) ||
+
+            // Here intersection_a didn't intersect so we are either started inside the sphere or completely
+            // past it.
+            (intersection_b >= 0.0f && intersection_b <= 1.0f);
+
+
+        if (is_collision)
+        {
+            // Calculate collision corrections if necessary.
+            if (line_sends_collision && circle_receives_collision)
+            {
+                const float line_begin_circle_distance = distance(line_begin_2d, circle_position_2d);
+                const float line_end_circle_distance = distance(line_end_2d, circle_position_2d);
+
+                const vec3 circle_line_normal_intersection = get_intersection(
+                    line_begin_2d,
+                    line_end_2d,
+                    circle_position_2d,
+                    circle_position_2d - line_normal);
+
+
+                // Line begin is inside circle and off line.
+                if (line_begin_circle_distance < circle_radius &&
+                    distance(line_end_2d, circle_line_normal_intersection) > line_length)
+                {
+                    circle_collision_corrections.push_back(
+                        normalize(circle_position_2d - line_begin_2d) *
+                        (circle_radius - line_begin_circle_distance));
+                }
+                // Line end is inside circle and off line.
+                else if (line_end_circle_distance < circle_radius &&
+                         distance(line_begin_2d, circle_line_normal_intersection) > line_length)
+                {
+                    circle_collision_corrections.push_back(
+                        normalize(circle_position_2d - line_end_2d) *
+                        (circle_radius - line_end_circle_distance));
+                }
+                // Line passes through circle.
+                else
+                {
+                    const float x0 = circle_position_x;
+                    const float x1 = line_begin_x;
+                    const float x2 = line_end_x;
+                    const float y0 = circle_position_y;
+                    const float y1 = line_begin_y;
+                    const float y2 = line_end_y;
+                    const float xd = line_direction_x;
+                    const float yd = line_direction_y;
+
+
+                    // Source: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+                    const float circle_line_normal_distance =
+                        fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1)) /
+                        sqrtf((yd * yd) + (xd * xd));
+
+
+                    const float correction_distance = circle_radius - circle_line_normal_distance;
+                    circle_collision_corrections.push_back(correction_distance * line_normal);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -253,123 +383,18 @@ void physics_api_update()
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
-            const vec3 * line_begin = line_data.begin;
-            const vec3 * line_end = line_data.end;
-            const bool line_sends_collision = *line_data.sends_collision;
-            const float line_begin_x = line_begin->x;
-            const float line_begin_y = line_begin->y;
-            const vec3 line_begin_2d(line_begin_x, line_begin_y, 0.0f);
-            const float line_end_x = line_end->x;
-            const float line_end_y = line_end->y;
-            const vec3 line_end_2d(line_end_x, line_end_y, 0.0f);
-            const float line_length = distance(line_begin_2d, line_end_2d);
-            const float line_direction_x = line_end_x - line_begin_x;
-            const float line_direction_y = line_end_y - line_begin_y;
-            const vec3 line_normal = normalize(vec3(-line_direction_y, line_direction_x, 0.0f));
-            const float line_begin_circle_offset_x = line_begin_x - circle_position_x;
-            const float line_begin_circle_offset_y = line_begin_y - circle_position_y;
-            const float A = (line_direction_x * line_direction_x) + (line_direction_y * line_direction_y);
-
-            const float B =
-                2 * ((line_direction_x * line_begin_circle_offset_x) + (line_direction_y * line_begin_circle_offset_y));
-
-            const float C =
-                (line_begin_circle_offset_x * line_begin_circle_offset_x) +
-                (line_begin_circle_offset_y * line_begin_circle_offset_y) -
-                (circle_radius * circle_radius);
-
-            float discriminant = (B * B) - (4 * A * C);
-
-            if (discriminant < 0)
+            if (check_line_circle_collision(
+                    line_data.begin,
+                    line_data.end,
+                    circle_position_2d,
+                    circle_position_x,
+                    circle_position_y,
+                    circle_radius,
+                    *line_data.sends_collision,
+                    circle_receives_collision,
+                    collision_corrections[circle_data_position]))
             {
-                // No intersection
-            }
-            else
-            {
-                // Ray didn't totally miss sphere, so there is a solution to the equation.
-
-                discriminant = sqrtf(discriminant);
-                const float intersection_a = (-B - discriminant) / (2 * A);
-                const float intersection_b = (-B + discriminant) / (2 * A);
-
-
-                // 3 HIT cases:
-                //     --|-----|-->
-                //     --|-->  |
-                //       |   --|-->
-
-                // 3 MISS cases:
-                // --> |     |
-                //     |     | -->
-                //     | --> |
-                const bool is_collision =
-                    // intersection_a is the intersection, and it's closer than intersection_b (since intersection_a
-                    // uses -B - discriminant).
-                    (intersection_a >= 0.0f && intersection_a <= 1.0f) ||
-
-                    // Here intersection_a didn't intersect so we are either started inside the sphere or completely
-                    // past it.
-                    (intersection_b >= 0.0f && intersection_b <= 1.0f);
-
-
-                if (is_collision)
-                {
-                    collisions[line_entity] = line_data.collision_handler;
-
-
-                    // Calculate collision corrections if necessary.
-                    if (line_sends_collision && circle_receives_collision)
-                    {
-                        const float line_begin_circle_distance = distance(line_begin_2d, circle_position_2d);
-                        const float line_end_circle_distance = distance(line_end_2d, circle_position_2d);
-
-                        const vec3 circle_line_normal_intersection = get_intersection(
-                            line_begin_2d,
-                            line_end_2d,
-                            circle_position_2d,
-                            circle_position_2d - line_normal);
-
-
-                        // Line begin is inside circle and off line.
-                        if (line_begin_circle_distance < circle_radius &&
-                            distance(line_end_2d, circle_line_normal_intersection) > line_length)
-                        {
-                            collision_corrections[circle_data_position].push_back(
-                                normalize(circle_position_2d - line_begin_2d) *
-                                (circle_radius - line_begin_circle_distance));
-                        }
-                        // Line end is inside circle and off line.
-                        else if (line_end_circle_distance < circle_radius &&
-                                 distance(line_begin_2d, circle_line_normal_intersection) > line_length)
-                        {
-                            collision_corrections[circle_data_position].push_back(
-                                normalize(circle_position_2d - line_end_2d) *
-                                (circle_radius - line_end_circle_distance));
-                        }
-                        // Line passes through circle.
-                        else
-                        {
-                            const float x0 = circle_position_x;
-                            const float x1 = line_begin_x;
-                            const float x2 = line_end_x;
-                            const float y0 = circle_position_y;
-                            const float y1 = line_begin_y;
-                            const float y2 = line_end_y;
-                            const float xd = line_direction_x;
-                            const float yd = line_direction_y;
-
-
-                            // Source: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-                            const float circle_line_normal_distance =
-                                fabsf(((y2 - y1) * x0) - ((x2 - x1) * y0) + (x2 * y1) - (y2 * x1)) /
-                                sqrtf((yd * yd) + (xd * xd));
-
-
-                            const float correction_distance = circle_radius - circle_line_normal_distance;
-                            collision_corrections[circle_data_position].push_back(correction_distance * line_normal);
-                        }
-                    }
-                }
+                collisions[line_entity] = line_data.collision_handler;
             }
         });
 

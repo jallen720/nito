@@ -144,13 +144,14 @@ static vec3 get_intersection(
 static bool check_line_circle_collision(
     const vec3 * line_begin,
     const vec3 * line_end,
+    vec3 * circle_data_position,
     const vec3 & circle_position_2d,
     float circle_position_x,
     float circle_position_y,
     float circle_radius,
     bool line_sends_collision,
     bool circle_receives_collision,
-    vector<vec3> & circle_collision_corrections)
+    map<vec3 *, vector<vec3>> & collision_corrections)
 {
     const float line_begin_x = line_begin->x;
     const float line_begin_y = line_begin->y;
@@ -227,7 +228,7 @@ static bool check_line_circle_collision(
                 if (line_begin_circle_distance < circle_radius &&
                     distance(line_end_2d, circle_line_normal_intersection) > line_length)
                 {
-                    circle_collision_corrections.push_back(
+                    collision_corrections[circle_data_position].push_back(
                         normalize(circle_position_2d - line_begin_2d) *
                         (circle_radius - line_begin_circle_distance));
                 }
@@ -235,7 +236,7 @@ static bool check_line_circle_collision(
                 else if (line_end_circle_distance < circle_radius &&
                          distance(line_begin_2d, circle_line_normal_intersection) > line_length)
                 {
-                    circle_collision_corrections.push_back(
+                    collision_corrections[circle_data_position].push_back(
                         normalize(circle_position_2d - line_end_2d) *
                         (circle_radius - line_end_circle_distance));
                 }
@@ -259,7 +260,7 @@ static bool check_line_circle_collision(
 
 
                     const float correction_distance = circle_radius - circle_line_normal_distance;
-                    circle_collision_corrections.push_back(correction_distance * line_normal);
+                    collision_corrections[circle_data_position].push_back(correction_distance * line_normal);
                 }
             }
 
@@ -426,13 +427,14 @@ void physics_api_update()
             if (check_line_circle_collision(
                     line_data.begin,
                     line_data.end,
+                    circle_data_position,
                     circle_position_2d,
                     circle_position_x,
                     circle_position_y,
                     circle_radius,
                     *line_data.sends_collision,
                     circle_receives_collision,
-                    collision_corrections[circle_data_position]))
+                    collision_corrections))
             {
                 collisions[line_entity] = line_data.collision_handler;
             }
@@ -452,13 +454,14 @@ void physics_api_update()
                 if (check_line_circle_collision(
                         &(*begins)[i],
                         &(*ends)[i],
+                        circle_data_position,
                         circle_position_2d,
                         circle_position_x,
                         circle_position_y,
                         circle_radius,
                         *polygon_data.sends_collision,
                         circle_receives_collision,
-                        collision_corrections[circle_data_position]))
+                        collision_corrections))
                 {
                     collision_detected = true;
                 }

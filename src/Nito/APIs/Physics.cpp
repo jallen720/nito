@@ -272,91 +272,7 @@ static bool check_line_circle_collision(
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Interface
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void load_circle_collider_data(
-    Entity entity,
-    const Collision_Handler * collision_handler,
-    const bool * sends_collision,
-    const bool * receives_collision,
-    const float * radius,
-    vec3 * position,
-    const vec3 * scale)
-{
-    circle_collider_datas[entity] =
-    {
-        collision_handler,
-        sends_collision,
-        receives_collision,
-        radius,
-        scale,
-        position,
-    };
-}
-
-
-void load_line_collider_data(
-    Entity entity,
-    const Collision_Handler * collision_handler,
-    const bool * sends_collision,
-    const bool * receives_collision,
-    const vec3 * line_begin,
-    const vec3 * line_end)
-{
-    line_collider_datas[entity] =
-    {
-        collision_handler,
-        sends_collision,
-        receives_collision,
-        line_begin,
-        line_end,
-    };
-}
-
-
-void load_polygon_collider_data(
-    Entity entity,
-    const Collision_Handler * collision_handler,
-    const bool * sends_collision,
-    const bool * receives_collision,
-    const vector<vec3> * line_begins,
-    const vector<vec3> * line_ends,
-    vec3 * position)
-{
-    polygon_collider_datas[entity] =
-    {
-        collision_handler,
-        sends_collision,
-        receives_collision,
-        line_begins,
-        line_ends,
-        position,
-    };
-}
-
-
-void remove_circle_collider_data(Entity entity)
-{
-    remove(circle_collider_datas, entity);
-}
-
-
-void remove_line_collider_data(Entity entity)
-{
-    remove(line_collider_datas, entity);
-}
-
-
-void remove_polygon_collider_data(Entity entity)
-{
-    remove(polygon_collider_datas, entity);
-}
-
-
-void physics_api_update()
+static void check_collisions(bool first_pass, int pass_count)
 {
     Circle_Collider_Data_Iterator circles_iterator = circle_collider_datas.begin();
     Line_Collider_Data_Iterator lines_iterator = line_collider_datas.begin();
@@ -540,12 +456,15 @@ void physics_api_update()
         });
 
 
-        trigger_collision_handlers(line_entity, line_data.collision_handler, collisions);
+        if (first_pass)
+        {
+            trigger_collision_handlers(line_entity, line_data.collision_handler, collisions);
+        }
     }
 
 
     // Resolve collisions.
-    for_each(collision_corrections, [](vec3 * position, const vector<vec3> & corrections) -> void
+    for_each(collision_corrections, [=](vec3 * position, const vector<vec3> & corrections) -> void
     {
         vec3 final_correction;
 
@@ -562,8 +481,103 @@ void physics_api_update()
             }
         }
 
-        (*position) += final_correction;
+        (*position) += final_correction / (float)pass_count;
     });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Interface
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void load_circle_collider_data(
+    Entity entity,
+    const Collision_Handler * collision_handler,
+    const bool * sends_collision,
+    const bool * receives_collision,
+    const float * radius,
+    vec3 * position,
+    const vec3 * scale)
+{
+    circle_collider_datas[entity] =
+    {
+        collision_handler,
+        sends_collision,
+        receives_collision,
+        radius,
+        scale,
+        position,
+    };
+}
+
+
+void load_line_collider_data(
+    Entity entity,
+    const Collision_Handler * collision_handler,
+    const bool * sends_collision,
+    const bool * receives_collision,
+    const vec3 * line_begin,
+    const vec3 * line_end)
+{
+    line_collider_datas[entity] =
+    {
+        collision_handler,
+        sends_collision,
+        receives_collision,
+        line_begin,
+        line_end,
+    };
+}
+
+
+void load_polygon_collider_data(
+    Entity entity,
+    const Collision_Handler * collision_handler,
+    const bool * sends_collision,
+    const bool * receives_collision,
+    const vector<vec3> * line_begins,
+    const vector<vec3> * line_ends,
+    vec3 * position)
+{
+    polygon_collider_datas[entity] =
+    {
+        collision_handler,
+        sends_collision,
+        receives_collision,
+        line_begins,
+        line_ends,
+        position,
+    };
+}
+
+
+void remove_circle_collider_data(Entity entity)
+{
+    remove(circle_collider_datas, entity);
+}
+
+
+void remove_line_collider_data(Entity entity)
+{
+    remove(line_collider_datas, entity);
+}
+
+
+void remove_polygon_collider_data(Entity entity)
+{
+    remove(polygon_collider_datas, entity);
+}
+
+
+void physics_api_update()
+{
+    static const int PASS_COUNT = 2;
+
+    for (int i = 0; i < PASS_COUNT; i++)
+    {
+        check_collisions(i == 0, PASS_COUNT);
+    }
 }
 
 

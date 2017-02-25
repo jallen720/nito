@@ -225,8 +225,16 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
         {
             [](const JSON & data) -> Component
             {
+                bool render = true;
+
+                if (contains_key(data, "render"))
+                {
+                    render = data["render"];
+                }
+
                 return new Sprite
                 {
+                    render,
                     data["texture_path"],
                     data["shader_pipeline_name"],
                 };

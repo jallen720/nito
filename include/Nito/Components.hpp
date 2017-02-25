@@ -49,6 +49,7 @@ struct Dimensions
 
 struct Sprite
 {
+    bool render;
     std::string texture_path;
     std::string shader_pipeline_name;
 };

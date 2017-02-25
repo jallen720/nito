@@ -74,6 +74,12 @@ void renderer_update()
     for_each(entity_states, [](Entity /*entity*/, Renderer_State & entity_state) -> void
     {
         const Sprite * entity_sprite = entity_state.sprite;
+
+        if (!entity_sprite->render)
+        {
+            return;
+        }
+
         const Transform * entity_transform = entity_state.transform;
         const Dimensions * entity_dimensions = entity_state.dimensions;
 

@@ -80,7 +80,7 @@ static void load_scene(const string & name)
 
 
     // Delete any existing entity data before loading entity data from scene.
-    delete_entity_data();
+    delete_all_entities();
 
 
     // Load entities.

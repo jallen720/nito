@@ -49,7 +49,7 @@ void unsubscribe_from_system(Entity entity, const std::string & system_name);
 Entity get_entity(const std::string & id);
 void flag_entity_for_deletion(Entity entity);
 void delete_flagged_entities();
-void delete_entity_data();
+void delete_all_entities();
 
 
 } // namespace Nito

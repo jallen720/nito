@@ -295,6 +295,11 @@ void delete_all_entities()
         delete_entity(entities.back());
     }
 
+
+    // All entities are deleted so any entities that were still flagged for deletion no longer need to be handled.
+    entities_to_delete.clear();
+
+
     unused_entities.clear();
     entity_components.clear();
     entity_subscriptions.clear();

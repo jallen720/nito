@@ -112,7 +112,6 @@ void polygon_collider_update()
         vector<vec3> & line_begins = entity_state.line_begins;
         vector<vec3> & line_ends = entity_state.line_ends;
         const vector<vec3> & points = entity_polygon_collider->points;
-        // const bool wrap = entity_polygon_collider->wrap;
         const int line_count = line_begins.size();
         const int point_count = points.size();
 

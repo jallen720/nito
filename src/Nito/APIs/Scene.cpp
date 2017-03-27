@@ -71,6 +71,77 @@ static string get_system_requirement_message(
 }
 
 
+static void add_components(Entity entity, const JSON & entity_data, vector<string> & entity_component_list)
+{
+    // Defining components for an entity is optional.
+    if (!contains_key(entity_data, "components"))
+    {
+        return;
+    }
+
+
+    for_each(entity_data["components"], [&](const string & component_name, const JSON & data) -> void
+    {
+        add_component(entity, component_name, data);
+        entity_component_list.push_back(component_name);
+    });
+}
+
+
+static void subscribe_to_systems(Entity entity, const JSON & entity_data, const vector<string> & entity_component_list)
+{
+    vector<string> entity_systems;
+
+
+    // Defining systems for an entity is optional.
+    if (contains_key(entity_data, "systems"))
+    {
+        entity_systems = entity_data["systems"].get<vector<string>>();
+    }
+
+
+    // Populate entity_systems with systems required by entity's components.
+    for (const string & component_name : entity_component_list)
+    {
+        // Defining systems required by a component is optional, so make sure requirements are defined before
+        // checking them.
+        if (contains_key(component_requirements, component_name))
+        {
+            for (const string & component_required_system : component_requirements[component_name])
+            {
+                if (!contains(entity_systems, component_required_system))
+                {
+                    entity_systems.push_back(component_required_system);
+                }
+            }
+        }
+    }
+
+
+    // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
+    for (const string & system_name : entity_systems)
+    {
+        // Defining components required by a system is optional, so make sure requirements are defined before
+        // checking them.
+        if (contains_key(system_requirements, system_name))
+        {
+            for (const string & required_component : system_requirements[system_name])
+            {
+                if (!has_component(entity, required_component))
+                {
+                    throw runtime_error(
+                        get_system_requirement_message(entity, system_name, required_component, "component"));
+                }
+            }
+        }
+
+
+        // If entity meets all system and component requirements for this system, subscribe entity to it.
+        subscribe_to_system(entity, system_name);
+    }
+}
+
+
 static void load_scene(const string & name)
 {
     if (!scene_exists(name))
@@ -98,22 +169,7 @@ static void load_scene(const string & name)
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
-        vector<string> & entity_component_list = entity_component_lists[entity];
-        const JSON & entity_data = scene_data[i];
-
-
-        // Defining components for an entity is optional.
-        if (!contains_key(entity_data, "components"))
-        {
-            continue;
-        }
-
-
-        for_each(entity_data["components"], [&](const string & component_name, const JSON & data) -> void
-        {
-            add_component(entities[i], component_name, data);
-            entity_component_list.push_back(component_name);
-        });
+        add_components(entity, scene_data[i], entity_component_lists[entity]);
     }
 
 
@@ -121,56 +177,7 @@ static void load_scene(const string & name)
     for (auto i = 0u; i < entities.size(); i++)
     {
         const Entity entity = entities[i];
-        const JSON & entity_data = scene_data[i];
-        vector<string> entity_systems;
-
-
-        // Defining systems for an entity is optional.
-        if (contains_key(entity_data, "systems"))
-        {
-            entity_systems = entity_data["systems"].get<vector<string>>();
-        }
-
-
-        // Populate entity_systems with systems required by entity's components.
-        for (const string & component_name : entity_component_lists.at(entity))
-        {
-            // Defining systems required by a component is optional, so make sure requirements are defined before
-            // checking them.
-            if (contains_key(component_requirements, component_name))
-            {
-                for (const string & component_required_system : component_requirements[component_name])
-                {
-                    if (!contains(entity_systems, component_required_system))
-                    {
-                        entity_systems.push_back(component_required_system);
-                    }
-                }
-            }
-        }
-
-
-        // Validate all system and component requirements are met for all entity systems, then subscribe entity to them.
-        for (const string & system_name : entity_systems)
-        {
-            // Defining components required by a system is optional, so make sure requirements are defined before
-            // checking them.
-            if (contains_key(system_requirements, system_name))
-            {
-                for (const string & required_component : system_requirements[system_name])
-                {
-                    if (!has_component(entity, required_component))
-                    {
-                        throw runtime_error(
-                            get_system_requirement_message(entity, system_name, required_component, "component"));
-                    }
-                }
-            }
-
-
-            // If entity meets all system and component requirements for this system, subscribe entity to it.
-            subscribe_to_system(entity, system_name);
-        }
+        subscribe_to_systems(entity, scene_data[i], entity_component_lists.at(entity));
     }
 }
 

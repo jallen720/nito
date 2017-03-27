@@ -7,10 +7,7 @@
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Vector.hpp"
 #include "Cpp_Utils/String.hpp"
-#include "Cpp_Utils/JSON.hpp"
 #include "Cpp_Utils/Fn.hpp"
-
-#include "Nito/APIs/ECS.hpp"
 
 
 using std::string;
@@ -51,6 +48,7 @@ namespace Nito
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static string scene_to_load = "";
 static map<string, string> scenes;
+static map<string, JSON> blueprints;
 static map<string, vector<string>> system_requirements;
 static map<string, vector<string>> component_requirements;
 
@@ -193,6 +191,12 @@ void set_scene(const string & name, const string & path)
 }
 
 
+void set_blueprint(const string & name, const JSON & data)
+{
+    blueprints[name] = data;
+}
+
+
 bool scene_exists(const string & name)
 {
     return contains_key(scenes, name);
@@ -224,6 +228,21 @@ void set_component_requirements(const string & component_name, const vector<stri
 void set_system_requirements(const string & system_name, const vector<string> & components)
 {
     system_requirements[system_name] = components;
+}
+
+
+Entity load_blueprint(const string & name)
+{
+    if (!contains_key(blueprints, name))
+    {
+        throw runtime_error("ERROR: no blueprint named \"" + name + "\" was set in the Scene API!");
+    }
+
+    Entity entity = create_entity();
+    vector<string> entity_component_list;
+    add_components(entity, blueprints.at(name), entity_component_list);
+    subscribe_to_systems(entity, blueprints.at(name), entity_component_list);
+    return entity;
 }
 
 

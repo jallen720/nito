@@ -563,6 +563,15 @@ static void load_resources(
     {
         for_each(read_json_file(scenes_path), set_scene);
     }
+
+
+    // Load blueprints.
+    const string blueprints_path = root_path + "resources/data/blueprints.json";
+
+    if (file_exists(blueprints_path))
+    {
+        for_each(read_json_file(blueprints_path), set_blueprint);
+    }
 }
 
 

@@ -16,6 +16,7 @@ namespace Nito
 void ui_transform_init();
 void ui_transform_subscribe(Entity entity);
 void ui_transform_unsubscribe(Entity entity);
+void ui_transform_update();
 
 
 } // namespace Nito

@@ -151,6 +151,7 @@ static const vector<Update_Handler> ENGINE_UPDATE_HANDLERS
 {
     input_api_update,
     physics_api_update,
+    ui_transform_update,
     local_transform_update,
     renderer_update,
     text_renderer_update,

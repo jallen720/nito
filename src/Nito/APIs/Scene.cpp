@@ -32,6 +32,7 @@ using Cpp_Utils::to_string;
 
 // Cpp_Utils/JSON.hpp
 using Cpp_Utils::JSON;
+using Cpp_Utils::merge;
 
 // Cpp_Utils/Fn.hpp
 using Cpp_Utils::transform;
@@ -193,7 +194,19 @@ void set_scene(const string & name, const string & path)
 
 void set_blueprint(const string & name, const JSON & data)
 {
-    blueprints[name] = data;
+    static const string INHERITANCE_KEY = "inherits";
+
+    JSON & blueprint = blueprints[name];
+
+    if (contains_key(data, INHERITANCE_KEY))
+    {
+        for (const string & dependency : data[INHERITANCE_KEY])
+        {
+            blueprint = merge(blueprint, blueprints.at(dependency));
+        }
+    }
+
+    blueprint = merge(blueprint, data);
 }
 
 

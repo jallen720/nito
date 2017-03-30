@@ -202,6 +202,13 @@ void set_blueprint(const string & name, const JSON & data)
     {
         for (const string & dependency : data[INHERITANCE_KEY])
         {
+            if (!contains_key(blueprints, dependency))
+            {
+                throw runtime_error(
+                    "ERROR: dependency \"" + dependency + "\" for blueprint \"" + name +"\" does not refer to an "
+                    "existing blueprint!");
+            }
+
             blueprint = merge(blueprint, blueprints.at(dependency));
         }
     }

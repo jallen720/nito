@@ -2,6 +2,7 @@
 
 #include <map>
 #include <stdexcept>
+        #include <iostream>
 #include "Cpp_Utils/File.hpp"
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
@@ -192,28 +193,36 @@ void set_scene(const string & name, const string & path)
 }
 
 
-void set_blueprint(const string & name, const JSON & data)
+void set_blueprints(const JSON & blueprints_data)
 {
     static const string INHERITANCE_KEY = "inherits";
 
-    JSON & blueprint = blueprints[name];
-
-    if (contains_key(data, INHERITANCE_KEY))
+    for_each(blueprints_data, [&](const string & name, const JSON & blueprint) -> void
     {
-        for (const string & dependency : data[INHERITANCE_KEY])
+        blueprints[name] = blueprint;
+    });
+
+
+    // Satisfy dependencies for loaded blueprints.
+    for_each(blueprints, [&](const string & name, JSON & blueprint) -> void
+    {
+        if (!contains_key(blueprint, INHERITANCE_KEY))
+        {
+            return;
+        }
+
+        for (const string & dependency : blueprint.at(INHERITANCE_KEY).get<vector<string>>())
         {
             if (!contains_key(blueprints, dependency))
             {
                 throw runtime_error(
-                    "ERROR: dependency \"" + dependency + "\" for blueprint \"" + name +"\" does not refer to an "
+                    "ERROR: dependency \"" + dependency + "\" for blueprint \"" + name + "\" does not refer to an "
                     "existing blueprint!");
             }
 
             blueprint = merge(blueprint, blueprints.at(dependency));
         }
-    }
-
-    blueprint = merge(blueprint, data);
+    });
 }
 
 

@@ -564,7 +564,7 @@ static void load_resources(
 
     if (file_exists(blueprints_path))
     {
-        for_each(read_json_file(blueprints_path), set_blueprint);
+        set_blueprints(read_json_file(blueprints_path));
     }
 }
 

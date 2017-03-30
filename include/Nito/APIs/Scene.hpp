@@ -18,7 +18,7 @@ namespace Nito
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void set_scene(const std::string & name, const std::string & path);
-void set_blueprint(const std::string & name, const Cpp_Utils::JSON & data);
+void set_blueprints(const Cpp_Utils::JSON & blueprints_data);
 bool scene_exists(const std::string & name);
 void set_scene_to_load(const std::string & name);
 void check_load_scene();

@@ -470,18 +470,19 @@ static void check_collisions(bool first_pass, int pass_count)
 
         for (const vec3 & correction : corrections)
         {
-            if (fabsf(correction.x) > fabsf(final_correction.x))
-            {
-                final_correction.x = correction.x;
-            }
+            final_correction += correction;
+            // if (fabsf(correction.x) > fabsf(final_correction.x))
+            // {
+            //     final_correction.x = correction.x;
+            // }
 
-            if (fabsf(correction.y) > fabsf(final_correction.y))
-            {
-                final_correction.y = correction.y;
-            }
+            // if (fabsf(correction.y) > fabsf(final_correction.y))
+            // {
+            //     final_correction.y = correction.y;
+            // }
         }
 
-        (*position) += final_correction / (float)pass_count;
+        (*position) += final_correction / (float)corrections.size()/* / (float)pass_count*/;
     });
 }
 

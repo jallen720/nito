@@ -390,7 +390,10 @@ static void check_collisions(bool first_pass, int pass_count)
         });
 
 
-        trigger_collision_handlers(circle_entity, circle_data.collision_handler, collisions);
+        if (first_pass)
+        {
+            trigger_collision_handlers(circle_entity, circle_data.collision_handler, collisions);
+        }
     };
 
 

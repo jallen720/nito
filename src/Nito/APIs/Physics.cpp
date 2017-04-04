@@ -3,14 +3,17 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <stdexcept>
 #include <cmath>
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/String.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
 
 using std::map;
 using std::vector;
 using std::function;
+using std::runtime_error;
 
 // glm/glm.hpp
 using glm::distance;
@@ -19,6 +22,10 @@ using glm::vec3;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::remove;
+using Cpp_Utils::contains_key;
+
+// Cpp_Utils/String.hpp
+using Cpp_Utils::to_string;
 
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
@@ -78,6 +85,14 @@ using Polygon_Collider_Data_Iterator = map<Entity, Polygon_Collider_Data>::const
 static map<Entity, Circle_Collider_Data> circle_collider_datas;
 static map<Entity, Line_Collider_Data> line_collider_datas;
 static map<Entity, Polygon_Collider_Data> polygon_collider_datas;
+
+// Queues
+static map<Entity, Circle_Collider_Data> circle_collider_datas_load_queue;
+static map<Entity, Line_Collider_Data> line_collider_datas_load_queue;
+static map<Entity, Polygon_Collider_Data> polygon_collider_datas_load_queue;
+static vector<Entity> circle_collider_datas_remove_queue;
+static vector<Entity> line_collider_datas_remove_queue;
+static vector<Entity> polygon_collider_datas_remove_queue;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -490,6 +505,71 @@ static void check_collisions(bool first_pass, int pass_count)
 }
 
 
+static void handle_pending_queues()
+{
+    for (Entity entity : circle_collider_datas_remove_queue)
+    {
+        remove(circle_collider_datas, entity);
+    }
+
+    for (Entity entity : line_collider_datas_remove_queue)
+    {
+        remove(line_collider_datas, entity);
+    }
+
+    for (Entity entity : polygon_collider_datas_remove_queue)
+    {
+        remove(polygon_collider_datas, entity);
+    }
+
+    for_each(circle_collider_datas_load_queue, [&](
+        Entity entity,
+        const Circle_Collider_Data & circle_collider_data) -> void
+    {
+        if (contains_key(circle_collider_datas, entity))
+        {
+            throw runtime_error(
+                "ERROR: attempting to load duplicate circle-collider data for entity " + to_string(entity) + "!");
+        }
+
+        circle_collider_datas[entity] = circle_collider_data;
+    });
+
+    for_each(line_collider_datas_load_queue, [&](
+        Entity entity,
+        const Line_Collider_Data & line_collider_data) -> void
+    {
+        if (contains_key(line_collider_datas, entity))
+        {
+            throw runtime_error(
+                "ERROR: attempting to load duplicate line-collider data for entity " + to_string(entity) + "!");
+        }
+
+        line_collider_datas[entity] = line_collider_data;
+    });
+
+    for_each(polygon_collider_datas_load_queue, [&](
+        Entity entity,
+        const Polygon_Collider_Data & polygon_collider_data) -> void
+    {
+        if (contains_key(polygon_collider_datas, entity))
+        {
+            throw runtime_error(
+                "ERROR: attempting to load duplicate polygon-collider data for entity " + to_string(entity) + "!");
+        }
+
+        polygon_collider_datas[entity] = polygon_collider_data;
+    });
+
+    circle_collider_datas_remove_queue.clear();
+    line_collider_datas_remove_queue.clear();
+    polygon_collider_datas_remove_queue.clear();
+    circle_collider_datas_load_queue.clear();
+    line_collider_datas_load_queue.clear();
+    polygon_collider_datas_load_queue.clear();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Interface
@@ -504,7 +584,7 @@ void load_circle_collider_data(
     vec3 * position,
     const vec3 * scale)
 {
-    circle_collider_datas[entity] =
+    circle_collider_datas_load_queue[entity] =
     {
         collision_handler,
         sends_collision,
@@ -524,7 +604,7 @@ void load_line_collider_data(
     const vec3 * line_begin,
     const vec3 * line_end)
 {
-    line_collider_datas[entity] =
+    line_collider_datas_load_queue[entity] =
     {
         collision_handler,
         sends_collision,
@@ -544,7 +624,7 @@ void load_polygon_collider_data(
     const vector<vec3> * line_ends,
     vec3 * position)
 {
-    polygon_collider_datas[entity] =
+    polygon_collider_datas_load_queue[entity] =
     {
         collision_handler,
         sends_collision,
@@ -558,25 +638,26 @@ void load_polygon_collider_data(
 
 void remove_circle_collider_data(Entity entity)
 {
-    remove(circle_collider_datas, entity);
+    circle_collider_datas_remove_queue.push_back(entity);
 }
 
 
 void remove_line_collider_data(Entity entity)
 {
-    remove(line_collider_datas, entity);
+    line_collider_datas_remove_queue.push_back(entity);
 }
 
 
 void remove_polygon_collider_data(Entity entity)
 {
-    remove(polygon_collider_datas, entity);
+    polygon_collider_datas_remove_queue.push_back(entity);
 }
 
 
 void physics_api_update()
 {
     static const int PASS_COUNT = 2;
+    handle_pending_queues();
 
     for (int i = 0; i < PASS_COUNT; i++)
     {

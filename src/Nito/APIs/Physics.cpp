@@ -72,6 +72,13 @@ struct Polygon_Collider_Data
 };
 
 
+struct Collision_Events
+{
+    const Collision_Handler * source_collision_handler;
+    map<Entity, const Collision_Handler *> collision_handlers;
+};
+
+
 using Circle_Collider_Data_Iterator = map<Entity, Circle_Collider_Data>::const_iterator;
 using Line_Collider_Data_Iterator = map<Entity, Line_Collider_Data>::const_iterator;
 using Polygon_Collider_Data_Iterator = map<Entity, Polygon_Collider_Data>::const_iterator;
@@ -82,6 +89,7 @@ using Polygon_Collider_Data_Iterator = map<Entity, Polygon_Collider_Data>::const
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const int PASS_COUNT = 2;
 static map<Entity, Circle_Collider_Data> circle_collider_datas;
 static map<Entity, Line_Collider_Data> line_collider_datas;
 static map<Entity, Polygon_Collider_Data> polygon_collider_datas;
@@ -100,25 +108,26 @@ static vector<Entity> polygon_collider_datas_remove_queue;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static void trigger_collision_handlers(
-    Entity collider_entity,
-    const Collision_Handler * collider_entity_handler,
-    const map<Entity, const Collision_Handler *> & collisions)
+static void trigger_collision_handlers(Entity collider_entity, const Collision_Events & collision_events)
 {
+    const Collision_Handler * source_collision_handler = collision_events.source_collision_handler;
+    const map<Entity, const Collision_Handler *> & collision_handlers = collision_events.collision_handlers;
+
+
     // Trigger collider entity's collision handler if it is set.
-    if (*collider_entity_handler)
+    if (*source_collision_handler)
     {
-        for_each(collisions, [&](
+        for_each(collision_handlers, [&](
             Entity collision_entity,
             const Collision_Handler * /*collision_entity_handler*/) -> void
         {
-            (*collider_entity_handler)(collision_entity);
+            (*source_collision_handler)(collision_entity);
         });
     }
 
 
     // Trigger all collision entities' collision handlers if they are set.
-    for_each(collisions, [=](Entity /*collision_entity*/, const Collision_Handler * collision_entity_handler) -> void
+    for_each(collision_handlers, [=](Entity /*collision_entity*/, const Collision_Handler * collision_entity_handler) -> void
     {
         if (*collision_entity_handler)
         {
@@ -287,7 +296,7 @@ static bool check_line_circle_collision(
 }
 
 
-static void check_collisions(bool first_pass, int pass_count)
+static void check_collisions(map<Entity, Collision_Events> & collision_events)
 {
     Circle_Collider_Data_Iterator circles_iterator = circle_collider_datas.begin();
     Line_Collider_Data_Iterator lines_iterator = line_collider_datas.begin();
@@ -306,7 +315,9 @@ static void check_collisions(bool first_pass, int pass_count)
         const float circle_radius = *circle_data.radius * circle_data.scale->x;
         const bool circle_sends_collision = *circle_data.sends_collision;
         const bool circle_receives_collision = *circle_data.receives_collision;
-        map<Entity, const Collision_Handler *> collisions;
+        Collision_Events & circle_entity_collision_events = collision_events[circle_entity];
+        circle_entity_collision_events.source_collision_handler = circle_data.collision_handler;
+        map<Entity, const Collision_Handler *> & collision_handlers = circle_entity_collision_events.collision_handlers;
 
 
         // Check for collisions with other circle colliders.
@@ -323,7 +334,7 @@ static void check_collisions(bool first_pass, int pass_count)
 
             if (actual_distance <= collision_distance)
             {
-                collisions[circle_b_entity] = circle_b_data.collision_handler;
+                collision_handlers[circle_b_entity] = circle_b_data.collision_handler;
 
 
                 // Calculate collision corrections if necessary.
@@ -367,7 +378,7 @@ static void check_collisions(bool first_pass, int pass_count)
                     circle_receives_collision,
                     collision_corrections))
             {
-                collisions[line_entity] = line_data.collision_handler;
+                collision_handlers[line_entity] = line_data.collision_handler;
             }
         });
 
@@ -400,15 +411,9 @@ static void check_collisions(bool first_pass, int pass_count)
 
             if (collision_detected)
             {
-                collisions[polygon_entity] = polygon_data.collision_handler;
+                collision_handlers[polygon_entity] = polygon_data.collision_handler;
             }
         });
-
-
-        if (first_pass)
-        {
-            trigger_collision_handlers(circle_entity, circle_data.collision_handler, collisions);
-        }
     };
 
 
@@ -424,7 +429,9 @@ static void check_collisions(bool first_pass, int pass_count)
         const float line_end_x = line_end->x;
         const float line_end_y = line_end->y;
         const vec3 r(line_end_x - line_begin_x, line_end_y - line_begin_y, 0.0f);
-        map<Entity, const Collision_Handler *> collisions;
+        Collision_Events & line_entity_collision_events = collision_events[line_entity];
+        line_entity_collision_events.source_collision_handler = line_data.collision_handler;
+        map<Entity, const Collision_Handler *> & collision_handlers = line_entity_collision_events.collision_handlers;
 
 
         // Check for collisions with other line colliders.
@@ -452,7 +459,7 @@ static void check_collisions(bool first_pass, int pass_count)
                 if ((line_begins_offset_x < 0.0f) != (line_b_begin_x - line_end_x < 0.0f) ||
                     (line_begins_offset_y < 0.0f) != (line_b_begin_y - line_end_y < 0.0f))
                 {
-                    collisions[line_b_entity] = line_b_collision_handler;
+                    collision_handlers[line_b_entity] = line_b_collision_handler;
                 }
             }
             else if (rxs == 0.0f)
@@ -468,16 +475,10 @@ static void check_collisions(bool first_pass, int pass_count)
                 if (t >= 0.0f && t <= 1.0f &&
                     u >= 0.0f && u <= 1.0f)
                 {
-                    collisions[line_b_entity] = line_b_collision_handler;
+                    collision_handlers[line_b_entity] = line_b_collision_handler;
                 }
             }
         });
-
-
-        if (first_pass)
-        {
-            trigger_collision_handlers(line_entity, line_data.collision_handler, collisions);
-        }
     }
 
 
@@ -500,7 +501,7 @@ static void check_collisions(bool first_pass, int pass_count)
             // }
         }
 
-        (*position) += final_correction / (float)corrections.size()/* / (float)pass_count*/;
+        (*position) += final_correction / (float)corrections.size()/* / (float)PASS_COUNT*/;
     });
 }
 
@@ -656,13 +657,15 @@ void remove_polygon_collider_data(Entity entity)
 
 void physics_api_update()
 {
-    static const int PASS_COUNT = 2;
     handle_pending_queues();
+    map<Entity, Collision_Events> collision_events;
 
     for (int i = 0; i < PASS_COUNT; i++)
     {
-        check_collisions(i == 0, PASS_COUNT);
+        check_collisions(collision_events);
     }
+
+    for_each(collision_events, trigger_collision_handlers);
 }
 
 

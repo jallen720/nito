@@ -108,35 +108,6 @@ static vector<Entity> polygon_collider_datas_remove_queue;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static void trigger_collision_handlers(Entity collider_entity, const Collision_Events & collision_events)
-{
-    const Collision_Handler * source_collision_handler = collision_events.source_collision_handler;
-    const map<Entity, const Collision_Handler *> & collision_handlers = collision_events.collision_handlers;
-
-
-    // Trigger collider entity's collision handler if it is set.
-    if (*source_collision_handler)
-    {
-        for_each(collision_handlers, [&](
-            Entity collision_entity,
-            const Collision_Handler * /*collision_entity_handler*/) -> void
-        {
-            (*source_collision_handler)(collision_entity);
-        });
-    }
-
-
-    // Trigger all collision entities' collision handlers if they are set.
-    for_each(collision_handlers, [=](Entity /*collision_entity*/, const Collision_Handler * collision_entity_handler) -> void
-    {
-        if (*collision_entity_handler)
-        {
-            (*collision_entity_handler)(collider_entity);
-        }
-    });
-}
-
-
 static vec3 get_intersection(
     const vec3 & line_a_begin,
     const vec3 & line_a_end,
@@ -660,12 +631,44 @@ void physics_api_update()
     handle_pending_queues();
     map<Entity, Collision_Events> collision_events;
 
+
+    // Check for collisions and store collision events.
     for (int i = 0; i < PASS_COUNT; i++)
     {
         check_collisions(collision_events);
     }
 
-    for_each(collision_events, trigger_collision_handlers);
+
+    // Trigger collision handlers for all collision events generated during collision detection.
+    for_each(collision_events, [](Entity collider_entity, const Collision_Events & collision_events) -> void
+    {
+        const Collision_Handler * source_collision_handler = collision_events.source_collision_handler;
+        const map<Entity, const Collision_Handler *> & collision_handlers = collision_events.collision_handlers;
+
+
+        // Trigger source entity's collision handler if it is set.
+        if (*source_collision_handler)
+        {
+            for_each(collision_handlers, [&](
+                Entity collision_entity,
+                const Collision_Handler * /*collision_entity_handler*/) -> void
+            {
+                (*source_collision_handler)(collision_entity);
+            });
+        }
+
+
+        // Trigger all collision entities' collision handlers if they are set.
+        for_each(collision_handlers, [=](
+            Entity /*collision_entity*/,
+            const Collision_Handler * collision_entity_handler) -> void
+        {
+            if (*collision_entity_handler)
+            {
+                (*collision_entity_handler)(collider_entity);
+            }
+        });
+    });
 }
 
 

@@ -525,6 +525,12 @@ float get_controller_axis(DS4_Axes controller_axis, int controller)
 }
 
 
+const dvec2 & get_mouse_position()
+{
+    return mouse_position;
+}
+
+
 void debug_controllers()
 {
     for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)

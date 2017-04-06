@@ -55,7 +55,7 @@ using Components = map<string, Component>;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static Entity entity_index = 0u;
-static vector<Entity> entities;
+static vector<Entity> used_entities;
 static vector<Entity> unused_entities;
 static vector<Entity> entities_to_delete;
 static map<Entity, Components> entity_components;
@@ -88,25 +88,44 @@ static void validate_component_has_handlers(const string & type)
 }
 
 
-static void delete_entity(Entity entity)
+static void delete_entities(const vector<Entity> & entities)
 {
-    vector<string> & subscriptions = entity_subscriptions[entity];
-    Components & components = entity_components[entity];
-
-    while (subscriptions.size() > 0)
+    // Unsubscribe entities from systems first, that way if a system's unsubscribe handler references a component in
+    // another entity that is going to be deleted, that can be handled as components won't be deleted until after all
+    // systems have been unsubscribed from.
+    for (const Entity entity : entities)
     {
-        unsubscribe_from_system(entity, subscriptions[0]);
+        vector<string> & subscriptions = entity_subscriptions[entity];
+
+        while (subscriptions.size() > 0)
+        {
+            unsubscribe_from_system(entity, subscriptions[0]);
+        }
+
+        remove(entity_subscriptions, entity);
     }
 
-    for_each(components, [&](const string & type, Component component) -> void
-    {
-        component_deallocators.at(type)(component);
-    });
 
-    remove(entity_subscriptions, entity);
-    remove(entity_components, entity);
-    remove(entities, entity);
-    unused_entities.push_back(entity);
+    // Deallocate components after all systems have been unsubscribed from.
+    for (const Entity entity : entities)
+    {
+        Components & components = entity_components[entity];
+
+        for_each(components, [&](const string & type, Component component) -> void
+        {
+            component_deallocators.at(type)(component);
+        });
+
+        remove(entity_components, entity);
+    }
+
+
+    // Move now unused entity IDs back to unused_entities.
+    for (const Entity entity : entities)
+    {
+        remove(used_entities, entity);
+        unused_entities.push_back(entity);
+    }
 }
 
 
@@ -129,7 +148,7 @@ Entity create_entity()
         entity = entity_index++;
     }
 
-    entities.push_back(entity);
+    used_entities.push_back(entity);
     return entity;
 }
 
@@ -252,7 +271,7 @@ void unsubscribe_from_system(Entity entity, const string & system_name)
 
 Entity get_entity(const string & id)
 {
-    const vector<Entity> entities_with_ids = filter(entities, [](Entity entity) -> bool
+    const vector<Entity> entities_with_ids = filter(used_entities, [](Entity entity) -> bool
     {
         return has_component(entity, "id");
     });
@@ -283,17 +302,14 @@ void flag_entity_for_deletion(Entity entity)
 
 void delete_flagged_entities()
 {
-    for_each(entities_to_delete, delete_entity);
+    delete_entities(entities_to_delete);
     entities_to_delete.clear();
 }
 
 
 void delete_all_entities()
 {
-    while (entities.size() > 0)
-    {
-        delete_entity(entities.back());
-    }
+    delete_entities(used_entities);
 
 
     // All entities are deleted so any entities that were still flagged for deletion no longer need to be handled.

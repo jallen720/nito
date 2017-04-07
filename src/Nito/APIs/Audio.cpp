@@ -100,15 +100,15 @@ void load_audio_file(const string & path)
 }
 
 
-void create_audio_source(const string & identifier, bool is_looping, float volume, const string & data_path)
+void create_audio_source(const string & id, const string & path, bool is_looping, float volume)
 {
-    if (!contains_key(buffers, data_path))
+    if (!contains_key(buffers, path))
     {
-        throw runtime_error("ERROR: no audio file with path \"" + data_path + "\" was loaded in the Audio API!");
+        throw runtime_error("ERROR: no audio file with path \"" + path + "\" was loaded in the Audio API!");
     }
 
-    ALuint & audio_source = audio_sources[identifier];
-    const ALuint buffer = buffers.at(data_path);
+    ALuint & audio_source = audio_sources[id];
+    const ALuint buffer = buffers.at(path);
 
     alGenSources(1, &audio_source);
     validate_no_openal_error("create_audio_source(): alGenSources()");
@@ -124,23 +124,24 @@ void create_audio_source(const string & identifier, bool is_looping, float volum
 }
 
 
-void play_audio_source(const string & identifier)
+void play_audio_source(const string & id)
 {
-    alSourcePlay(audio_sources.at(identifier));
+    alSourcePlay(audio_sources.at(id));
     validate_no_openal_error("play_audio_source(): alSourcePlay()");
 }
 
 
-void stop_audio_source(const string & identifier)
+void stop_audio_source(const string & id)
 {
-    alSourceStop(audio_sources.at(identifier));
+    alSourceStop(audio_sources.at(id));
     validate_no_openal_error("stop_audio_source(): alSourcePlay()");
 }
 
 
 void clean_openal()
 {
-    for_each(audio_sources, [](const string & /*identifier*/, ALuint audio_source) -> void
+    // Delete audio-sources and buffers.
+    for_each(audio_sources, [](const string & /*id*/, ALuint audio_source) -> void
     {
         // Ensure audio source is not playing before deleting.
         alSourceStop(audio_source);
@@ -153,8 +154,11 @@ void clean_openal()
         alDeleteBuffers(1, &buffer);
     });
 
-    validate_no_openal_error("clean_openal(): deleting buffers");
 
+    validate_no_openal_error("clean_openal(): deleting audio-sources and buffers");
+
+
+    // Validate no errors occurred while exiting ALUT.
     if (!alutExit())
     {
         throw runtime_error(get_alut_error_message("clean_openal(): alutExit()"));

@@ -90,6 +90,7 @@ void polygon_collider_subscribe(Entity entity)
         &collider->collision_handler,
         &collider->sends_collision,
         &collider->receives_collision,
+        &collider->enabled,
         &line_begins,
         &line_ends,
         &transform->position);

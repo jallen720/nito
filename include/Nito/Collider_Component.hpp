@@ -24,6 +24,7 @@ struct Collider
 
 
     bool render;
+    bool enabled;
     bool sends_collision;
     bool receives_collision;
     Collision_Handler collision_handler;

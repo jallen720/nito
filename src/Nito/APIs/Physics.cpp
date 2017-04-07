@@ -45,6 +45,7 @@ struct Circle_Collider_Data
     const Collision_Handler * collision_handler;
     const bool * sends_collision;
     const bool * receives_collision;
+    const bool * enabled;
     const float * radius;
     const vec3 * scale;
     vec3 * position;
@@ -56,6 +57,7 @@ struct Line_Collider_Data
     const Collision_Handler * collision_handler;
     const bool * sends_collision;
     const bool * receives_collision;
+    const bool * enabled;
     const vec3 * begin;
     const vec3 * end;
 };
@@ -66,6 +68,7 @@ struct Polygon_Collider_Data
     const Collision_Handler * collision_handler;
     const bool * sends_collision;
     const bool * receives_collision;
+    const bool * enabled;
     const vector<vec3> * begins;
     const vector<vec3> * ends;
     vec3 * position;
@@ -271,6 +274,14 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
     {
         const Entity circle_entity = circles_iterator->first;
         const Circle_Collider_Data & circle_data = circles_iterator->second;
+        circles_iterator++;
+
+        // Don't check for collision if collider is disabled.
+        if (!*circle_data.enabled)
+        {
+            continue;
+        }
+
         vec3 * circle_data_position = circle_data.position;
         const float circle_position_x = circle_data_position->x;
         const float circle_position_y = circle_data_position->y;
@@ -284,10 +295,16 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
 
 
         // Check for collisions with other circle colliders.
-        for_each(circle_collider_datas, ++circles_iterator, [&](
+        for_each(circle_collider_datas, circles_iterator, [&](
             Entity circle_b_entity,
             const Circle_Collider_Data & circle_b_data) -> void
         {
+            // Don't check for collision if collider is disabled.
+            if (!*circle_b_data.enabled)
+            {
+                return;
+            }
+
             vec3 * circle_b_data_position = circle_b_data.position;
             const vec3 circle_b_position_2d(circle_b_data_position->x, circle_b_data_position->y, 0.0f);
             const float actual_distance = distance(circle_position_2d, circle_b_position_2d);
@@ -329,6 +346,12 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
         // Check for collisions with line colliders.
         for_each(line_collider_datas, [&](Entity line_entity, Line_Collider_Data & line_data) -> void
         {
+            // Don't check for collision if collider is disabled.
+            if (!*line_data.enabled)
+            {
+                return;
+            }
+
             if (check_line_circle_collision(
                     line_data.begin,
                     line_data.end,
@@ -349,6 +372,12 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
         // Check for collisions with polygon colliders.
         for_each(polygon_collider_datas, [&](Entity polygon_entity, Polygon_Collider_Data & polygon_data) -> void
         {
+            // Don't check for collision if collider is disabled.
+            if (!*polygon_data.enabled)
+            {
+                return;
+            }
+
             const vector<vec3> * begins = polygon_data.begins;
             const vector<vec3> * ends = polygon_data.ends;
             const int line_count = begins->size();
@@ -385,6 +414,14 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
     {
         const Entity line_entity = lines_iterator->first;
         const Line_Collider_Data & line_data = lines_iterator->second;
+        lines_iterator++;
+
+        // Don't check for collision if collider is disabled.
+        if (!*line_data.enabled)
+        {
+            continue;
+        }
+
         const vec3 * line_begin = line_data.begin;
         const vec3 * line_end = line_data.end;
         const float line_begin_x = line_begin->x;
@@ -398,10 +435,16 @@ static void check_collisions(map<Entity, Collision_Events> & collision_events)
 
 
         // Check for collisions with other line colliders.
-        for_each(line_collider_datas, ++lines_iterator, [&](
+        for_each(line_collider_datas, lines_iterator, [&](
             Entity line_b_entity,
             const Line_Collider_Data & line_b_data) -> void
         {
+            // Don't check for collision if collider is disabled.
+            if (!*line_b_data.enabled)
+            {
+                return;
+            }
+
             const Collision_Handler * line_b_collision_handler = line_b_data.collision_handler;
             const vec3 * line_b_begin = line_b_data.begin;
             const vec3 * line_b_end = line_b_data.end;
@@ -479,6 +522,7 @@ void load_circle_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const float * radius,
     vec3 * position,
     const vec3 * scale)
@@ -488,6 +532,7 @@ void load_circle_collider_data(
         collision_handler,
         sends_collision,
         receives_collision,
+        enabled,
         radius,
         scale,
         position,
@@ -500,6 +545,7 @@ void load_line_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const vec3 * line_begin,
     const vec3 * line_end)
 {
@@ -508,6 +554,7 @@ void load_line_collider_data(
         collision_handler,
         sends_collision,
         receives_collision,
+        enabled,
         line_begin,
         line_end,
     };
@@ -519,6 +566,7 @@ void load_polygon_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const vector<vec3> * line_begins,
     const vector<vec3> * line_ends,
     vec3 * position)
@@ -528,6 +576,7 @@ void load_polygon_collider_data(
         collision_handler,
         sends_collision,
         receives_collision,
+        enabled,
         line_begins,
         line_ends,
         position,

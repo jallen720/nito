@@ -28,6 +28,7 @@ void load_circle_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const float * radius,
     glm::vec3 * position,
     const glm::vec3 * scale);
@@ -37,6 +38,7 @@ void load_line_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const glm::vec3 * line_begin,
     const glm::vec3 * line_end);
 
@@ -45,6 +47,7 @@ void load_polygon_collider_data(
     const Collision_Handler * collision_handler,
     const bool * sends_collision,
     const bool * receives_collision,
+    const bool * enabled,
     const std::vector<glm::vec3> * line_begins,
     const std::vector<glm::vec3> * line_ends,
     glm::vec3 * position);

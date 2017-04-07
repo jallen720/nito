@@ -370,6 +370,7 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
                 return new Collider
                 {
                     contains_key(data, "render") ? data["render"].get<bool>() : false,
+                    contains_key(data, "enabled") ? data["enabled"].get<bool>() : true,
                     contains_key(data, "send_collision") ? data["send_collision"].get<bool>() : false,
                     contains_key(data, "receives_collision") ? data["receives_collision"].get<bool>() : false,
                     {},

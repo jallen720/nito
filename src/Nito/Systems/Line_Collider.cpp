@@ -70,6 +70,7 @@ void line_collider_subscribe(Entity entity)
         &collider->collision_handler,
         &collider->sends_collision,
         &collider->receives_collision,
+        &collider->enabled,
         &line_collider_state.world_begin,
         &line_collider_state.world_end);
 }

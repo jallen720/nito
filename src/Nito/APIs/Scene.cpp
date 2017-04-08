@@ -52,6 +52,7 @@ static map<string, string> scenes;
 static map<string, JSON> blueprints;
 static map<string, vector<string>> system_requirements;
 static map<string, vector<string>> component_requirements;
+static map<string, Scene_Load_Handler> scene_load_handlers;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,6 +179,13 @@ static void load_scene(const string & name)
         const Entity entity = entities[i];
         subscribe_to_systems(entity, scene_data[i], entity_component_lists.at(entity));
     }
+
+
+    // Trigger scene-load handlers.
+    for_each(scene_load_handlers, [&](const string & /*id*/, const Scene_Load_Handler & handler) -> void
+    {
+        handler(name);
+    });
 }
 
 
@@ -271,6 +279,12 @@ Entity load_blueprint(const string & name)
     add_components(entity, blueprints.at(name), entity_component_list);
     subscribe_to_systems(entity, blueprints.at(name), entity_component_list);
     return entity;
+}
+
+
+void set_scene_load_handler(const string & id, const Scene_Load_Handler & handler)
+{
+    scene_load_handlers[id] = handler;
 }
 
 

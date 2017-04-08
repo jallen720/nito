@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <map>
 #include <cstring>
-#include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alut.h>
 #include "Cpp_Utils/Map.hpp"
@@ -100,27 +99,45 @@ void load_audio_file(const string & path)
 }
 
 
-void create_audio_source(const string & id, const string & path, bool is_looping, float volume)
+void create_audio_source(const string & id)
+{
+    alGenSources(1, &audio_sources[id]);
+    validate_no_openal_error("create_audio_source(): alGenSources()");
+}
+
+
+void create_audio_source(const string & id, const string & path, bool looping, float volume)
 {
     if (!contains_key(buffers, path))
     {
         throw runtime_error("ERROR: no audio file with path \"" + path + "\" was loaded in the Audio API!");
     }
 
-    ALuint & audio_source = audio_sources[id];
-    const ALuint buffer = buffers.at(path);
+    create_audio_source(id);
+    set_audio_source_buffer(id, path);
+    set_audio_source_looping(id, looping);
+    set_audio_source_volume(id, volume);
+}
 
-    alGenSources(1, &audio_source);
-    validate_no_openal_error("create_audio_source(): alGenSources()");
 
-    alSourcei(audio_source, AL_BUFFER, buffer);
-    validate_no_openal_error("create_audio_source(): alSourcei()");
+void set_audio_source_buffer(const string & id, const string & path)
+{
+    alSourcei(audio_sources.at(id), AL_BUFFER, buffers.at(path));
+    validate_no_openal_error("set_audio_source_buffer(): alSourcei()");
+}
 
-    alSourcei(audio_source, AL_LOOPING, is_looping ? AL_TRUE : AL_FALSE);
-    validate_no_openal_error("create_audio_source(): alSourcei()");
 
-    alSourcef(audio_source, AL_GAIN, volume);
-    validate_no_openal_error("create_audio_source(): alSourcef()");
+void set_audio_source_looping(const string & id, bool looping)
+{
+    alSourcei(audio_sources.at(id), AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
+    validate_no_openal_error("set_audio_source_looping(): alSourcei()");
+}
+
+
+void set_audio_source_volume(const string & id, float volume)
+{
+    alSourcef(audio_sources.at(id), AL_GAIN, volume);
+    validate_no_openal_error("set_audio_source_volume(): alSourcef()");
 }
 
 
@@ -135,6 +152,14 @@ void stop_audio_source(const string & id)
 {
     alSourceStop(audio_sources.at(id));
     validate_no_openal_error("stop_audio_source(): alSourcePlay()");
+}
+
+
+bool audio_source_playing(const string & id)
+{
+    ALint state;
+    alGetSourcei(audio_sources.at(id), AL_SOURCE_STATE, &state);
+    return state == AL_PLAYING;
 }
 
 

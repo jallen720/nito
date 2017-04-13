@@ -57,7 +57,7 @@ using Components = map<string, Component>;
 static Entity entity_index = 0u;
 static vector<Entity> used_entities;
 static vector<Entity> unused_entities;
-static vector<Entity> entities_to_delete;
+static vector<Entity> flagged_entities;
 static map<Entity, Components> entity_components;
 static map<Entity, vector<string>> entity_subscriptions;
 
@@ -293,19 +293,19 @@ Entity get_entity(const string & id)
 void flag_entity_for_deletion(Entity entity)
 {
     // Only flag entity if it hasn't already been flagged.
-    if (!contains(entities_to_delete, entity))
+    if (!contains(flagged_entities, entity))
     {
-        entities_to_delete.push_back(entity);
+        flagged_entities.push_back(entity);
     }
 }
 
 
 void delete_flagged_entities()
 {
-    // Deleting entities could resulted in new entities being flagged for deletion in system unsubscribe handlers, so
-    // make a copy of the currently flagged entities.
-    const vector<Entity> current_flagged_entities = entities_to_delete;
-    entities_to_delete.clear();
+    // Deleting entities could result in new entities being flagged for deletion in system unsubscribe handlers, so make
+    // a copy of the currently flagged entities.
+    const vector<Entity> current_flagged_entities = flagged_entities;
+    flagged_entities.clear();
     delete_entities(current_flagged_entities);
 }
 
@@ -316,7 +316,7 @@ void delete_all_entities()
 
 
     // All entities are deleted so any entities that were still flagged for deletion no longer need to be handled.
-    entities_to_delete.clear();
+    flagged_entities.clear();
 
 
     unused_entities.clear();

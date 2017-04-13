@@ -302,6 +302,12 @@ void flag_entity_for_deletion(Entity entity)
 
 void delete_flagged_entities()
 {
+    if (flagged_entities.size() == 0)
+    {
+        return;
+    }
+
+
     // Deleting entities could result in new entities being flagged for deletion in system unsubscribe handlers, so make
     // a copy of the currently flagged entities.
     const vector<Entity> current_flagged_entities = flagged_entities;

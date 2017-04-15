@@ -227,7 +227,7 @@ void set_blueprints(const JSON & blueprints_data)
                     "existing blueprint!");
             }
 
-            blueprint = merge(blueprint, blueprints.at(dependency));
+            blueprint = merge(blueprints.at(dependency), blueprint);
         }
     });
 }

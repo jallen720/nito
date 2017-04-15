@@ -2,7 +2,7 @@
 
 #include <string>
 #include <glm/gtc/matrix_transform.hpp>
-#include <cmath>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "Nito/Collider_Component.hpp"
 #include "Nito/APIs/Graphics.hpp"
@@ -22,6 +22,9 @@ using glm::translate;
 using glm::rotate;
 using glm::scale;
 using glm::radians;
+
+// glm/gtx/vector_angle.hpp
+using glm::orientedAngle;
 
 
 namespace Nito
@@ -91,25 +94,18 @@ vec3 get_child_world_position(const Transform * parent_transform, const vec3 & c
 }
 
 
-float angle(const vec3 & vector_a, const vec3 & vector_b)
-{
-    return atan2(
-        (vector_a.x * vector_b.y) - (vector_a.y * vector_b.x),
-        (vector_a.x * vector_b.x) + (vector_a.y * vector_b.y));
-}
-
-
 void draw_line_collider(const vec3 & line_begin, const vec3 & line_end, const vec3 & scale)
 {
     static const string VERTEX_CONTAINER_ID("line_collider");
     static const vec3 BASE_ANGLE_VECTOR(1.0f, 0.0f, 0.0f);
+    static const vec3 ANGLE_AXIS(0.0f, 0.0f, 1.0f);
 
     const float pixels_per_unit = get_pixels_per_unit();
     vec3 position = line_begin;
     position.z = -1.0f;
 
     const float line_orientation =
-        degrees(angle(BASE_ANGLE_VECTOR, normalize(line_end - line_begin)));
+        degrees(orientedAngle(BASE_ANGLE_VECTOR, normalize(line_end - line_begin), ANGLE_AXIS));
 
     load_render_data(
         {

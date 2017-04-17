@@ -53,7 +53,7 @@ struct System_Entity_Handlers
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void add_update_handler(const Update_Handler & update_handler);
-int run_engine();
+int run_engine(char ** argv);
 float get_time_scale();
 void set_time_scale(float value);
 

@@ -3,15 +3,7 @@
 #include "Nito/APIs/Resources.hpp"
 
 #include <stdexcept>
-
-
-#if _WIN32
 #include <SOIL.h>
-#elif __gnu_linux__
-#include <Magick++.h>
-#endif
-
-
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/File.hpp"
@@ -23,14 +15,6 @@ using std::string;
 using std::map;
 using std::vector;
 using std::runtime_error;
-
-
-#if __gnu_linux__
-// Magick++.h
-using Magick::Blob;
-using Magick::Image;
-#endif
-
 
 // glm/glm.hpp
 using glm::vec3;
@@ -79,19 +63,11 @@ void init_freetype()
 
 void load_textures(const JSON & texture_group)
 {
-#if _WIN32
     static const map<string, int> IMAGE_FORMATS
     {
         { "rgba" , SOIL_LOAD_RGBA },
         { "rgb"  , SOIL_LOAD_RGB  },
     };
-#elif __gnu_linux__
-    static const map<string, const string> IMAGE_FORMATS
-    {
-        { "rgba" , "RGBA" },
-        { "rgb"  , "RGB" },
-    };
-#endif
 
 
     const string format = texture_group["format"];
@@ -117,7 +93,6 @@ void load_textures(const JSON & texture_group)
 
 
         // Load texture data from image at path.
-#if _WIN32
         int image_width;
         int image_height;
 
@@ -127,27 +102,13 @@ void load_textures(const JSON & texture_group)
             &image_height,
             nullptr,
             IMAGE_FORMATS.at(texture.format));
-#elif __gnu_linux__
-        Image image;
-        Blob blob;
-        image.read(platform_path(path));
-        //image.flip();
-        image.write(&blob, IMAGE_FORMATS.at(texture.format));
-#endif
 
 
         // Load texture dimensions from image.
         texture.dimensions =
         {
-#if _WIN32
             (float)image_width,
             (float)image_height,
-#elif __gnu_linux__
-            (float)image.columns(),
-            (float)image.rows(),
-#endif
-
-
             vec3(),
         };
 
@@ -156,12 +117,9 @@ void load_textures(const JSON & texture_group)
         textures[path] = texture;
 
 
-#if _WIN32
+        // Load then free image data.
         load_texture_data(texture, image_data, path);
         SOIL_free_image_data(image_data);
-#elif __gnu_linux__
-        load_texture_data(texture, blob.data(), path);
-#endif
     }
 }
 

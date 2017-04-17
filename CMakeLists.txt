@@ -20,9 +20,9 @@ module_dependency("GLEW")
 module_dependency("GLFW3")
 module_dependency("OpenAL")
 module_dependency("ALUT")
-module_dependency("Magick++")
 module_dependency("FreeType2")
 module_dependency("Cpp_Utils")
+module_dependency("SOIL")
 add_lib(SHARED)
 
 # # Tests

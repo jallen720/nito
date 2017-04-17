@@ -185,7 +185,9 @@ void stop_audio_source(const string & id)
 
 bool audio_source_playing(const string & id)
 {
-#if __gnu_linux__
+#if _WIN32
+    return false;
+#elif __gnu_linux__
     ALint state;
     alGetSourcei(audio_sources.at(id), AL_SOURCE_STATE, &state);
     return state == AL_PLAYING;

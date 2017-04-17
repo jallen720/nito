@@ -116,6 +116,7 @@ void load_textures(const JSON & texture_group)
         texture.options = options;
 
 
+        // Load texture data from image at path.
 #if _WIN32
         int image_width;
         int image_height;
@@ -127,7 +128,6 @@ void load_textures(const JSON & texture_group)
             nullptr,
             IMAGE_FORMATS.at(texture.format));
 #elif __gnu_linux__
-        // Load texture data from image at path.
         Image image;
         Blob blob;
         image.read(platform_path(path));

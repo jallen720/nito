@@ -6,6 +6,7 @@
 #include <Magick++.h>
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
+#include "Cpp_Utils/File.hpp"
 
 #include "Nito/APIs/Graphics.hpp"
 
@@ -31,6 +32,9 @@ using Cpp_Utils::for_each;
 
 // Cpp_Utils/Map.hpp
 using Cpp_Utils::contains_key;
+
+// Cpp_Utils/File.hpp
+using Cpp_Utils::platform_path;
 
 
 namespace Nito
@@ -94,7 +98,7 @@ void load_textures(const JSON & texture_group)
         // Load texture data from image at path.
         Image image;
         Blob blob;
-        image.read(path);
+        image.read(platform_path(path));
         image.flip();
         image.write(&blob, IMAGE_FORMATS.at(texture.format));
 

@@ -112,6 +112,15 @@ struct Render_Layer
 };
 
 
+#if _WIN32
+using Get_Parameter_Func = PFNGLGETPROGRAMIVPROC;
+using Get_Info_Log_Func = PFNGLGETPROGRAMINFOLOGPROC;
+#elif __gnu_linux__
+using Get_Parameter_Func = void(*)(GLuint, GLenum, GLint *);
+using Get_Info_Log_Func = void(*)(GLuint, GLsizei, GLsizei *, GLchar *);
+#endif
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Data
@@ -169,8 +178,8 @@ static void validate_parameter_is(
     GLuint shader_entity,
     GLenum parameter,
     GLint expected_parameter_value,
-    void (* get_parameter)(GLuint, GLenum, GLint *),
-    void (* get_info_log)(GLuint, GLsizei, GLsizei *, GLchar *))
+    Get_Parameter_Func get_parameter,
+    Get_Info_Log_Func get_info_log)
 {
     GLint parameter_value;
     get_parameter(shader_entity, parameter, &parameter_value);

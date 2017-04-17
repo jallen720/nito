@@ -2,7 +2,11 @@
 
 
 #include <string>
+
+
+#if __gnu_linux__
 #include <AL/al.h>
+#endif
 
 
 namespace Nito

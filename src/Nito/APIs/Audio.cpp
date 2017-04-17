@@ -3,8 +3,14 @@
 #include <stdexcept>
 #include <map>
 #include <cstring>
+
+
+#if __gnu_linux__
 #include <AL/alc.h>
 #include <AL/alut.h>
+#endif
+
+
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
 
@@ -29,8 +35,10 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if __gnu_linux__
 static map<string, ALuint> buffers;
 static map<string, ALuint> audio_sources;
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +46,7 @@ static map<string, ALuint> audio_sources;
 // Utilities
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if __gnu_linux__
 static void validate_no_openal_error(const string & description)
 {
     static const map<ALCenum, const string> OPENAL_ERROR_MESSAGES
@@ -69,6 +78,7 @@ static string get_alut_error_message(const string & description)
 
     return ALUT_ERROR_PREFIX + description + ": " + alutGetErrorString(alutGetError()) + "!";
 }
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,16 +88,19 @@ static string get_alut_error_message(const string & description)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void init_openal()
 {
+#if __gnu_linux__
     // Initialize ALUT.
     if (!alutInit(0, nullptr))
     {
         throw runtime_error(get_alut_error_message("init_openal(): alutInit()"));
     }
+#endif
 }
 
 
 void load_audio_file(const string & path)
 {
+#if __gnu_linux__
     const ALuint buffer = alutCreateBufferFromFile(path.c_str());
 
     if (buffer == AL_NONE)
@@ -96,18 +109,22 @@ void load_audio_file(const string & path)
     }
 
     buffers[path] = buffer;
+#endif
 }
 
 
 void create_audio_source(const string & id)
 {
+#if __gnu_linux__
     alGenSources(1, &audio_sources[id]);
     validate_no_openal_error("create_audio_source(): alGenSources()");
+#endif
 }
 
 
 void create_audio_source(const string & id, const string & path, bool looping, float volume)
 {
+#if __gnu_linux__
     if (!contains_key(buffers, path))
     {
         throw runtime_error("ERROR: no audio file with path \"" + path + "\" was loaded in the Audio API!");
@@ -117,54 +134,68 @@ void create_audio_source(const string & id, const string & path, bool looping, f
     set_audio_source_buffer(id, path);
     set_audio_source_looping(id, looping);
     set_audio_source_volume(id, volume);
+#endif
 }
 
 
 void set_audio_source_buffer(const string & id, const string & path)
 {
+#if __gnu_linux__
     alSourcei(audio_sources.at(id), AL_BUFFER, buffers.at(path));
     validate_no_openal_error("set_audio_source_buffer(): alSourcei()");
+#endif
 }
 
 
 void set_audio_source_looping(const string & id, bool looping)
 {
+#if __gnu_linux__
     alSourcei(audio_sources.at(id), AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
     validate_no_openal_error("set_audio_source_looping(): alSourcei()");
+#endif
 }
 
 
 void set_audio_source_volume(const string & id, float volume)
 {
+#if __gnu_linux__
     alSourcef(audio_sources.at(id), AL_GAIN, volume);
     validate_no_openal_error("set_audio_source_volume(): alSourcef()");
+#endif
 }
 
 
 void play_audio_source(const string & id)
 {
+#if __gnu_linux__
     alSourcePlay(audio_sources.at(id));
     validate_no_openal_error("play_audio_source(): alSourcePlay()");
+#endif
 }
 
 
 void stop_audio_source(const string & id)
 {
+#if __gnu_linux__
     alSourceStop(audio_sources.at(id));
     validate_no_openal_error("stop_audio_source(): alSourcePlay()");
+#endif
 }
 
 
 bool audio_source_playing(const string & id)
 {
+#if __gnu_linux__
     ALint state;
     alGetSourcei(audio_sources.at(id), AL_SOURCE_STATE, &state);
     return state == AL_PLAYING;
+#endif
 }
 
 
 void clean_openal()
 {
+#if __gnu_linux__
     // Delete audio-sources and buffers.
     for_each(audio_sources, [](const string & /*id*/, ALuint audio_source) -> void
     {
@@ -188,6 +219,7 @@ void clean_openal()
     {
         throw runtime_error(get_alut_error_message("clean_openal(): alutExit()"));
     }
+#endif
 }
 
 

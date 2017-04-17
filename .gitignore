@@ -11,3 +11,12 @@ todo
 
 # Core dump
 core
+
+# Visual Studio
+.vs/
+*.VC.opendb
+*.sdf
+*.sln
+*.vcxproj*
+Debug/
+Release/

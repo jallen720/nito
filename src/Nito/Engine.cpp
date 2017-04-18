@@ -9,13 +9,6 @@
 #include <functional>
 #include <stdexcept>
 #include <glm/glm.hpp>
-
-
-#if _WIN32
-#include <Magick++.h>
-#endif
-
-
 #include "Cpp_Utils/JSON.hpp"
 #include "Cpp_Utils/File.hpp"
 #include "Cpp_Utils/Collection.hpp"
@@ -55,13 +48,6 @@ using std::runtime_error;
 
 // glm/glm.hpp
 using glm::vec3;
-
-
-#if _WIN32
-// Magick++.h
-using Magick::InitializeMagick;
-#endif
-
 
 // Cpp_Utils/JSON.hpp
 using Cpp_Utils::JSON;
@@ -582,14 +568,8 @@ void add_update_handler(const Update_Handler & update_handler)
 }
 
 
-int run_engine(char ** argv)
+int run_engine()
 {
-#if _WIN32
-    // Initialize ImageMagick.
-    InitializeMagick(*argv);
-#endif
-
-
     // Initialize time scale to 1.
     set_time_scale(1.0f);
 

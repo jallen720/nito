@@ -7,5 +7,5 @@ out vec2 vertex_uv;
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1);
-    vertex_uv = uv;
+    vertex_uv = vec2(uv.x, 1 - uv.y);
 }

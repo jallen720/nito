@@ -3,7 +3,15 @@
 #include "Nito/APIs/Resources.hpp"
 
 #include <stdexcept>
+
+
+#if _WIN32
+#include <SOIL.h>
+#elif __gnu_linux__
 #include <Magick++.h>
+#endif
+
+
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/File.hpp"
@@ -16,9 +24,13 @@ using std::map;
 using std::vector;
 using std::runtime_error;
 
+
+#if __gnu_linux__
 // Magick++.h
 using Magick::Blob;
 using Magick::Image;
+#endif
+
 
 // glm/glm.hpp
 using glm::vec3;
@@ -67,11 +79,20 @@ void init_freetype()
 
 void load_textures(const JSON & texture_group)
 {
+#if _WIN32
+    static const map<string, int> IMAGE_FORMATS
+    {
+        { "rgba" , SOIL_LOAD_RGBA },
+        { "rgb"  , SOIL_LOAD_RGB  },
+    };
+#elif __gnu_linux__
     static const map<string, const string> IMAGE_FORMATS
     {
         { "rgba" , "RGBA" },
-        { "rgb"  , "RGB"  },
+        { "rgb"  , "RGB" },
     };
+#endif
+
 
     const string format = texture_group["format"];
     const vector<string> paths = texture_group["paths"];
@@ -95,26 +116,52 @@ void load_textures(const JSON & texture_group)
         texture.options = options;
 
 
+#if _WIN32
+        int image_width;
+        int image_height;
+
+        unsigned char * image_data = SOIL_load_image(
+            platform_path(path).c_str(),
+            &image_width,
+            &image_height,
+            nullptr,
+            IMAGE_FORMATS.at(texture.format));
+#elif __gnu_linux__
         // Load texture data from image at path.
         Image image;
         Blob blob;
         image.read(platform_path(path));
-        image.flip();
+        //image.flip();
         image.write(&blob, IMAGE_FORMATS.at(texture.format));
+#endif
 
 
         // Load texture dimensions from image.
         texture.dimensions =
         {
+#if _WIN32
+            (float)image_width,
+            (float)image_height,
+#elif __gnu_linux__
             (float)image.columns(),
             (float)image.rows(),
+#endif
+
+
             vec3(),
         };
 
 
         // Track texture and pass its data to Graphics API.
         textures[path] = texture;
+
+
+#if _WIN32
+        load_texture_data(texture, image_data, path);
+        SOIL_free_image_data(image_data);
+#elif __gnu_linux__
         load_texture_data(texture, blob.data(), path);
+#endif
     }
 }
 
@@ -183,19 +230,6 @@ void load_font(const JSON & config)
         };
 
 
-        // Data is loaded upside down, so invert it on the y-axis.
-        unsigned char * buffer = bitmap.buffer;
-        unsigned char * data = new unsigned char[width * height];
-
-        for (unsigned char row = 0; row < height; row++)
-        {
-            memcpy(
-                data + (width * row),
-                buffer + (width * (height - row - 1)),
-                sizeof(unsigned char) * width);
-        }
-
-
         // Load texture data and use the path of the font face with the appended character as its identifier.
         string glyph_identifier = font_face_path + " : " + ((char)character);
         textures[glyph_identifier] = texture;
@@ -206,7 +240,7 @@ void load_font(const JSON & config)
             vec2(glyph->bitmap_left, glyph->bitmap_top),
         };
 
-        load_texture_data(texture, data, glyph_identifier);
+        load_texture_data(texture, bitmap.buffer, glyph_identifier);
     }
 }
 

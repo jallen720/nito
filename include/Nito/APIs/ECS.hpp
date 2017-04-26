@@ -15,7 +15,7 @@ namespace Nito
 // Data Structures
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-using Entity = unsigned int;
+using Entity = int;
 using Component = void *;
 using Component_Allocator = std::function<Component(const Cpp_Utils::JSON &)>;
 using Component_Deallocator = std::function<void(Component)>;

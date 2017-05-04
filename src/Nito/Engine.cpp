@@ -719,7 +719,7 @@ int run_engine()
     // Load line collider vertex data.
     const vector<GLfloat> line_collider_vertex_data
     {
-        // Position        // UV
+        // Position       // UV
         0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
         0.5f, 0.0f, 0.0f, 0.0f, 0.0f,

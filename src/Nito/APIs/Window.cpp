@@ -206,16 +206,16 @@ void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_
 void run_window_loop(const Window_Loop_Callback & callback)
 {
     delta_time = 0.02f;
-    float frame_start_time = get_time();
+    // float frame_start_time = get_time();
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         callback();
         glfwSwapBuffers(window);
-        const float current_time = get_time();
-        delta_time = current_time - frame_start_time;
-        frame_start_time = current_time;
+        // const float current_time = get_time();
+        // delta_time = current_time - frame_start_time;
+        // frame_start_time = current_time;
     }
 }
 

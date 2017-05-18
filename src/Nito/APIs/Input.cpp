@@ -531,6 +531,12 @@ const dvec2 & get_mouse_position()
 }
 
 
+void set_mouse_visible(bool visible)
+{
+    set_input_mode(GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+}
+
+
 void debug_controllers()
 {
     for (int controller = GLFW_JOYSTICK_1; controller < GLFW_JOYSTICK_LAST; controller++)

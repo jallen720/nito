@@ -52,6 +52,7 @@ void add_window_created_handler(const Window_Created_Handler & window_created_ha
 void set_window_key_handler(const Window_Key_Handler window_key_handler);
 void set_window_mouse_position_handler(const Window_Mouse_Position_Handler window_mouse_position_handler);
 void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_mouse_button_handler);
+void set_input_mode(int mode, int value);
 void run_window_loop(const Window_Loop_Callback & callback);
 void terminate_glfw();
 

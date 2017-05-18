@@ -203,6 +203,12 @@ void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_
 }
 
 
+void set_input_mode(int mode, int value)
+{
+    glfwSetInputMode(window, mode, value);
+}
+
+
 void run_window_loop(const Window_Loop_Callback & callback)
 {
     delta_time = 0.02f;

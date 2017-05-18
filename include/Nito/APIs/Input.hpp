@@ -237,6 +237,7 @@ Button_Actions get_controller_button_action(DS4_Buttons controller_button, int c
 float get_controller_axis(int controller_axis, int controller = GLFW_JOYSTICK_1);
 float get_controller_axis(DS4_Axes controller_axis, int controller = GLFW_JOYSTICK_1);
 const glm::dvec2 & get_mouse_position();
+void set_mouse_visible(bool visible);
 void debug_controllers();
 
 

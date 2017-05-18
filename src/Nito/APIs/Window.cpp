@@ -179,6 +179,12 @@ int get_window_key_button_action(int key)
 }
 
 
+int get_window_mouse_button_action(int mouse_button)
+{
+    return glfwGetMouseButton(window, mouse_button);
+}
+
+
 void add_window_created_handler(const Window_Created_Handler & window_created_handler)
 {
     window_created_handlers.push_back(window_created_handler);

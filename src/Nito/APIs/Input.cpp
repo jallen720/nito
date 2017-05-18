@@ -214,6 +214,14 @@ static const map<Keys, const int> KEYS
 };
 
 
+static const map<Mouse_Buttons, const int> MOUSE_BUTTONS
+{
+    { Mouse_Buttons::RIGHT  , GLFW_MOUSE_BUTTON_RIGHT  },
+    { Mouse_Buttons::MIDDLE , GLFW_MOUSE_BUTTON_MIDDLE },
+    { Mouse_Buttons::LEFT   , GLFW_MOUSE_BUTTON_LEFT   },
+};
+
+
 static const map<Button_Actions, const int> BUTTON_ACTIONS
 {
     { Button_Actions::RELEASE , GLFW_RELEASE },
@@ -263,18 +271,11 @@ static void window_mouse_position_handler(GLFWwindow * /*window*/, double x_posi
 
 static void window_mouse_button_handler(GLFWwindow * /*window*/, int button, int action, int /*mods*/)
 {
-    static map<int, const Mouse_Buttons> mouse_buttons
-    {
-        { GLFW_MOUSE_BUTTON_RIGHT  , Mouse_Buttons::RIGHT  },
-        { GLFW_MOUSE_BUTTON_MIDDLE , Mouse_Buttons::MIDDLE },
-        { GLFW_MOUSE_BUTTON_LEFT   , Mouse_Buttons::LEFT   },
-    };
-
     for_each(
         mouse_button_handlers,
         [&](const string & /*id*/, const Mouse_Button_Handler & mouse_button_handler) -> void
         {
-            mouse_button_handler(mouse_buttons.at(button), at_value(button_actions, action));
+            mouse_button_handler(at_value(MOUSE_BUTTONS, button), at_value(BUTTON_ACTIONS, action));
         });
 }
 
@@ -471,6 +472,12 @@ void remove_mouse_button_handler(const std::string & id)
 Button_Actions get_key_button_action(Keys key)
 {
     return at_value(BUTTON_ACTIONS, get_window_key_button_action(KEYS.at(key)));
+}
+
+
+Button_Actions get_mouse_button_action(Mouse_Buttons mouse_button)
+{
+    return at_value(BUTTON_ACTIONS, get_window_mouse_button_action(MOUSE_BUTTONS.at(mouse_button)));
 }
 
 

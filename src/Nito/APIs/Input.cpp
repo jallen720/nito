@@ -214,7 +214,7 @@ static const map<Keys, const int> KEYS
 };
 
 
-static map<Button_Actions, const int> button_actions
+static const map<Button_Actions, const int> BUTTON_ACTIONS
 {
     { Button_Actions::RELEASE , GLFW_RELEASE },
     { Button_Actions::PRESS   , GLFW_PRESS   },
@@ -235,7 +235,7 @@ static void window_key_handler(GLFWwindow * /*window*/, int key, int /*scan_code
         {
             const Button_Handler & button_handler = key_handler.button_handler;
 
-            if (button_handler.button_action == at_value(button_actions, action))
+            if (button_handler.button_action == at_value(BUTTON_ACTIONS, action))
             {
                 button_handler.callback();
             }
@@ -308,7 +308,7 @@ static void trigger_controller_button_handlers(int controller, int button, unsig
             {
                 const Button_Handler & button_handler = controller_button_handler.button_handler;
 
-                if (button_handler.button_action == at_value(button_actions, (int)action))
+                if (button_handler.button_action == at_value(BUTTON_ACTIONS, (int)action))
                 {
                     button_handler.callback();
                 }
@@ -470,7 +470,7 @@ void remove_mouse_button_handler(const std::string & id)
 
 Button_Actions get_key_button_action(Keys key)
 {
-    return at_value(button_actions, get_window_key_button_action(KEYS.at(key)));
+    return at_value(BUTTON_ACTIONS, get_window_key_button_action(KEYS.at(key)));
 }
 
 
@@ -487,7 +487,7 @@ Button_Actions get_controller_button_action(int controller_button, int controlle
             to_string(button_count) + " of controller " + to_string(controller) + "!");
     }
 
-    return at_value(button_actions, (int)controller_state.buttons[controller_button]);
+    return at_value(BUTTON_ACTIONS, (int)controller_state.buttons[controller_button]);
 }
 
 

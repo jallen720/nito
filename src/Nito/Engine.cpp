@@ -576,7 +576,7 @@ int run_engine()
 
     // Validate and load Nito installation root path from environment.
 #if _WIN32
-    const char * env_nito_path = "C:\\Users\\Joel\\Desktop\\Projects\\VS2015\\nito";
+    const char * env_nito_path = "nito";
 #elif __gnu_linux__
     const char * env_nito_path = getenv("NITO_PATH");
 #endif

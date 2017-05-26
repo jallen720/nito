@@ -232,11 +232,13 @@ void remove_controller_button_handler(const std::string & id);
 void remove_mouse_position_handler(const std::string & id);
 void remove_mouse_button_handler(const std::string & id);
 Button_Actions get_key_button_action(Keys key);
+Button_Actions get_mouse_button_action(Mouse_Buttons mouse_button);
 Button_Actions get_controller_button_action(int controller_button, int controller = GLFW_JOYSTICK_1);
 Button_Actions get_controller_button_action(DS4_Buttons controller_button, int controller = GLFW_JOYSTICK_1);
 float get_controller_axis(int controller_axis, int controller = GLFW_JOYSTICK_1);
 float get_controller_axis(DS4_Axes controller_axis, int controller = GLFW_JOYSTICK_1);
 const glm::dvec2 & get_mouse_position();
+void set_mouse_visible(bool visible);
 void debug_controllers();
 
 

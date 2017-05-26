@@ -57,11 +57,11 @@ struct Sprite
 
 struct UI_Mouse_Event_Handlers
 {
-    using Event_Handler = std::function<void()>;
-    using Button_Handlers = std::map<Mouse_Buttons, std::map<Button_Actions, Event_Handler>>;
+    using Motion_Handlers = std::map<std::string, std::function<void()>>;
+    using Button_Handlers = std::map<Mouse_Buttons, std::map<Button_Actions, std::function<void()>>>;
 
-    Event_Handler mouse_enter_handler;
-    Event_Handler mouse_exit_handler;
+    Motion_Handlers mouse_enter_handlers;
+    Motion_Handlers mouse_exit_handlers;
     Button_Handlers mouse_button_handlers;
 };
 

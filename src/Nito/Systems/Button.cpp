@@ -24,6 +24,7 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static const string MOUSE_MOTION_HANDLER_ID("button");
 static map<Entity, UI_Mouse_Event_Handlers *> entity_ui_mouse_event_handlers;
 
 
@@ -44,12 +45,12 @@ void button_subscribe(Entity entity)
     // Button's click handler.
     const string default_button_texture_path = sprite->texture_path;
 
-    ui_mouse_event_handlers->mouse_enter_handler = [=]() -> void
+    ui_mouse_event_handlers->mouse_enter_handlers[MOUSE_MOTION_HANDLER_ID] = [=]() -> void
     {
         sprite->texture_path = button->hover_texture_path;
     };
 
-    ui_mouse_event_handlers->mouse_exit_handler = [=]() -> void
+    ui_mouse_event_handlers->mouse_exit_handlers[MOUSE_MOTION_HANDLER_ID] = [=]() -> void
     {
         sprite->texture_path = default_button_texture_path;
     };
@@ -78,8 +79,8 @@ void button_unsubscribe(Entity entity)
 
     // Unsubscribe entity's event handlers.
     UI_Mouse_Event_Handlers * ui_mouse_event_handlers = entity_ui_mouse_event_handlers[entity];
-    ui_mouse_event_handlers->mouse_enter_handler = DUD;
-    ui_mouse_event_handlers->mouse_exit_handler = DUD;
+    ui_mouse_event_handlers->mouse_enter_handlers[MOUSE_MOTION_HANDLER_ID] = DUD;
+    ui_mouse_event_handlers->mouse_exit_handlers[MOUSE_MOTION_HANDLER_ID] = DUD;
     ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::PRESS] = DUD;
     ui_mouse_event_handlers->mouse_button_handlers[Mouse_Buttons::LEFT][Button_Actions::RELEASE] = DUD;
     remove(entity_ui_mouse_event_handlers, entity);

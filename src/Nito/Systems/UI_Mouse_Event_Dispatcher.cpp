@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <map>
+#include <string>
+#include <functional>
 #include <glm/glm.hpp>
 #include "Cpp_Utils/Collection.hpp"
 #include "Cpp_Utils/Map.hpp"
@@ -13,6 +15,8 @@
 
 using std::vector;
 using std::map;
+using std::string;
+using std::function;
 
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
@@ -69,12 +73,12 @@ static bool is_mouse_over(const dvec2 & mouse_position, const Dimensions * dimen
 }
 
 
-static void check_call_handler(const UI_Mouse_Event_Handlers::Event_Handler & event_handler)
+static void call_motion_handlers(const UI_Mouse_Event_Handlers::Motion_Handlers & motion_handlers)
 {
-    if (event_handler)
+    for_each(motion_handlers, [](const string & /*id*/, const function<void()> & handler) -> void
     {
-        event_handler();
-    }
+        handler();
+    });
 }
 
 
@@ -95,7 +99,7 @@ static void mouse_position_handler(const dvec2 & mouse_position)
             if (!is_mouse_currently_over_entity)
             {
                 entity_is_mouse_over = false;
-                check_call_handler(ui_mouse_event_handlers->mouse_exit_handler);
+                call_motion_handlers(ui_mouse_event_handlers->mouse_exit_handlers);
             }
         }
         else
@@ -103,7 +107,7 @@ static void mouse_position_handler(const dvec2 & mouse_position)
             if (is_mouse_currently_over_entity)
             {
                 entity_is_mouse_over = true;
-                check_call_handler(ui_mouse_event_handlers->mouse_enter_handler);
+                call_motion_handlers(ui_mouse_event_handlers->mouse_enter_handlers);
             }
         }
     });

@@ -179,6 +179,12 @@ int get_window_key_button_action(int key)
 }
 
 
+int get_window_mouse_button_action(int mouse_button)
+{
+    return glfwGetMouseButton(window, mouse_button);
+}
+
+
 void add_window_created_handler(const Window_Created_Handler & window_created_handler)
 {
     window_created_handlers.push_back(window_created_handler);
@@ -203,16 +209,25 @@ void set_window_mouse_button_handler(const Window_Mouse_Button_Handler & window_
 }
 
 
+void set_input_mode(int mode, int value)
+{
+    glfwSetInputMode(window, mode, value);
+}
+
+
 void run_window_loop(const Window_Loop_Callback & callback)
 {
-    // TODO: actually calculate delta time.
     delta_time = 0.02f;
+    // float frame_start_time = get_time();
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         callback();
         glfwSwapBuffers(window);
+        // const float current_time = get_time();
+        // delta_time = current_time - frame_start_time;
+        // frame_start_time = current_time;
     }
 }
 

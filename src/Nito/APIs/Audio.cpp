@@ -5,7 +5,10 @@
 #include <cstring>
 
 
-#if __gnu_linux__
+#if _WIN32
+#include <Windows.h>
+#include <mmsystem.h>
+#elif __gnu_linux__
 #include <AL/alc.h>
 #include <AL/alut.h>
 #endif
@@ -13,6 +16,7 @@
 
 #include "Cpp_Utils/Map.hpp"
 #include "Cpp_Utils/Collection.hpp"
+#include "Cpp_Utils/File.hpp"
 
 
 using std::runtime_error;
@@ -25,9 +29,26 @@ using Cpp_Utils::contains_key;
 // Cpp_Utils/Collection.hpp
 using Cpp_Utils::for_each;
 
+// Cpp_Utils/File.hpp
+using Cpp_Utils::platform_path;
+
 
 namespace Nito
 {
+
+
+#if _WIN32
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Data Strucutres
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Audio_Source
+{
+    string path;
+    bool looping;
+};
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +56,9 @@ namespace Nito
 // Data
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if __gnu_linux__
+#if _WIN32
+static map<string, Audio_Source> audio_sources;
+#elif __gnu_linux__
 static map<string, ALuint> buffers;
 static map<string, ALuint> audio_sources;
 #endif
@@ -124,7 +147,13 @@ void create_audio_source(const string & id)
 
 void create_audio_source(const string & id, const string & path, bool looping, float volume)
 {
-#if __gnu_linux__
+#if _WIN32
+    audio_sources[id] =
+    {
+        platform_path(path),
+        looping,
+    };
+#elif __gnu_linux__
     if (!contains_key(buffers, path))
     {
         throw runtime_error("ERROR: no audio file with path \"" + path + "\" was loaded in the Audio API!");
@@ -167,7 +196,17 @@ void set_audio_source_volume(const string & id, float volume)
 
 void play_audio_source(const string & id)
 {
-#if __gnu_linux__
+#if _WIN32
+    const Audio_Source & audio_source = audio_sources.at(id);
+    DWORD flags = SND_FILENAME | SND_ASYNC;
+
+    if (audio_source.looping)
+    {
+        flags |= SND_LOOP;
+    }
+
+    PlaySound(TEXT(audio_source.path.c_str()), NULL, flags);
+#elif __gnu_linux__
     alSourcePlay(audio_sources.at(id));
     validate_no_openal_error("play_audio_source(): alSourcePlay()");
 #endif

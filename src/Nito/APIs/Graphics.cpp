@@ -751,7 +751,7 @@ void render(const Render_Canvas & render_canvas)
     glClear(clear_flags);
 
 
-    // Set projection matrices for all shader programs.
+    // Set uniforms for all shader programs.
     for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, GLuint shader_program) -> void
     {
         glUseProgram(shader_program);

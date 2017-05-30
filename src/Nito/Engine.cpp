@@ -38,6 +38,7 @@
 #include "Nito/Systems/Circle_Collider.hpp"
 #include "Nito/Systems/Line_Collider.hpp"
 #include "Nito/Systems/Polygon_Collider.hpp"
+#include "Nito/Systems/Light_Source.hpp"
 
 
 using std::string;
@@ -177,6 +178,7 @@ static const map<string, const System_Entity_Handlers> ENGINE_SYSTEM_ENTITY_HAND
     NITO_SYSTEM_ENTITY_HANDLERS(circle_collider),
     NITO_SYSTEM_ENTITY_HANDLERS(line_collider),
     NITO_SYSTEM_ENTITY_HANDLERS(polygon_collider),
+    NITO_SYSTEM_ENTITY_HANDLERS(light_source),
 };
 
 
@@ -426,6 +428,31 @@ static const map<string, const Component_Handlers> ENGINE_COMPONENT_HANDLERS
                 return polygon_collider;
             },
             get_component_deallocator<Polygon_Collider>(),
+        }
+    },
+    {
+        "light_source",
+        {
+            [](const JSON & data) -> Component
+            {
+                auto light_source = new Light_Source;
+
+                if (contains_key(data, "color"))
+                {
+                    const JSON & color_data = data["color"];
+                    light_source->color = vec3(color_data["r"], color_data["g"], color_data["b"]);
+                }
+                else
+                {
+                    light_source->color = vec3(1);
+                }
+
+                light_source->intensity = data["intensity"];
+                light_source->range = data["range"];
+                light_source->enabled = contains_key(data, "enabled") ? data["enabled"].get<bool>() : true;
+                return light_source;
+            },
+            get_component_deallocator<Light_Source>(),
         }
     },
 };

@@ -107,6 +107,15 @@ void load_vertex_data(
 
 void load_render_layer(const std::string & name, const std::string & render_space);
 void load_render_data(const Render_Data & render_data);
+
+int create_light_source(
+    float intensity,
+    float range,
+    const glm::vec3 & color,
+    const glm::vec3 * position,
+    bool * enabled);
+
+void destroy_light_source(int id);
 void render(const Render_Canvas & render_canvas);
 void cleanup_rendering();
 void destroy_graphics();

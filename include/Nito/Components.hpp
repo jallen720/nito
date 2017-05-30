@@ -102,4 +102,13 @@ struct Polygon_Collider
 };
 
 
+struct Light_Source
+{
+    float intensity;
+    float range;
+    glm::vec3 color;
+    bool enabled;
+};
+
+
 } // namespace Nito

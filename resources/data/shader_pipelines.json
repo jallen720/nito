@@ -8,11 +8,19 @@
         }
     },
     {
-        "name": "texture",
+        "name": "lit_texture",
         "shaders":
         {
             "vertex": "resources/shaders/default.vert",
-            "fragment": "resources/shaders/texture.frag"
+            "fragment": "resources/shaders/lit_texture.frag"
+        }
+    },
+    {
+        "name": "unlit_texture",
+        "shaders":
+        {
+            "vertex": "resources/shaders/default.vert",
+            "fragment": "resources/shaders/unlit_texture.frag"
         }
     },
     {

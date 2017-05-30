@@ -49,6 +49,7 @@ using Cpp_Utils::for_each;
 
 // Cpp_Utils/Vector.hpp
 using Cpp_Utils::sort;
+using Cpp_Utils::remove;
 
 
 #define DEBUG
@@ -112,6 +113,16 @@ struct Render_Layer
 };
 
 
+struct Light_Source_Data
+{
+    float intensity;
+    float range;
+    vec3 color;
+    const vec3 * position;
+    const bool * enabled;
+};
+
+
 #if _WIN32
 using Get_Parameter_Func = PFNGLGETPROGRAMIVPROC;
 using Get_Info_Log_Func = PFNGLGETPROGRAMINFOLOGPROC;
@@ -133,6 +144,10 @@ static float pixels_per_unit;
 static GLbitfield clear_flags;
 static unordered_map<string, Render_Layer> render_layers;
 static string default_vertex_container_id;
+static map<int, Light_Source_Data> light_sources;
+static int light_source_id_index = 0;
+static vector<int> used_light_source_ids;
+static vector<int> unused_light_source_ids;
 
 
 Vertex_Attribute::Types Vertex_Attribute::types
@@ -232,6 +247,15 @@ static void set_uniform(GLuint shader_program, const GLchar * uniform_name, cons
 }
 
 
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vector<vec3> & uniform_values)
+{
+    glUniform3fv(
+        glGetUniformLocation(shader_program, uniform_name),
+        uniform_values.size(),
+        value_ptr(uniform_values[0]));
+}
+
+
 static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vec4 & uniform_value)
 {
     glUniform4f(
@@ -246,6 +270,24 @@ static void set_uniform(GLuint shader_program, const GLchar * uniform_name, cons
 static void set_uniform(GLuint shader_program, const GLchar * uniform_name, GLint uniform_value)
 {
     glUniform1i(glGetUniformLocation(shader_program, uniform_name), uniform_value);
+}
+
+
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vector<GLint> & uniform_values)
+{
+    glUniform1iv(
+        glGetUniformLocation(shader_program, uniform_name),
+        uniform_values.size(),
+        &uniform_values[0]);
+}
+
+
+static void set_uniform(GLuint shader_program, const GLchar * uniform_name, const vector<GLfloat> & uniform_values)
+{
+    glUniform1fv(
+        glGetUniformLocation(shader_program, uniform_name),
+        uniform_values.size(),
+        &uniform_values[0]);
 }
 
 
@@ -703,6 +745,48 @@ void load_render_data(const Render_Data & render_data)
 }
 
 
+int create_light_source(float intensity, float range, const vec3 & color, const vec3 * position, bool * enabled)
+{
+    if (light_sources.size() >= 64)
+    {
+        throw runtime_error("ERROR: light source count cannot exceed 64!");
+    }
+
+    int light_source_id;
+
+    if (unused_light_source_ids.size() > 0)
+    {
+        light_source_id = unused_light_source_ids.back();
+        unused_light_source_ids.pop_back();
+    }
+    else
+    {
+        light_source_id = light_source_id_index++;
+    }
+
+    used_light_source_ids.push_back(light_source_id);
+
+    light_sources[light_source_id] =
+    {
+        intensity,
+        range,
+        color,
+        position,
+        enabled,
+    };
+
+    return light_source_id;
+}
+
+
+void destroy_light_source(int id)
+{
+    remove(light_sources, id);
+    remove(used_light_source_ids, id);
+    unused_light_source_ids.push_back(id);
+}
+
+
 void render(const Render_Canvas & render_canvas)
 {
     static const map<Render_Modes, const GLenum> GL_RENDER_MODES
@@ -752,10 +836,34 @@ void render(const Render_Canvas & render_canvas)
 
 
     // Set uniforms for all shader programs.
+    vector<GLfloat> light_source_intensities;
+    vector<GLfloat> light_source_ranges;
+    vector<vec3> light_source_colors;
+    vector<vec3> light_source_positions;
+    vector<GLint> light_source_enabled_flags;
+
+    for_each(light_sources, [&](int /*id*/, const Light_Source_Data & light_source_data) -> void
+    {
+        light_source_intensities.push_back(light_source_data.intensity);
+        light_source_ranges.push_back(light_source_data.range);
+        light_source_colors.push_back(light_source_data.color);
+        light_source_positions.push_back(*light_source_data.position);
+        light_source_enabled_flags.push_back(*light_source_data.enabled ? 1 : 0);
+    });
+
     for_each(shader_programs, [&](const string & /*shader_pipeline_name*/, GLuint shader_program) -> void
     {
         glUseProgram(shader_program);
         set_uniform(shader_program, "projection", projection_matrix);
+
+
+        // Set light source uniforms.
+        set_uniform(shader_program, "light_source_count", light_sources.size());
+        set_uniform(shader_program, "light_source_intensities", light_source_intensities);
+        set_uniform(shader_program, "light_source_ranges", light_source_ranges);
+        set_uniform(shader_program, "light_source_colors", light_source_colors);
+        set_uniform(shader_program, "light_source_positions", light_source_positions);
+        set_uniform(shader_program, "light_source_enabled_flags", light_source_enabled_flags);
     });
 
 

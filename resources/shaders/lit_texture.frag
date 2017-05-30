@@ -1,10 +1,10 @@
 uniform sampler2D texture_0;
 uniform int light_source_count;
-uniform float light_source_intensities[64];
-uniform float light_source_ranges[64];
-uniform vec3 light_source_colors[64];
-uniform vec3 light_source_positions[64];
-uniform int light_source_enabled_flags[64];
+uniform float light_source_intensities[128];
+uniform float light_source_ranges[128];
+uniform vec3 light_source_colors[128];
+uniform vec3 light_source_positions[128];
+uniform int light_source_enabled_flags[128];
 in vec2 vertex_uv;
 in vec3 fragment_position;
 out vec4 color;

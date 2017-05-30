@@ -747,9 +747,9 @@ void load_render_data(const Render_Data & render_data)
 
 int create_light_source(float intensity, float range, const vec3 & color, const vec3 * position, bool * enabled)
 {
-    if (light_sources.size() >= 64)
+    if (light_sources.size() >= 128)
     {
-        throw runtime_error("ERROR: light source count cannot exceed 64!");
+        throw runtime_error("ERROR: light source count cannot exceed 128!");
     }
 
     int light_source_id;

@@ -926,7 +926,7 @@ void render(const Render_Canvas & render_canvas)
 
             if (texture_path != nullptr)
             {
-                set_uniform(shader_program, "texture0", 0);
+                set_uniform(shader_program, "texture_0", 0);
             }
 
 

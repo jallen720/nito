@@ -637,7 +637,7 @@ void load_texture_data(const Texture & texture, const void * data, const string 
 
 
     // Validate no OpenGL errors occurred.
-    validate_no_opengl_error("load_textures()");
+    validate_no_opengl_error("load_texture_data()");
 }
 
 
